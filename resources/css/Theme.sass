@@ -1,0 +1,279 @@
+:root
+    --primary: #0d7560
+    --secondary: #0ab586
+    --tertiary: #84e2ba
+    --fontWhite: white
+    --font: #e4f3ed
+    --fontBox: #84e2ba
+    --radiusBox: 8px
+    --radiusBtn: 8px
+    --text: #0d7559
+    --textReverse: #ffffff
+
+.theme-dark
+    --font: #0d7559
+    --text: #def0e9
+    --textReverse: #0d7559
+    --fontWhite: darkgray
+
+//-------------------------
+// INICIALIZACIÓN
+
+*
+    box-sizing: border-box
+    margin: 0
+    padding: 0
+
+html,body
+    width: 100%
+    height: 100%
+    min-height: 100vh
+    color: var(--text)
+
+#root,#app
+    width: 100%
+    height: 100%
+
+li
+    list-style: none
+    margin: 0
+    padding: 0
+
+ul
+    margin-inline-start: 0
+
+a, nav a, li span, td a 
+    text-decoration: none
+    transition: 0.3s ease
+
+input:focus,
+select:focus,
+textarea:focus,
+input.form-control:focus,
+select.form-control:focus,
+textarea.form-control:focus,
+a:focus,.btn-close:focus
+    outline: none
+    outline-width: 0
+    box-shadow: none
+    -moz-box-shadow: none
+    -webkit-box-shadow: none
+
+//---------------------------
+// LAYOUT
+.content-layout
+    width: 100%
+    height: 100%
+    background-color: var(--primary)
+    padding: 10px
+    display: flex
+    gap: 10px
+
+    ul
+        margin-inline-start: 0
+
+    @media (max-width: 800px)
+        flex-direction: column-reverse
+
+main
+    background-color: var(--font)
+    padding: 20px 25px
+    flex: 1
+    border-radius: var(--radiusBox)
+    display: flex
+    flex-direction: column
+
+    .main-content
+        flex: 1
+    
+    @media (max-width: 800px)
+        padding: 15px
+
+        .logo img
+            // background-color: var(--primary)
+            // border: 1px solid var(--primary)
+            // border-radius: 50px
+            filter: drop-shadow(0 0 3px rgba(8, 27, 16, 0.2))
+
+.logo
+    width: 100%
+    display: flex
+    justify-content: center
+
+    img
+        width: 55px
+
+.menu
+    background-color: var(--primary)
+    // border-radius: var(--radiusBox)
+    display: flex
+    flex-direction: column
+    align-items: flex-start
+    justify-content: flex-start
+    padding: 20px 0 20px
+    gap: 30px
+    transition: 0.3s
+    width: 70px
+    overflow-y: auto
+    overflow-x: hidden
+
+    @media (max-width: 800px)
+        flex-direction: row
+        justify-content: space-between
+        width: 100%
+        gap: 20px
+        overflow: auto
+        padding: 5px 15px
+
+    &:hover
+        width: 170px
+
+        a span
+            transition: 0.2s
+            max-height: 400px
+            opacity: 1
+        
+        @media (max-width: 800px)
+            width: 100%
+
+            a span
+                max-height: auto
+                display: none
+
+.menu-nav
+    padding: 0 5px
+
+    @media (max-width: 800px)
+        height: 100%
+
+    ul
+        display: flex
+        flex-direction: column
+        justify-content: flex-start
+        align-items: flex-start
+        gap: 10px
+        width: 100%
+        height: 100%
+        overflow: hidden
+
+        li
+            width: 100%
+        
+        @media (max-width: 800px)
+            flex-direction: row
+            overflow: auto
+            justify-content: space-between
+            align-items: center
+            gap: 5px
+
+            li
+                width: auto
+
+    a
+        color: var(--textReverse)
+        display: flex
+        align-items: center
+        gap: 7px
+        font-size: 13pt
+        padding: 10px 17px
+        border-radius: 15px
+        position: relative
+        width: 100%
+        transition: 0.2s
+
+        svg
+            font-size: 20pt
+
+        &:hover
+            color: var(--tertiary)
+        
+        &.active
+            background-color: var(--secondary)
+
+        span
+            opacity: 0
+            max-height: 0
+        
+        @media (max-width: 800px)
+            width: auto
+            display: flex
+            align-items: center
+            justify-content: center
+            gap: 0
+            padding: 0
+
+            span
+                display: none
+
+header
+    display: flex
+    justify-content: space-between
+    align-items: center
+    gap: 10px
+
+    @media (max-width: 800px)
+        background-color: var(--font)
+        padding: 0 10px
+
+.main-outlet
+    padding: 10px 0
+
+footer
+    display: flex
+    justify-content: center
+    align-items: center
+    width: 100%
+    flex-direction: column
+    opacity: 0.6
+
+    hr
+        width: 100%
+
+//----------------------------------
+// TABLE
+.table
+    background-color: var(--fontBox)
+    border-radius: var(--radiusBox)
+    color: var(--text)
+    border-bottom: 1px solid var(--tertiary)
+    border-left: 1px solid var(--tertiary)
+    border-top: 1px solid var(--tertiary)
+
+    tr,td,th
+        color: var(--text)
+    
+    th
+        background-color: var(--primary)
+
+        div
+            color: var(--textReverse)
+    
+    td,th
+        border-right: 1px solid var(--tertiary)
+    
+    td
+        overflow: visible
+    
+    tr:not(:last-child) td
+        border-bottom: 1px solid var(--tertiary)
+    
+    .css-i7pdg7-getRowContainerStyle-Row:not(:last-of-type) > .td
+        border-bottom: 1px solid var(--tertiary)
+    
+    .css-19pq5fe-HEADER_CELL_CONTAINER_STYLE-HeaderCell .resizer-handle
+        opacity: 0
+
+    @media (max-width: 768px) 
+        .resizer-handle
+            display: none !important
+        
+        .table-library_table 
+            display: none
+        
+        .table
+            overflow-y: visible
+
+        .overflow-y-auto 
+            -webkit-overflow-scrolling: touch
+            overscroll-behavior: contain
+                
