@@ -12,14 +12,15 @@ use Inertia\Response;
 class UsersController extends Controller
 {
     public function getUsers(): Response {
-        $users = Users::select('id', 'name', 'email','created_at','updated_at')->get();
+        $users = Users::select('id', 'name', 'email','created_at','updated_at')->orderBy('id', 'desc')->get();
         return Inertia::render('Users', [
             'data' => $users
         ]);
     }
 
     public function getRoles(): Response {
-        $roles = ViewRolesPermissions::where('id_company',session('user')->id_company)
+        $roles = ViewRolesPermissions::where('id_company',session('user')['id_company'])
+         ->orderBy('id_rol', 'desc')
         ->get();
         return Inertia::render('Roles', [
             'data' => $roles

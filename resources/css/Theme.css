@@ -1,7 +1,7 @@
 :root {
   --primary: #0d7560;
   --secondary: #0ab586;
-  --tertiary: #84e2ba;
+  --tertiary: #9df0cc;
   --fontWhite: white;
   --font: #e4f3ed;
   --fontBox: #84e2ba;
@@ -99,6 +99,11 @@ main .main-content {
   }
   main .logo img {
     filter: drop-shadow(0 0 3px rgba(8, 27, 16, 0.2));
+  }
+}
+@media (max-height: 450px) {
+  main .logo-desktop {
+    display: none;
   }
 }
 
@@ -298,5 +303,82 @@ footer hr {
   .table .overflow-y-auto {
     -webkit-overflow-scrolling: touch;
     overscroll-behavior: contain;
+  }
+}
+
+.animations-pulse-content {
+  position: relative;
+  height: 72px;
+  width: 200px;
+}
+.animations-pulse-content .animation-pulse,
+.animations-pulse-content .animation-pulse2,
+.animations-pulse-content .animation-pulse3 {
+  height: 100px;
+  width: 200px;
+  overflow: hidden;
+  position: absolute;
+  bottom: -17px;
+  right: -5px;
+  margin: auto;
+  z-index: 1;
+}
+.animations-pulse-content .animation-pulse:after,
+.animations-pulse-content .animation-pulse2:after,
+.animations-pulse-content .animation-pulse3:after {
+  content: "";
+  display: block;
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200px 100px"><polyline fill="none" stroke-width="2px" stroke="aquamarine" points="2.4,58.7 70.8,58.7 76.1,46.2 81.1,58.7 89.9,58.7 93.8,66.5 102.8,22.7 110.6,78.7 115.3,58.7 126.4,58.7 134.4,54.7 142.4,58.7 197.8,58.7 "/></svg>') 0 0 no-repeat;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  animation: 2s pulse infinite linear;
+}
+.animations-pulse-content .animation-pulse2,
+.animations-pulse-content .animation-pulse3 {
+  position: absolute;
+}
+.animations-pulse-content .animation-pulse2:after,
+.animations-pulse-content .animation-pulse3:after {
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200px 100px"><polyline fill="none" stroke-width="2px" stroke="yellow" points="2.4,58.7 70.8,58.7 76.1,46.2 81.1,58.7 89.9,58.7 93.8,66.5 102.8,22.7 110.6,78.7 115.3,58.7 126.4,58.7 134.4,54.7 142.4,58.7 197.8,58.7 "/></svg>') 0 0 repeat;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  animation: 0.7s pulse infinite linear;
+}
+.animations-pulse-content .animation-pulse3:after {
+  background: red;
+  width: 95%;
+  height: 2px;
+  position: absolute;
+  bottom: 45px;
+  right: 6px;
+  animation: none;
+}
+
+@keyframes pulse {
+  0% {
+    clip: rect(0, 0, 100px, 0);
+  }
+  10% {
+    clip: rect(0, 66.6666666667px, 100px, 0);
+  }
+  38% {
+    clip: rect(0, 133.3333333333px, 100px, 0);
+  }
+  48% {
+    clip: rect(0, 200px, 100px, 0);
+  }
+  52% {
+    clip: rect(0, 200px, 100px, 0);
+  }
+  62% {
+    clip: rect(0, 200px, 100px, 66.6666666667px);
+  }
+  90% {
+    clip: rect(0, 200px, 100px, 133.3333333333px);
+  }
+  100% {
+    clip: rect(0, 200px, 100px, 200px);
   }
 }/*# sourceMappingURL=Theme.css.map */

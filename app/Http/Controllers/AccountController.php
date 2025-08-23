@@ -76,11 +76,13 @@ class AccountController extends Controller
     }
 
     public function getLogs() {
-        return json_encode(session());
-        exit;
-        $logs = Activity::where('event',session('user')->id_company)->all();
+        $logs = Activity::where('event',session('user')['id_company'])->orderBy('id', 'desc')->get();
         return Inertia::render('Logs', [
             'data' => $logs
         ]);
+    }
+
+    public function getSession(Request $request) {
+        return $request->session()->all();
     }
 }
