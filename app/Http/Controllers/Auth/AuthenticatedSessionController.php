@@ -11,9 +11,19 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Inertia\Response;
 use Illuminate\Support\Facades\Session;
+use App\Services\MenuService;
+use App\Models\Company;
 
 class AuthenticatedSessionController extends Controller
 {
+
+    protected $menuService;
+
+    public function __construct(MenuService $menuService)
+    {
+        $this->menuService = $menuService;
+    }
+
     /**
      * Display the login view.
      */
@@ -44,6 +54,11 @@ class AuthenticatedSessionController extends Controller
             'id_company' => $user->id_company,
         ]);
 
+        $company = Company::where("id", $user->id_company)->get();
+
+        $request->session()->put('company', $company[0]);
+
+        $this->menuService->setMenuInSession($user->id_rol);
 
         return redirect()->intended(route('dashboard', absolute: false));
     }
@@ -60,5 +75,19 @@ class AuthenticatedSessionController extends Controller
         $request->session()->regenerateToken();
 
         return redirect('/');
+    }
+
+    public function refreshMenu()
+    {
+
+        $menu = $this->menuService->setMenuInSession(
+            session('id_rol'),
+            session('id_company')
+        );
+
+        return response()->json([
+            'success' => true,
+            'menu' => $menu
+        ]);
     }
 }

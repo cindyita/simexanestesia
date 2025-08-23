@@ -11,12 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('sys_menu', function (Blueprint $table) {
+        Schema::create('reg_alerts', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->string('icon');
-            $table->string('url');
-            $table->integer('reg_order')->default(1);
+            $table->string('title');
+            $table->string('type');
+            $table->longText('description');
+            $table->unsignedBigInteger('id_company');
+            $table->dateTime('expire')->nullable();
+            $table->timestamps();
         });
     }
 
@@ -25,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('sys_menu');
+        Schema::dropIfExists('reg_alerts');
     }
 };

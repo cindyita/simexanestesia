@@ -1,7 +1,7 @@
 import AppLogo from '@/Components/AppLogo';
 import Dropdown from '@/Components/Dropdown';
 import { Link, usePage } from '@inertiajs/react';
-import { useState } from 'react';
+import { useEffect } from 'react';
 
 import { MdDashboard } from "react-icons/md";
 import { FaUser } from "react-icons/fa";
@@ -17,69 +17,60 @@ import { FaBook } from "react-icons/fa";
 
 export default function AuthenticatedLayout({ header, children }) {
     const user = usePage().props.auth.user;
+    const company = usePage().props.company;
+    const menu = usePage().props.menu;
+    
+    useEffect(() => {
+        if (company) {
+        document.documentElement.style.setProperty('--primary', company.primary_color);
+        document.documentElement.style.setProperty('--secondary', company.secondary_color);
+        document.documentElement.style.setProperty('--tertiary', company.tertiary_color);
+        document.documentElement.style.setProperty('--font', company.font_color);
+        document.documentElement.style.setProperty('--fontBox', company.box_color);
+        document.documentElement.style.setProperty('--text', company.text_color);
+        }
+    }, [company]);
 
-    const [showingNavigationDropdown, setShowingNavigationDropdown] =
-        useState(false);
+    // const [showingNavigationDropdown, setShowingNavigationDropdown] =
+    //         useState(false);
 
-    return (
-        <>
-            <div className="content-layout">
+    const icons = {
+        MdDashboard,
+        RiCheckboxMultipleFill,
+        FaHistory,
+        IoFileTrayFull,
+        IoSchool,
+        FaUsers,
+        FaUserShield,
+        FaBook
+    };
+
+        return (
+            <>
+                <div className="content-layout">
                 
                 <aside className="menu">
                     
                     <div className="menu-nav-content w-full h-full">
                         <nav className="menu-nav">
                             <ul>
-                                <li>
-                                    <a href="/">
-                                        <div><MdDashboard /></div> <span>Dashboard</span>
-                                    </a>
-                                </li> 
-                                <li>
-                                    <a href="exams">
-                                        <div><RiCheckboxMultipleFill /></div> <span>Examenes</span>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="history">
-                                        <div><FaHistory /></div> <span>Historial</span>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="resources">
-                                        <div><IoFileTrayFull /></div>
-                                        <span>Recursos</span>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="subjects">
-                                        <div><IoSchool /></div>
-                                        <span>Materias</span>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="users">
-                                        <div><FaUsers /></div>
-                                        <span>Usuarios</span>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="roles">
-                                        <div><FaUserShield /></div>
-                                        <span>Roles</span>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="logs">
-                                        <div><FaBook /></div>
-                                        <span>Auditoría</span>
-                                    </a>
-                                </li>
-                                
+                                {menu && Object.values(menu).length > 0 ? (
+                                    
+                                    Object.values(menu).map((item) => {
+                                        const Icon = icons[item.icon];
+                                        return (<li key={item.id}>
+                                            <Link href={item.url || '#'}>
+                                                <div>{Icon && <Icon />}</div>
+                                                <span>{item.name}</span>
+                                            </Link>
+                                        </li>);
+                                    })
+                                ) : null}
+
                             </ul>
                         </nav>
                     </div>
-                    <div className="logo-content hidden lg:flex lg:justify-center lg:w-full">
+                    <div className="logo-content logo-desktop hidden lg:flex lg:justify-center lg:w-full">
                         <div className="logo">
                             <Link href="/">
                                 <AppLogo className="block w-auto fill-current text-emerald-800" />
