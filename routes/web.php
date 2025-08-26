@@ -34,6 +34,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/logs', [AccountController::class, 'getLogs'])->name('logs');
     Route::get('/roles', [UsersController::class, 'getRoles'])->name('roles');
     Route::get('/exams', [ExamsController::class, 'get'])->name('exams');
+    Route::get('/newexam', [ExamsController::class, 'createExam'])->name('newexam');
     Route::get('/history', [ExamsController::class, 'getHistory'])->name('history');
     Route::get('/resources', [ResourcesController::class, 'get'])->name('resources');
 

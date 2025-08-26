@@ -21,9 +21,15 @@ class Alerts extends Model
      */
     public static function deleteExpired()
     {
-        self::whereNotNull('expire')
+        $res = self::whereNotNull('expire')
             ->where('expire', '<', Carbon::now())
             ->delete();
+        
+        activity('alert delete')
+            ->causedBy(session('user')['id'])
+            ->withProperties($res)
+            ->event(session('user')['id_company'])
+            ->log('Se depuraron las alertas expiradas');
     }
 
 }

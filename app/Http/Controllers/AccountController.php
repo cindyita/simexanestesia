@@ -39,7 +39,7 @@ class AccountController extends Controller
 
         $request->user()->save();
 
-        activity('auth edit')
+        activity('auth update')
             ->causedBy($request->user())
             ->withProperties(['Nombre'=>$request->user()->name])
             ->event($request->user()->id_company)

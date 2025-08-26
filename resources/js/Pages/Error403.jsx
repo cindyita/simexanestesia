@@ -1,5 +1,5 @@
-import PrimaryButton from "@/Components/PrimaryButton";
-import AppLogoFull from '@/Components/AppLogoFull';
+import PrimaryButton from "@/CustomComponents/button/PrimaryButton";
+import AppLogoFull from '@/CustomComponents/AppLogoFull';
 import { Link } from '@inertiajs/react';
 
 export default function Error403() {

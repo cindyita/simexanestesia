@@ -11,10 +11,10 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { MdOutlineTrendingUp, MdOutlineTrendingDown } from "react-icons/md";
 import { FaSyringe } from "react-icons/fa";
 
-import MiniButton from '@/Components/MiniButton';
-import Modal from '@/Components/Modal';
-import PrimaryButton from '@/Components/PrimaryButton';
-import SecondaryButton from '@/Components/SecondaryButton';
+import MiniButton from '@/CustomComponents/button/MiniButton';
+import Modal from '@/CustomComponents/Modal';
+import PrimaryButton from '@/CustomComponents/button/PrimaryButton';
+import SecondaryButton from '@/CustomComponents/button/SecondaryButton';
 
 export default function Dashboard() {
 
@@ -66,14 +66,14 @@ export default function Dashboard() {
     const [activeIndex, setActiveIndex] = useState(0);
 
     const dataStats = [
-        { name: "Ene", aciertos: 30, visitas: 40 },
-        { name: "Feb", aciertos: 20, visitas: 110 },
-        { name: "Mar", aciertos: 50, visitas: 290 },
-        { name: "Abr", aciertos: 70, visitas: 200 },
-        { name: "May", aciertos: 60, visitas: 305 },
-        { name: "Jun", aciertos: 76, visitas: 360 },
-        { name: "Jul", aciertos: 68, visitas: 210 },
-        { name: "Ago", aciertos: 95, visitas: 450 }
+        { name: "Ene", aciertos: 30, intentos: 40 },
+        { name: "Feb", aciertos: 20, intentos: 110 },
+        { name: "Mar", aciertos: 50, intentos: 290 },
+        { name: "Abr", aciertos: 70, intentos: 200 },
+        { name: "May", aciertos: 60, intentos: 305 },
+        { name: "Jun", aciertos: 76, intentos: 360 },
+        { name: "Jul", aciertos: 68, intentos: 210 },
+        { name: "Ago", aciertos: 95, intentos: 450 }
     ]
 
     const formattedDate = (date) => {
@@ -283,7 +283,7 @@ export default function Dashboard() {
                             <XAxis dataKey="name" />
                             <YAxis />
                             <Tooltip />
-                            <Bar dataKey="visitas" fill="MediumAquaMarine" radius={[6, 6, 0, 0]} />
+                            <Bar dataKey="intentos" fill="MediumAquaMarine" radius={[6, 6, 0, 0]} />
                             </BarChart>
                         </ResponsiveContainer>
                         </CardContent>

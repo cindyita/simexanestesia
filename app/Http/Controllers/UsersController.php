@@ -12,7 +12,18 @@ use Inertia\Response;
 class UsersController extends Controller
 {
     public function getUsers(): Response {
-        $users = Users::select('id', 'name', 'email','created_at','updated_at')->orderBy('id', 'desc')->get();
+        $users = Users::select(
+                'sys_users.id',
+                'sys_users.name',
+                'sys_users.email',
+                'sys_users.created_at',
+                'sys_users.updated_at',
+                'sys_roles.name as role_name'
+            )
+            ->leftJoin('sys_roles', 'sys_users.id_rol', '=', 'sys_roles.id')
+            ->orderBy('sys_users.id', 'desc')
+            ->get();
+
         return Inertia::render('Users', [
             'data' => $users
         ]);
