@@ -5,9 +5,9 @@ import { useTheme } from "@table-library/react-table-library/theme";
 import { getTheme } from "@table-library/react-table-library/baseline";
 import { useSort } from "@table-library/react-table-library/sort";
 
-import IconButton from '@/Components/IconButton';
-import TextInput from '@/Components/TextInput';
-import ActionDropdown from '@/Components/ActionDropdown';
+import IconButton from '@/CustomComponents/button/IconButton';
+import TextInput from '@/CustomComponents/form/TextInput';
+import ActionDropdown from '@/CustomComponents/ActionDropdown';
 
 import html2canvas from "html2canvas";
 import { jsPDF } from "jspdf";
@@ -16,7 +16,7 @@ import { FaFileCsv, FaFilePdf, FaGear } from "react-icons/fa6";
 import { FaSearch } from "react-icons/fa";
 
 
-function TableComp({ id_table, table_name, columns, dataRaw, downloadBtns, actionBtns, useFormatDate = true, showTime = false }) {
+function TableComp({ id_table, table_name, columns, dataRaw, downloadBtns, actionBtns, useFormatDate = true, showTime = false, customActions=[] }) {
 
     //--------------------------------------------
     // FORMAT DATE
@@ -87,7 +87,7 @@ function TableComp({ id_table, table_name, columns, dataRaw, downloadBtns, actio
         onDelete: (item) => {
             if (confirm('¿Eliminar este registro?')) {
                 console.log('Eliminando:', item);
-        }
+            }
         }
     };
 
@@ -136,7 +136,7 @@ function TableComp({ id_table, table_name, columns, dataRaw, downloadBtns, actio
               onView={actionHandlers.onView}
               onEdit={actionHandlers.onEdit}
               onDelete={actionHandlers.onDelete}
-              onCustomAction={actionHandlers.onCustomAction}
+              customActions={customActions}
             />
           ),
           accessor: () => "",
@@ -164,7 +164,7 @@ function TableComp({ id_table, table_name, columns, dataRaw, downloadBtns, actio
         if (sc === "" || sc === '""') { return sc; }
 
         if (sc.includes('"') || sc.includes(",") || sc.includes("\n") || sc.includes("\r")) {
-            return '"' + sc.replace(/"/g, '""') + '"';
+            return `"${sc.replace(/\"/g, '""')}"`;
         }
 
         return sc;
@@ -253,7 +253,7 @@ function TableComp({ id_table, table_name, columns, dataRaw, downloadBtns, actio
                                 onView={actionHandlers.onView}
                                 onEdit={actionHandlers.onEdit}
                                 onDelete={actionHandlers.onDelete}
-                                onCustomAction={actionHandlers.onCustomAction}
+                                customActions={customActions}
                             />
                         </div>
                     </span>
@@ -268,9 +268,8 @@ function TableComp({ id_table, table_name, columns, dataRaw, downloadBtns, actio
         <div id={id_table} ref={printRef} className="w-full max-w-full">
             <div className="overflow-hidden">
                 
-                <div className="p-2 sm:p-4">
+                <div className="p-2 sm:p-4 sm:pb-0 sm:pt-2">
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                        {/* TABLE TITLE */}
                         <div className="flex items-center">
                             <h3 className="text-lg font-semibold">
                                 {table_name}
@@ -317,7 +316,7 @@ function TableComp({ id_table, table_name, columns, dataRaw, downloadBtns, actio
                 </div>
         
                 {/* TABLE */}
-                <div className="p-2 sm:p-4 relative">
+                <div className="p-2 sm:p-4 sm:pt-2 relative">
                     {/* Desktop */}
                     <div className="hidden md:block overflow-x-auto">
                         <div className="overflow-x-auto max-h-96 overflow-y-auto">
@@ -329,7 +328,7 @@ function TableComp({ id_table, table_name, columns, dataRaw, downloadBtns, actio
                                     theme={{
                                         ...theme,
                                         Table: `
-                                            --data-table-library_grid-template-columns: ${mapColumns.map(() => 'minmax(120px, 1fr)').join(' ')};
+                                            --data-table-library_grid-template-columns: ${mapColumns.map(() => 'auto').join(' ')};
                                             background-color: white;
                                             border-radius: 8px;
                                             font-size: 14px;

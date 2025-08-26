@@ -1,8 +1,8 @@
 import { useState, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
-import { FaEdit, FaTrash, FaEye, FaEllipsisV } from "react-icons/fa";
+import { FaEdit, FaTrash, FaEye, FaEllipsisV, FaLink, FaFileDownload } from "react-icons/fa";
 
-const ActionDropdown = ({ item, onView, onEdit, onDelete, onCustomAction }) => {
+const ActionFileDropdown = ({ item, onView, onEdit, onDelete, onCustomAction }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [position, setPosition] = useState({ top: 0, left: 0 });
   const buttonRef = useRef(null);
@@ -51,10 +51,10 @@ const ActionDropdown = ({ item, onView, onEdit, onDelete, onCustomAction }) => {
         ref={buttonRef}
         type="button"
         onClick={toggleDropdown}
-        className="inline-flex justify-center w-7 h-6 text-sm font-medium text-emerald-700"
+        className="inline-flex justify-center w-5 h-6 text-sm font-medium text-emerald-800 rounded-lg hover:bg-emerald-100"
       >
         <FaEllipsisV className="w-3 h-4 self-center text-emerald-600" />
-      </button>
+          </button>
 
       {isOpen &&
         createPortal(
@@ -79,7 +79,15 @@ const ActionDropdown = ({ item, onView, onEdit, onDelete, onCustomAction }) => {
                   className="group flex items-center px-4 py-2 text-sm text-emerald-700 hover:bg-emerald-100 hover:text-emerald-900 w-full text-left"
                 >
                   <FaEye className="mr-3 h-4 w-4 text-emerald-400 group-hover:text-emerald-500" />
-                  Ver Detalles
+                  Ver archivo
+                        </button>
+                        
+                <button
+                  onClick={(e) => handleAction("view", e)}
+                  className="group flex items-center px-4 py-2 text-sm text-emerald-700 hover:bg-emerald-100 hover:text-emerald-900 w-full text-left"
+                >
+                  <FaLink className="mr-3 h-4 w-4 text-emerald-400 group-hover:text-emerald-500" />
+                  Copiar url
                 </button>
 
                 <button
@@ -88,6 +96,14 @@ const ActionDropdown = ({ item, onView, onEdit, onDelete, onCustomAction }) => {
                 >
                   <FaEdit className="mr-3 h-4 w-4 text-emerald-400 group-hover:text-emerald-500" />
                   Editar
+                </button>
+
+                <button
+                  onClick={(e) => handleAction("edit", e)}
+                  className="group flex items-center px-4 py-2 text-sm text-emerald-700 hover:bg-emerald-100 hover:text-emerald-900 w-full text-left"
+                >
+                  <FaFileDownload className="mr-3 h-4 w-4 text-emerald-400 group-hover:text-emerald-500" />
+                  Descargar
                 </button>
 
                 <hr className="border-emerald-200" />
@@ -108,4 +124,4 @@ const ActionDropdown = ({ item, onView, onEdit, onDelete, onCustomAction }) => {
   );
 };
 
-export default ActionDropdown;
+export default ActionFileDropdown;

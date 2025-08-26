@@ -1,6 +1,7 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, usePage } from "@inertiajs/react";
-import TableComp from '@/Components/TableComp';
+import TableComp from '@/CustomComponents/TableComp';
+import PrimaryButton from '@/CustomComponents/button/PrimaryButton';
 
 export default function Users() {
 
@@ -10,6 +11,7 @@ export default function Users() {
         'id': 'id',
         'name': 'Nombre', 
         'email': 'Email',
+        'role_name': 'Rol',
         'created_at': 'Creado en'
     };
 
@@ -26,10 +28,19 @@ export default function Users() {
             <div className="users">
                 <div>
                     <div className="bg-white rounded-lg">
-                        <div className="p-6 text-emerald-900">
+                        <div className="flex justify-between px-6 md:px-10 pt-6">
+                            <div className="flex items-center gap-2">
+                                <h3 className="text-lg font-semibold">
+                                    Usuarios
+                                </h3>
+                            </div>
+                            <div>
+                                <PrimaryButton>Nuevo usuario</PrimaryButton>
+                            </div>
+                        </div>
+                        <div className="px-6 pb-6 text-emerald-900">
                             <TableComp
                                 id_table={'users_table'}
-                                table_name={'Usuarios'}
                                 columns={columns}
                                 dataRaw={data}
                                 downloadBtns={true}

@@ -1,4 +1,4 @@
-import AppLogoFull from '@/Components/AppLogoFull';
+import AppLogoFull from '@/CustomComponents/AppLogoFull';
 import { Link } from '@inertiajs/react';
 
 export default function GuestLayout({ children }) {

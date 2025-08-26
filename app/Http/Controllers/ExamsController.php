@@ -19,6 +19,10 @@ class ExamsController extends Controller
         ]);
     }
 
+    public function createExam(): Response {
+        return Inertia::render('CreateExam');
+    }
+
     public function getHistory(): Response {
         // $roles = ViewRolesPermissions::where('id_company',session('user')['id_company'])
         //  ->orderBy('id_rol', 'desc')

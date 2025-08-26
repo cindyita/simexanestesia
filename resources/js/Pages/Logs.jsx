@@ -1,6 +1,6 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, usePage } from "@inertiajs/react";
-import TableComp from '@/Components/TableComp';
+import TableComp from '@/CustomComponents/TableComp';
 
 export default function Logs() {
 
@@ -34,7 +34,7 @@ export default function Logs() {
                                 columns={columns}
                                 dataRaw={data}
                                 downloadBtns={true}
-                                actionBtns={false}
+                                actionBtns={true}
                                 useFormatDate={true}
                                 showTime={true}
                             />

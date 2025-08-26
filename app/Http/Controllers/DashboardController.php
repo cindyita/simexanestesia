@@ -9,6 +9,8 @@ use Inertia\Response;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
+use Spatie\Activitylog\Models\Activity;
+
 class DashboardController extends Controller
 {
     public function get(): Response {
@@ -27,6 +29,7 @@ class DashboardController extends Controller
 
     public function alertUpdate(Request $request)
 {
+        $crudtype = 'update';
         if ($request->id == 0) {
             Alerts::deleteExpired();
             Alerts::create([
@@ -36,6 +39,7 @@ class DashboardController extends Controller
                 'id_company' => session('user')['id_company'],
                 'expire' => $request->expire,
             ]);
+            $crudtype = 'create';
         } else {
             $alert = Alerts::find($request->id);
 
@@ -47,6 +51,12 @@ class DashboardController extends Controller
             ]);
 
         }
+
+        activity('alert '.$crudtype)
+            ->causedBy($request->user())
+            ->withProperties($alert)
+            ->event($request->user()->id_company)
+            ->log('Admin modificó el aviso');
 
         return redirect()->back()->with('success', 'Se ha actualizado la alerta');
     }
