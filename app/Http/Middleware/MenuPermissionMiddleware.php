@@ -17,7 +17,8 @@ class MenuPermissionMiddleware
             $userMenu = session('user_menu', []);
 
             if (!array_key_exists($menuId, $userMenu)) {
-                return Inertia::render('Error403');
+                return Inertia::render('ErrorPage',[
+                'status' => '403']);
             }
         }
 

@@ -16,12 +16,13 @@ return new class extends Migration
             SELECT 
                 r.id AS id_rol,
                 r.name AS rol_name,
+                r.mode_admin AS mode_admin,
                 r.id_company AS id_company,
                 COALESCE(COUNT(p.id_menu), 0) AS total_menus,
                 COALESCE(SUM(p.level), 0) AS total_levels
             FROM sys_roles r
             LEFT JOIN sys_permissions p ON r.id = p.id_rol
-            GROUP BY r.id, r.name, r.id_company
+            GROUP BY r.id, r.name, r.id_company, r.mode_admin
         ");
     }
 

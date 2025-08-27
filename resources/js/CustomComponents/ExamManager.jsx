@@ -12,16 +12,20 @@ import {
   FaStar,
   FaRedo,
   FaCalendarAlt,
-  FaRandom
+  FaRandom,
+  FaPen
 } from 'react-icons/fa';
+import { MdOutlineRateReview } from "react-icons/md";
 
 import PrimaryButton from './button/PrimaryButton';
 import SecondaryButton from './button/SecondaryButton';
 
 import { Link } from '@inertiajs/react';
 import ActionExamDropdown from './ActionExamDropdown';
+import TertiaryButton from './button/TertiaryButton';
+import { FormatDate } from '@/Functions/FormatDate';
 
-const ExamManager = ({exams, currentPage=1,totalPages=1, onPageChange={}}) => {
+const ExamManager = ({exams, currentPage=1,totalPages=1, onPageChange={},pageLevel=1,isAdmin=false}) => {
   const [viewType, setViewType] = useState('grid'); // 'grid' o 'list'
   const [filterSubject, setFilterSubject] = useState('');
   const [filterStatus, setFilterStatus] = useState(''); // 'completed', 'pending'
@@ -64,13 +68,13 @@ const ExamManager = ({exams, currentPage=1,totalPages=1, onPageChange={}}) => {
   // Función para obtener el icono según el tipo de examen
   const getExamTypeIcon = (type,size = 4) => {
     switch (type) {
-      case 'Opción Múltiple':
+      case 'multiple_choice':
         return <FaListUl className={`min-w-${size} h-${size}`} />;
-      case 'Verdadero/Falso':
+      case 'true_false':
         return <FaCheckCircle className={`min-w-${size} h-${size}`} />;
-      case 'Desarrollo':
-        return <FaQuestionCircle className={`min-w-${size} h-${size}`} />;
-      case 'Mixto':
+      case 'essay':
+        return <FaPen className={`min-w-${size} h-${size}`} />;
+      case 'mixed':
         return <FaStar className={`min-w-${size} h-${size}`} />;
       default:
         return <FaQuestionCircle className={`min-w-${size} h-${size}`} />;
@@ -106,6 +110,11 @@ const ExamManager = ({exams, currentPage=1,totalPages=1, onPageChange={}}) => {
     // repetir el examen
   };
 
+  const viewAnswersExam = (examId, examName) => {
+    alert(`Respuestas del examen: ${examName}`);
+    // ver respuestas del examen
+  };
+
   const getExamType = (type) => {
     switch (type) {
       case 'multiple_choice':
@@ -128,7 +137,13 @@ const ExamManager = ({exams, currentPage=1,totalPages=1, onPageChange={}}) => {
         <div className="mb-6">
           <div className="flex justify-between gap-1 items-center pb-2">
             <h3 className="text-xl font-semibold text-emerald-800 mb-4">Exámenes</h3>
-            <Link href="/newexam"><PrimaryButton>Crear examen</PrimaryButton></Link>
+            {(
+              isAdmin ? (
+                <>
+                  <Link href="/newexam"><PrimaryButton>Crear examen</PrimaryButton></Link>
+                </>
+              ) : ""
+            )}
           </div>
           
           {/* Controles */}
@@ -249,7 +264,7 @@ const ExamManager = ({exams, currentPage=1,totalPages=1, onPageChange={}}) => {
                 {/* Header de la tarjeta */}
                 <div className="p-4 border-b border-gray-100">
                   <div className="flex items-start justify-between mb-2 gap-2">
-                    <h3 className="font-semibold text-gray-800 text-lg leading-tight">
+                    <h3 className="font-semibold text-emerald-800 text-lg leading-tight">
                       {exam.name}
                     </h3>
                     <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${getDifficultyColor(exam.difficulty)}`}>
@@ -261,10 +276,10 @@ const ExamManager = ({exams, currentPage=1,totalPages=1, onPageChange={}}) => {
                       {exam.subject}
                     </span>
                     <span>
-                        <ActionExamDropdown />
+                        <ActionExamDropdown pageLevel={pageLevel} />
                     </span>
                   </div>
-                  <p className="text-gray-600 text-sm line-clamp-2">
+                  <p title={exam.description} className="text-gray-600 text-sm line-clamp-2">
                     {exam.description}
                   </p>
                 </div>
@@ -272,19 +287,19 @@ const ExamManager = ({exams, currentPage=1,totalPages=1, onPageChange={}}) => {
                 {/* Detalles del examen */}
                 <div className="p-4 flex flex-col h-full">
                   <div className="grid grid-cols-2 gap-4 text-sm mb-4">
-                    <div className="flex items-center gap-2 text-gray-600">
+                    <div className="flex items-center gap-2 text-emerald-600">
                       <FaClock className="w-4 h-4" />
                       <span>{exam.timeLimit} min</span>
                     </div>
-                    <div className="flex items-center gap-2 text-gray-600">
+                    <div className="flex items-center gap-2 text-emerald-600">
                       <FaQuestionCircle className="w-4 h-4" />
                       <span>{exam.questionCount} preguntas</span>
                     </div>
-                    <div className="flex items-center gap-2 text-gray-600">
+                    <div className="flex items-center gap-2 text-emerald-600">
                       {getExamTypeIcon(exam.exam_type)}
                       <span>{getExamType(exam.exam_type)}</span>
                     </div>
-                    <div className="flex items-center gap-2 text-gray-600">
+                    <div className="flex items-center gap-2 text-emerald-600">
                       {exam.shuffle_questions ? <FaRandom className="w-4 h-4" /> : <FaList className="w-4 h-4" />}
                       <span>{exam.shuffle_questions ? "Aleatorias" : "Fijas"}</span>
                     </div>
@@ -302,7 +317,7 @@ const ExamManager = ({exams, currentPage=1,totalPages=1, onPageChange={}}) => {
                       <div className="text-xs text-emerald-600 space-y-1">
                         <div className="flex justify-between">
                           <span>Fecha:</span>
-                          <span>{exam.lastAttempt.completedAt}</span>
+                          <span>{FormatDate(exam.lastAttempt.completedAt,true)}</span>
                         </div>
                         <div className="flex justify-between">
                           <span>Tiempo usado:</span>
@@ -326,13 +341,22 @@ const ExamManager = ({exams, currentPage=1,totalPages=1, onPageChange={}}) => {
                   <div className="flex gap-2">
                     {exam.is_active === 1 ? (
                       (exam.lastAttempt ? (
-                        <SecondaryButton
-                          onClick={() => retakeExam(exam.id, exam.name)}
-                          className="flex-1 flex items-center justify-center gap-2 py-3"
-                        >
-                          <FaRedo className="w-4 h-4" />
-                          Repetir Examen
-                        </SecondaryButton>
+                        <div className="flex gap-2 justify-between w-full">
+                          <TertiaryButton
+                            onClick={() => viewAnswersExam(exam.id, exam.name)}
+                            className="flex-1 flex items-center justify-center gap-2 py-3 text-white bg-emerald-400"
+                          >
+                            <MdOutlineRateReview className="w-4 h-4" />
+                            Ver respuestas
+                          </TertiaryButton>
+                          <SecondaryButton
+                            onClick={() => retakeExam(exam.id, exam.name)}
+                            className="flex-1 flex items-center justify-center gap-2 py-3"
+                          >
+                            <FaRedo className="w-4 h-4" />
+                            Repetir Examen
+                          </SecondaryButton>
+                        </div>
                       ) : (
                         <PrimaryButton
                           onClick={() => startExam(exam.id, exam.name)}
@@ -362,6 +386,7 @@ const ExamManager = ({exams, currentPage=1,totalPages=1, onPageChange={}}) => {
                 <thead className="bg-emerald-700 border-b border-emerald-300">
                   <tr>
                     <th className="text-left py-3 px-4 font-semibold text-white">Examen</th>
+                    <th className="text-left py-3 px-4 font-semibold text-white">Descripción</th>
                     <th className="text-left py-3 px-4 font-semibold text-white">Detalles</th>
                     <th className="text-left py-3 px-4 font-semibold text-white">Estado</th>
                     <th className="text-left py-3 px-4 font-semibold text-white">Realizar</th>
@@ -382,28 +407,39 @@ const ExamManager = ({exams, currentPage=1,totalPages=1, onPageChange={}}) => {
                               {getDifficulty(exam.difficulty)}
                             </span>
                           </div>
-                          <p title={exam.description} className="text-emerald-600 text-sm mt-1 line-clamp-1">
+                          {/* <p title={exam.description} className="text-emerald-600 text-sm mt-1 line-clamp-2 hidden md:flex">
+                            {exam.description}
+                          </p> */}
+                        </div>
+                      </td>
+                      <td className="py-4 px-4">
+                        <div>
+                          <p title={exam.description} className="text-emerald-600 text-sm line-clamp-5">
                             {exam.description}
                           </p>
                         </div>
                       </td>
                       <td className="py-4 px-4">
-                        <div className="text-sm text-emerald-600 space-y-1">
-                          <div className="flex items-center gap-2">
-                            <FaClock className="min-w-3 h-3" />
-                            <span className="text-xs md:text-sm">{exam.timeLimit} min</span>
+                        <div className="text-sm text-emerald-600 space-y-1 flex gap-1 md:gap-3 items-center justify-start flex-wrap">
+                          <div className="flex flex-col gap-1 justify-center">
+                            <div className="flex items-center gap-2">
+                              <FaClock className="min-w-3 h-3" />
+                              <span className="text-xs md:text-sm">{exam.timeLimit} min</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <FaQuestionCircle className="min-w-3 h-3" />
+                              <span className="text-xs md:text-sm">{exam.questionCount} preguntas</span>
+                            </div>
                           </div>
-                          <div className="flex items-center gap-2">
-                            <FaQuestionCircle className="min-w-3 h-3" />
-                            <span className="text-xs md:text-sm">{exam.questionCount} preguntas</span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            {getExamTypeIcon(exam.exam_type,3)}
-                            <span className="text-xs md:text-sm">{getExamType(exam.exam_type)}</span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <FaRandom className="w-3 h-3" />
-                            <span className="text-xs md:text-sm">{exam.shuffle_questions ? "Aleatorias" : "Fijas"}</span>
+                          <div className="flex flex-col gap-1 justify-center">
+                            <div className="flex items-center gap-2">
+                              {getExamTypeIcon(exam.exam_type,3)}
+                              <span className="text-xs md:text-sm">{getExamType(exam.exam_type)}</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              {exam.shuffle_questions ? <FaRandom className="w-3 h-3" /> : <FaList className="w-3 h-3" />}
+                              <span className="text-xs md:text-sm">{exam.shuffle_questions ? "Aleatorias" : "Fijas"}</span>
+                            </div>
                           </div>
                         </div>
                       </td>
@@ -415,10 +451,10 @@ const ExamManager = ({exams, currentPage=1,totalPages=1, onPageChange={}}) => {
                             </div>
                             <div className="text-emerald-600 text-xs">
                               <div className="flex items-center gap-1">
-                                <FaCalendarAlt className="w-3 h-3" />
-                                {exam.lastAttempt.completedAt}
+                                <FaCalendarAlt className="min-w-3 h-3" />
+                                {FormatDate(exam.lastAttempt.completedAt,true)}
                               </div>
-                              <div>Intento #{exam.lastAttempt.attempts}</div>
+                              <div className="font-bold">Intento #{exam.lastAttempt.attempts}</div>
                             </div>
                           </div>
                         ) : (
@@ -429,14 +465,23 @@ const ExamManager = ({exams, currentPage=1,totalPages=1, onPageChange={}}) => {
                       </td>
                       <td className="py-4 px-4">
                         {exam.is_active === 1 ? (
-                            (exam.lastAttempt ? (
-                              <SecondaryButton
-                                onClick={() => retakeExam(exam.id, exam.name)}
-                                className="flex items-center gap-2 px-3 py-2 rounded-lg"
-                              >
-                                <FaRedo className="w-3 h-3" />
-                                Repetir
-                              </SecondaryButton>
+                          (exam.lastAttempt ? (
+                              <div className="flex gap-2 items-start flex-col">
+                                <TertiaryButton
+                                  onClick={() => viewAnswersExam(exam.id, exam.name)}
+                                  className="flex items-center gap-2 px-3 py-2 rounded-lg"
+                                >
+                                  <MdOutlineRateReview className="w-4 h-4" />
+                                  Respuestas
+                                </TertiaryButton>
+                                <SecondaryButton
+                                  onClick={() => retakeExam(exam.id, exam.name)}
+                                  className="flex items-center gap-2 px-3 py-2 rounded-lg"
+                                >
+                                  <FaRedo className="w-3 h-3" />
+                                  Repetir
+                                </SecondaryButton>
+                              </div>
                             ) : (
                               <PrimaryButton
                                 onClick={() => startExam(exam.id, exam.name)}
@@ -454,7 +499,9 @@ const ExamManager = ({exams, currentPage=1,totalPages=1, onPageChange={}}) => {
                       </td>
                       <td className="py-4 px-3 w-1">
                         <span>
-                            <ActionExamDropdown />
+                          <ActionExamDropdown
+                            pageLevel={pageLevel}
+                          />
                         </span>
                       </td>
                     </tr>

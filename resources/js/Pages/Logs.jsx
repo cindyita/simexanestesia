@@ -4,8 +4,11 @@ import { useState } from 'react';
 import TableComp from '@/CustomComponents/TableComp';
 
 export default function Logs() {
-
+    if (!usePage().props.menu[8]) return;
+    
     const data = usePage().props.data;
+    const pageLevel = usePage().props.menu[8]['level'];
+    
     const logs = data.data;
 
     const [currentPage, setCurrentPage] = useState(data.current_page);
@@ -49,6 +52,7 @@ export default function Logs() {
                                 currentPage={currentPage}
                                 totalPages={data.last_page}
                                 onPageChange={handlePageChange}
+                                pageLevel={pageLevel}
                             />
                         </div>
                     </div>

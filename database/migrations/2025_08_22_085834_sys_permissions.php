@@ -12,9 +12,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('sys_permissions', function (Blueprint $table) {
+            $table->id();
             $table->unsignedInteger('id_rol')->index();
             $table->unsignedInteger('id_menu');
             $table->unsignedInteger('level')->default(3);
+
+            $table->unique(['id_rol','id_menu']);
         });
     }
 

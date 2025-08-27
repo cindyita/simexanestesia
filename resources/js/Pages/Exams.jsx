@@ -6,6 +6,9 @@ import ExamManager from '@/CustomComponents/ExamManager';
 export default function Exams() {
 
     const data = usePage().props.data;
+    const pageLevel = usePage().props.menu[2]['level'];
+    const isAdmin = usePage().props.user['mode_admin'] ? true : false;
+    
     const exams = data.data;
 
     const [currentPage, setCurrentPage] = useState(data.current_page);
@@ -31,7 +34,9 @@ export default function Exams() {
                     currentPage={currentPage}
                     totalPages={data.last_page}
                     onPageChange={handlePageChange}
-                ></ExamManager>
+                    pageLevel={pageLevel}
+                    isAdmin={isAdmin}
+                />
             </div>
         </AuthenticatedLayout>
     );

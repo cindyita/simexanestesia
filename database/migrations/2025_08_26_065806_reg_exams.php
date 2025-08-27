@@ -36,7 +36,8 @@ return new class extends Migration
             $table->timestamps();
             
             // Índices
-            $table->index(['id_subject', 'is_active','id_company']);
+            $table->index(['id_subject', 'is_active']);
+            $table->index(['id_company']);
         });
     }
 

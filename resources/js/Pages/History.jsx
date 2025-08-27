@@ -5,8 +5,9 @@ import TableComp from '@/CustomComponents/TableComp';
 
 export default function History() {
     const { data, auth } = usePage().props;
-    const user = auth.user;
-    const isAdmin = user.id_rol === 1;
+    const pageLevel = usePage().props.menu[3]['level'];
+    const isAdmin = usePage().props.user['mode_admin'] ? true : false;
+    // const user = auth.user;
 
     const [currentPage, setCurrentPage] = useState(data.current_page);
 
@@ -58,6 +59,7 @@ export default function History() {
                                 currentPage={currentPage}
                                 totalPages={data.last_page}
                                 onPageChange={handlePageChange}
+                                pageLevel={pageLevel}
                             />
                         </div>
                     </div>

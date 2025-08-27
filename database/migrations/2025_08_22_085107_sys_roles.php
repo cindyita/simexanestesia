@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('sys_roles', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->unsignedTinyInteger('mode_admin')->default(0);
             $table->unsignedBigInteger('id_company')->index();
         });
     }

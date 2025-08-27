@@ -9,21 +9,31 @@ import RolePermissionsModal from '@/CustomComponents/RolePermissionsModal';
 import { FaKey } from "react-icons/fa";
 
 export default function Roles() {
+    if (!usePage().props.menu[7]) return;
+    
+    const data = usePage().props.data;
+    const pageLevel = usePage().props.menu[7]['level'];
 
     const [modalKeyOpen, setModalKeyOpen] = useState(false);
     const [currentPage, setCurrentPage] = useState(data.current_page);
+    const [permissions, setPermissions] = useState([]);
+    const [roleName, setRoleName] = useState([]);
 
-    const data = usePage().props.data;
-    const roles = data.data;
+    const roles = data.data.map(role => ({
+        ...role,
+        mode_admin: role.mode_admin === 1 ? 'Sí' : 'No'
+    }));
+
 
     const handlePageChange = (page) => {
         setCurrentPage(page);
-        router.get('users', { page }, {});
+        router.get('roles', { page }, {});
     };
 
     const columns = {
         'id_rol': 'id',
         'rol_name': 'Nombre',
+        'mode_admin': 'Admin',
         'total_menus': 'Permisos',
         'total_levels': 'Niveles'
     };
@@ -31,7 +41,33 @@ export default function Roles() {
     const permissionAction = [{
         label: "Permisos",
         icon: <FaKey className="mr-3 h-4 w-4 text-yellow-400 group-hover:text-yellow-500" />,
-        callback: () => setModalKeyOpen(true)
+        callback: async (item) => {
+            setModalKeyOpen(true);
+            setRoleName(item.Nombre);
+            try {
+                const response = await fetch('getRolPermission', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document
+                            .querySelector('meta[name="csrf-token"]')
+                            .getAttribute('content'),
+                    },
+                    body: JSON.stringify({ id: item.id }),
+                });
+
+                if (!response.ok) {
+                    throw new Error("Error en la petición");
+                }
+
+                const data = await response.json();
+                setPermissions(data.permissions);
+                console.log(data.permissions);
+
+            } catch (error) {
+                console.error("Error:", error);
+            }
+        }
     }];
 
     return (
@@ -68,13 +104,14 @@ export default function Roles() {
                                 currentPage={currentPage}
                                 totalPages={data.last_page}
                                 onPageChange={handlePageChange}
+                                pageLevel={pageLevel}
                             />
                         </div>
                     </div>
                 </div>
             </div>
 
-            <RolePermissionsModal show={modalKeyOpen} onClose={() => setModalKeyOpen(false)} screens={['Dashboard','Exámenes','Historial','Recursos','Usuarios','Roles','Auditoría']} roleName={'Ejemplo'} />
+            <RolePermissionsModal show={modalKeyOpen} onClose={() => setModalKeyOpen(false)} roleName={roleName} data={permissions} />
 
         </AuthenticatedLayout>
     );

@@ -54,11 +54,19 @@ class ExamsController extends Controller
     }
 
     public function createExam(): Response {
-        return Inertia::render('CreateExam');
+        $isAdmin = session('user')['mode_admin'] ? true : false;
+        if($isAdmin){
+            return Inertia::render('CreateExam');
+        }else{
+            return Inertia::render('ErrorPage',[
+            'status' => '403']);
+        }    
     }
 
     public function getHistory(Request $request): Response {
         $perPage = $request->input('per_page', 15);
+        $isAdmin = session('user')['mode_admin'] ? true : false;
+        $idUser = session('user')['id'];
         $history = History::select(
             'reg_history.*',
             'reg_exams.name as exam_name',
@@ -66,6 +74,9 @@ class ExamsController extends Controller
         )
             ->join('reg_exams', 'reg_history.id_exam', '=', 'reg_exams.id')
             ->join('sys_users', 'reg_history.id_user', '=', 'sys_users.id')
+            ->when(!$isAdmin, function($query) use ($idUser) {
+                $query->where('reg_history.id_user', $idUser);
+            })
             ->orderBy('reg_history.id', 'desc')
             ->paginate($perPage)
             ->through(function($item) {

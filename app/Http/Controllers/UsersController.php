@@ -2,14 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Permissions;
 use App\Models\Users;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use App\Models\ViewRolesPermissions;
 
 use Inertia\Inertia;
 use Inertia\Response;
-
-use Illuminate\Http\Request;
 
 class UsersController extends Controller
 {
@@ -35,12 +36,34 @@ class UsersController extends Controller
 
     public function getRoles(Request $request): Response {
         $perPage = $request->input('per_page', 15);
+        
         $roles = ViewRolesPermissions::where('id_company',session('user')['id_company'])
         ->orderBy('id_rol', 'desc')
         ->paginate($perPage);
 
         return Inertia::render('Roles', [
             'data' => $roles
+        ]);
+    }
+
+    public function getRolPermission(Request $request) {
+        $idRol = $request->input('id');
+
+        $permissions = DB::table('sys_menu as m')
+            ->leftJoin('sys_permissions as p', function($join) use ($idRol) {
+                $join->on('m.id', '=', 'p.id_menu')
+                    ->where('p.id_rol', '=', $idRol);
+            })
+            ->select(
+                'm.id',
+                'm.name',
+                DB::raw('COALESCE(p.level, NULL) as level')
+            )
+            ->orderBy('m.reg_order')
+            ->get();
+
+        return response()->json([
+            'permissions' => $permissions
         ]);
     }
 }
