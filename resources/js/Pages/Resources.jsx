@@ -7,6 +7,8 @@ import UploadFileModal from '@/CustomComponents/UploadFileModal';
 export default function Resources() {
 
     const data = usePage().props.data;
+    const pageLevel = usePage().props.menu[4]['level'];
+    const isAdmin = usePage().props.user['mode_admin'] ? true : false;
     const subjects = usePage().props.subjects;
 
     const files = data.data;
@@ -34,6 +36,8 @@ export default function Resources() {
                     currentPage={currentPage}
                     totalPages={data.last_page}
                     onPageChange={handlePageChange}
+                    pageLevel={pageLevel}
+                    isAdmin={isAdmin}
                 />
             </div>
         </AuthenticatedLayout>

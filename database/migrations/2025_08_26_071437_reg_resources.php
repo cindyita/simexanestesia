@@ -52,7 +52,8 @@ return new class extends Migration
             $table->timestamps();
             
             // Índices
-            $table->index(['id_subject', 'is_active','id_company']);
+            $table->index(['id_company']);
+            $table->index(['id_subject', 'is_active']);
             $table->index(['resource_type', 'visibility']);
             $table->index(['file_type']);
             $table->index(['uploaded_by']);

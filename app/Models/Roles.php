@@ -12,6 +12,7 @@ class Roles extends Model
     protected $fillable = [
         'id',
         'name',
+        'mode_admin',
         'id_company'
     ];
 }

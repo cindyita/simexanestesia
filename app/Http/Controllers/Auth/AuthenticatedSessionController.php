@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
+use App\Models\Roles;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -46,11 +47,17 @@ class AuthenticatedSessionController extends Controller
 
         $user = Auth::user();
 
+        $role = Roles::select('mode_admin','name')
+        ->where('id', $user->id_rol)
+        ->first();
+
         $request->session()->put('user', [
             'id' => $user->id,
             'name' => $user->name,
             'email' => $user->email,
             'id_rol' => $user->id_rol,
+            'rol_name' => $role->name,
+            'mode_admin' => $role->mode_admin,
             'id_company' => $user->id_company,
         ]);
 

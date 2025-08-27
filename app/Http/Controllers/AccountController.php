@@ -76,10 +76,15 @@ class AccountController extends Controller
     }
 
     public function getLogs(Request $request) {
+        $isAdmin = session('user')['mode_admin'] ? true : false;
+        $idUser = session('user')['id'];
         $perPage = $request->input('per_page', 15);
         $logs = Activity::select('activity_log.*','sys_users.name')
         ->leftJoin('sys_users', 'sys_users.id', '=', 'activity_log.causer_id')
         ->where('activity_log.event',session('user')['id_company'])
+        ->when(!$isAdmin, function($query) use ($idUser) {
+                $query->where('reg_history.id_user', $idUser);
+            })
         ->orderBy('activity_log.id', 'desc')
         ->paginate($perPage);
 

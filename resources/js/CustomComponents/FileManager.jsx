@@ -20,7 +20,7 @@ import UploadFileModal from './UploadFileModal';
 
 import { FormatDate } from '@/Functions/FormatDate';
 
-const FileManager = ({files,subjects, currentPage=1, totalPages=1, onPageChange={}}) => {
+const FileManager = ({files,subjects, currentPage=1, totalPages=1, onPageChange={},pageLevel=1, isAdmin=0}) => {
   const [viewType, setViewType] = useState('grid');
   const [filterSubject, setFilterSubject] = useState('');
   const [filterFileType, setFilterFileType] = useState('');
@@ -84,10 +84,17 @@ const FileManager = ({files,subjects, currentPage=1, totalPages=1, onPageChange=
           <div className="flex justify-between gap-2">
             <h3 className="text-lg font-semibold text-emerald-800 mb-4">Recursos escolares</h3>
             <div>
-              <PrimaryButton onClick={() => setModalUpFileOpen(true)}>
-                Subir recurso
-              </PrimaryButton>
-              <UploadFileModal show={modalUpFileOpen} subjects={subjects} onClose={() => setModalUpFileOpen(false)}></UploadFileModal>
+              {(
+                isAdmin ? (
+                  <>
+                    <PrimaryButton onClick={() => setModalUpFileOpen(true)}>
+                      Subir recurso
+                    </PrimaryButton>
+                    <UploadFileModal show={modalUpFileOpen} subjects={subjects} onClose={() => setModalUpFileOpen(false)}></UploadFileModal>
+                  </>
+                ) : ""
+              )}
+            
             </div>
           </div>
           
@@ -192,7 +199,9 @@ const FileManager = ({files,subjects, currentPage=1, totalPages=1, onPageChange=
                             {file.subject}
                         </span>
                         <span>
-                            <ActionFileDropdown></ActionFileDropdown>
+                        <ActionFileDropdown
+                          pageLevel={pageLevel}
+                        />
                         </span>
                     </div>
                   </div>
@@ -234,7 +243,7 @@ const FileManager = ({files,subjects, currentPage=1, totalPages=1, onPageChange=
                       </td>
                       <td className="py-3 px-4">
                         <span>
-                            <ActionFileDropdown></ActionFileDropdown>
+                            <ActionFileDropdown pageLevel={pageLevel} />
                         </span>
                       </td>
                     </tr>

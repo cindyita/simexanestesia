@@ -18,7 +18,8 @@ return new class extends Migration
             $table->unsignedBigInteger('id_company');
             $table->timestamps();
 
-            $table->index(['is_active','id_company']);
+            $table->index(['is_active']);
+            $table->index(['id_company']);
         });
     }
 

@@ -19,7 +19,7 @@ import { FaSearch } from "react-icons/fa";
 import { FormatDate } from '@/Functions/FormatDate';
 
 
-function TableComp({ id_table, table_name, columns, dataRaw, downloadBtns, actionBtns, useFormatDate = true, showTime = false, customActions=[], currentPage=1,totalPages=1, onPageChange={} }) {
+function TableComp({ id_table, table_name, columns, dataRaw, downloadBtns, actionBtns, useFormatDate = true, showTime = false, customActions=[], currentPage=1,totalPages=1, onPageChange={},pageLevel=1 }) {
 
     //--------------------------------------------
     //--------------------------------------------
@@ -115,11 +115,12 @@ function TableComp({ id_table, table_name, columns, dataRaw, downloadBtns, actio
           label: "Acciones",
           renderCell: (item) => (
             <ActionDropdown
-              item={item}
-              onView={actionHandlers.onView}
-              onEdit={actionHandlers.onEdit}
-              onDelete={actionHandlers.onDelete}
-              customActions={customActions}
+                item={item}
+                onView={actionHandlers.onView}
+                onEdit={actionHandlers.onEdit}
+                onDelete={actionHandlers.onDelete}
+                customActions={customActions}
+                pageLevel={+pageLevel}
             />
           ),
           accessor: () => "",
@@ -244,6 +245,7 @@ function TableComp({ id_table, table_name, columns, dataRaw, downloadBtns, actio
                                 onEdit={actionHandlers.onEdit}
                                 onDelete={actionHandlers.onDelete}
                                 customActions={customActions}
+                                pageLevel={+pageLevel}
                             />
                         </div>
                     </span>

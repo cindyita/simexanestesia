@@ -41,7 +41,8 @@ return new class extends Migration
             $table->timestamps();
             
             // Índices
-            $table->index(['id_user', 'id_exam','id_company']);
+            $table->index(['id_company']);
+            $table->index(['id_user', 'id_exam']);
             $table->index(['id_exam', 'status']);
             $table->index(['completed_at']);
             $table->unique(['id_user', 'id_exam', 'attempt_number']); // Evitar intentos duplicados

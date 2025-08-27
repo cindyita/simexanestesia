@@ -31,15 +31,18 @@ Route::middleware('auth')->group(function () {
 
     // PAGES ------------------------
     Route::get('/users', [UsersController::class, 'getUsers'])->middleware(['menu.permission:6'])->name('users');
-    Route::get('/logs', [AccountController::class, 'getLogs'])->name('logs');
-    Route::get('/roles', [UsersController::class, 'getRoles'])->name('roles');
-    Route::get('/exams', [ExamsController::class, 'get'])->name('exams');
-    Route::get('/newexam', [ExamsController::class, 'createExam'])->name('newexam');
-    Route::get('/history', [ExamsController::class, 'getHistory'])->name('history');
-    Route::get('/resources', [ResourcesController::class, 'get'])->name('resources');
+    Route::get('/logs', [AccountController::class, 'getLogs'])->middleware(['menu.permission:8'])->name('logs');
+    Route::get('/roles', [UsersController::class, 'getRoles'])->middleware(['menu.permission:7'])->name('roles');
+    Route::get('/exams', [ExamsController::class, 'get'])->middleware(['menu.permission:2'])->name('exams');
+    Route::get('/newexam', [ExamsController::class, 'createExam'])->middleware(['menu.permission:2'])->name('newexam');
+    Route::get('/history', [ExamsController::class, 'getHistory'])->middleware(['menu.permission:3'])->name('history');
+    Route::get('/resources', [ResourcesController::class, 'get'])->middleware(['menu.permission:4'])->name('resources');
 
     //dashboard ----------------------
     Route::post('/alert', [DashboardController::class, 'alertUpdate'])->name('alert.update');
+
+    // extraAPIS---------------------------
+    Route::post('/getRolPermission', [UsersController::class, 'getRolPermission'])->name('getRolPermission');
 });
 
 Route::get('/session', [AccountController::class, 'getSession']);
