@@ -9,10 +9,14 @@ use App\Models\ViewRolesPermissions;
 use Inertia\Inertia;
 use Inertia\Response;
 
+use Illuminate\Http\Request;
+
 class UsersController extends Controller
 {
-    public function getUsers(): Response {
-        $users = Users::select(
+    public function getUsers(Request $request): Response {
+        $perPage = $request->input('per_page', 15);
+
+            $users = Users::select(
                 'sys_users.id',
                 'sys_users.name',
                 'sys_users.email',
@@ -22,17 +26,19 @@ class UsersController extends Controller
             )
             ->leftJoin('sys_roles', 'sys_users.id_rol', '=', 'sys_roles.id')
             ->orderBy('sys_users.id', 'desc')
-            ->get();
+            ->paginate($perPage);
 
         return Inertia::render('Users', [
             'data' => $users
         ]);
     }
 
-    public function getRoles(): Response {
+    public function getRoles(Request $request): Response {
+        $perPage = $request->input('per_page', 15);
         $roles = ViewRolesPermissions::where('id_company',session('user')['id_company'])
-         ->orderBy('id_rol', 'desc')
-        ->get();
+        ->orderBy('id_rol', 'desc')
+        ->paginate($perPage);
+
         return Inertia::render('Roles', [
             'data' => $roles
         ]);

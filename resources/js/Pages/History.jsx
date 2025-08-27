@@ -1,112 +1,38 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, usePage } from "@inertiajs/react";
+import { router, Head, usePage } from "@inertiajs/react";
+import { useState } from 'react';
 import TableComp from '@/CustomComponents/TableComp';
 
 export default function History() {
     const { data, auth } = usePage().props;
     const user = auth.user;
     const isAdmin = user.id_rol === 1;
+
+    const [currentPage, setCurrentPage] = useState(data.current_page);
+
+    const handlePageChange = (page) => {
+        setCurrentPage(page);
+        router.get('history', { page }, {});
+    };
     
     const columns = isAdmin ? {
         'id': 'id',
         'student_name': 'Alumno',
-        'exam_name': 'Examen',
+        'exam_name': 'Nombre del examen',
         'score': 'P%',
-        'time_used': 'Tiempo',
+        'time_used': 'Tiempo(Min)',
         'attempt_number': 'Intento #',
-        'completed_at': 'Fecha'
+        'completed_at': 'Fecha finalización'
     } : {
         'id': 'id',
-        'exam_name': 'Examen',
+        'exam_name': 'Nombre del examen',
         'score': 'P%',
-        'time_used': 'Tiempo',
+        'time_used': 'Tiempo(Min)',
         'attempt_number': 'Intento #',
-        'completed_at': 'Fecha'
+        'completed_at': 'Fecha finalización'
     };
 
-    // Datos de ejemplo
-    const exampleData = isAdmin ? [
-        {
-            'id': 1,
-            'student_name': 'María García López',
-            'exam_name': 'Fundamentos de React',
-            'score': '85%',
-            'time_used': 45,
-            'attempt_number': 2,
-            'completed_at': '2024-03-15 10:15'
-        },
-        {
-            'id': 2,
-            'student_name': 'Carlos Rodríguez Pérez',
-            'exam_name': 'Álgebra Lineal - Parcial 1',
-            'score': '92%',
-            'time_used': 78,
-            'attempt_number': 1,
-            'completed_at': '2024-03-14 15:18'
-        },
-        {
-            'id': 3,
-            'student_name': 'Ana Martínez Silva',
-            'exam_name': 'Historia Mundial Contemporánea',
-            'score': '76%',
-            'time_used': 65,
-            'attempt_number': 1,
-            'completed_at': '2024-03-13 12:20'
-        },
-        {
-            'id': 4,
-            'student_name': 'Luis González Torres',
-            'exam_name': 'Laboratorio de Química Orgánica',
-            'score': '78%',
-            'time_used': 115,
-            'attempt_number': 3,
-            'completed_at': '2024-03-12 18:25'
-        },
-        {
-            'id': 5,
-            'student_name': 'Sofía Herrera Morales',
-            'exam_name': 'Grammar and Vocabulary Test',
-            'score': '88%',
-            'time_used': 42,
-            'attempt_number': 1,
-            'completed_at': '2024-03-11 10:42'
-        }
-    ] : [
-        {
-            'id': 1,
-            'exam_name': 'Fundamentos de React',
-            'score': '85%',
-            'time_used': 45,
-            'attempt_number': 2,
-            'completed_at': '2024-03-15 10:15'
-        },
-        {
-            'id': 2,
-            'exam_name': 'Álgebra Lineal - Parcial 1',
-            'score': '92%',
-            'time_used': 78,
-            'attempt_number': 1,
-            'completed_at': '2024-03-14 15:18'
-        },
-        {
-            'id': 3,
-            'exam_name': 'Historia Mundial Contemporánea',
-            'score': '76%',
-            'time_used': 65,
-            'attempt_number': 1,
-            'completed_at': '2024-03-13 12:20'
-        },
-        {
-            'id': 4,
-            'exam_name': 'Grammar and Vocabulary Test',
-            'score': '88%',
-            'time_used': 42,
-            'attempt_number': 1,
-            'completed_at': '2024-03-11 10:42'
-        }
-    ];
-
-    const tableData = data || exampleData;
+    const tableData = data.data || exampleData;
 
     return (
         <AuthenticatedLayout
@@ -119,7 +45,7 @@ export default function History() {
             <Head title="Historial" />
             <div className="logs">
                 <div>
-                    <div className="bg-white rounded-lg">
+                    <div className="bg-white rounded-lg shadow">
                         <div className="p-6 text-emerald-900">
 
                             <TableComp
@@ -129,6 +55,9 @@ export default function History() {
                                 dataRaw={tableData}
                                 downloadBtns={true}
                                 actionBtns={true}
+                                currentPage={currentPage}
+                                totalPages={data.last_page}
+                                onPageChange={handlePageChange}
                             />
                         </div>
                     </div>

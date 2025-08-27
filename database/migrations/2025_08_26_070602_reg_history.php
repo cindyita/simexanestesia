@@ -35,11 +35,13 @@ return new class extends Migration
             $table->string('ip_address', 45)->nullable(); // IP desde donde se realizó
             $table->text('user_agent')->nullable(); // Navegador usado
             $table->json('metadata')->nullable(); // Información adicional (configuración del examen al momento del intento)
+
+            $table->unsignedBigInteger('id_company');
             
             $table->timestamps();
             
             // Índices
-            $table->index(['id_user', 'id_exam']);
+            $table->index(['id_user', 'id_exam','id_company']);
             $table->index(['id_exam', 'status']);
             $table->index(['completed_at']);
             $table->unique(['id_user', 'id_exam', 'attempt_number']); // Evitar intentos duplicados

@@ -1,6 +1,7 @@
-import { useState,useRef } from 'react';
+import { useState, useRef, useMemo } from 'react';
 
 import { CompactTable } from "@table-library/react-table-library/compact";
+
 import { useTheme } from "@table-library/react-table-library/theme";
 import { getTheme } from "@table-library/react-table-library/baseline";
 import { useSort } from "@table-library/react-table-library/sort";
@@ -12,34 +13,15 @@ import ActionDropdown from '@/CustomComponents/ActionDropdown';
 import html2canvas from "html2canvas";
 import { jsPDF } from "jspdf";
 
-import { FaFileCsv, FaFilePdf, FaGear } from "react-icons/fa6";
+import { FaFileCsv, FaFilePdf, FaGear, FaSort, FaSortUp, FaSortDown, FaChevronLeft, FaChevronRight } from "react-icons/fa6";
 import { FaSearch } from "react-icons/fa";
 
+import { FormatDate } from '@/Functions/FormatDate';
 
-function TableComp({ id_table, table_name, columns, dataRaw, downloadBtns, actionBtns, useFormatDate = true, showTime = false, customActions=[] }) {
+
+function TableComp({ id_table, table_name, columns, dataRaw, downloadBtns, actionBtns, useFormatDate = true, showTime = false, customActions=[], currentPage=1,totalPages=1, onPageChange={} }) {
 
     //--------------------------------------------
-    // FORMAT DATE
-    const formatDate = (dateString, showTime) => {
-        const date = new Date(dateString);
-
-        if (showTime) {
-            return date.toLocaleString('es-ES', {
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-            });
-        } else {
-            return date.toLocaleDateString('es-ES', {
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric',
-            });
-        }
-    };
-
     //--------------------------------------------
     // PROCESS RAW DATA
     const processData = dataRaw.map(user => {
@@ -49,7 +31,7 @@ function TableComp({ id_table, table_name, columns, dataRaw, downloadBtns, actio
             const newKey = columns[originalKey];
             
             if (useFormatDate && (originalKey === 'created_at' || originalKey === 'updated_at')) {
-                filteredUser[newKey] = formatDate(user[originalKey],showTime);
+                filteredUser[newKey] = FormatDate(user[originalKey],showTime);
             } else {
                 filteredUser[newKey] = user[originalKey];
             }
@@ -95,6 +77,7 @@ function TableComp({ id_table, table_name, columns, dataRaw, downloadBtns, actio
     // MAP COLUMNS AND SORT
     const keys = Object.keys(data.nodes[0] || {});
     const sortFns = {};
+
     const createColumns = (keys, actionBtns = false, actionHandlers = {}) => {
       const mapColumns = keys.map((key) => {
         sortFns[key.toUpperCase()] = (array) =>
@@ -142,7 +125,7 @@ function TableComp({ id_table, table_name, columns, dataRaw, downloadBtns, actio
           accessor: () => "",
             sort: false,
             resize: false,
-            width: 30
+            pinWidth: "95px"
         };
     
         mapColumns.push(actionsColumn);
@@ -216,11 +199,18 @@ function TableComp({ id_table, table_name, columns, dataRaw, downloadBtns, actio
 
     //--------------------------------------------
     // SEARCH FILTER
-    const filteredNodes = data.nodes.filter((item) => {
-        return keys.some((key) =>
-            item[key]?.toString().toLowerCase().includes(search.toLowerCase())
-        );
-    });
+    // const filteredNodes = data.nodes.filter((item) => {
+    //     return keys.some((key) =>
+    //         item[key]?.toString().toLowerCase().includes(search.toLowerCase())
+    //     );
+    // });
+    const filteredNodes = useMemo(() => {
+        return data.nodes.filter((item) => {
+            return keys.some((key) =>
+                item[key]?.toString().toLowerCase().includes(search.toLowerCase())
+            );
+        });
+    }, [data.nodes, keys, search]);
 
     const filteredData = { nodes: filteredNodes };
 
@@ -262,6 +252,13 @@ function TableComp({ id_table, table_name, columns, dataRaw, downloadBtns, actio
         ))}
         </div>
     );
+
+    const getSortIcon = (key) => {
+        if (sort.state?.sortKey === key.toUpperCase()) {
+            return sort.state.reverse ? <FaSortDown className="ml-1" /> : <FaSortUp className="ml-1" />;
+        }
+        return <FaSort className="ml-1 opacity-50" />;
+    };
 
     // RETURN --------------------------------------------------------
     return (
@@ -319,7 +316,7 @@ function TableComp({ id_table, table_name, columns, dataRaw, downloadBtns, actio
                 <div className="p-2 sm:p-4 sm:pt-2 relative">
                     {/* Desktop */}
                     <div className="hidden md:block overflow-x-auto">
-                        <div className="overflow-x-auto max-h-96 overflow-y-auto">
+                        <div className="overflow-x-auto overflow-y-auto">
                             <div style={{ minWidth: '600px' }}>
                                 <CompactTable
                                     columns={mapColumns}
@@ -328,37 +325,40 @@ function TableComp({ id_table, table_name, columns, dataRaw, downloadBtns, actio
                                     theme={{
                                         ...theme,
                                         Table: `
-                                            --data-table-library_grid-template-columns: ${mapColumns.map(() => 'auto').join(' ')};
-                                            background-color: white;
-                                            border-radius: 8px;
-                                            font-size: 14px;
+                                        background-color: white;
+                                        border-radius: 8px;
+                                        font-size: 14px;
+                                        --data-table-library_grid-template-columns: ${mapColumns
+                                                .map((col) => (col.key === "action" ? "95px" : (col.key === 'id' ? "95px" :"auto")))
+                                            .join(" ")};
                                         `,
                                         Header: {
-                                            backgroundColor: '#f8fafc',
-                                            color: '#374151',
-                                            fontWeight: '600',
-                                            borderBottom: '2px solid #e5e7eb',
+                                        backgroundColor: '#f8fafc',
+                                        color: '#374151',
+                                        fontWeight: '600',
+                                        borderBottom: '2px solid #e5e7eb',
                                         },
                                         Row: {
-                                            backgroundColor: 'white',
-                                            '&:nth-of-type(even)': {
+                                        backgroundColor: 'white',
+                                        '&:nth-of-type(even)': {
                                             backgroundColor: '#f9fafb',
-                                            },
-                                            '&:hover': {
+                                        },
+                                        '&:hover': {
                                             backgroundColor: '#f3f4f6',
-                                            },
+                                        },
                                         },
                                         Cell: {
-                                            padding: '12px',
-                                            borderRight: '1px solid #e5e7eb',
-                                            '&:last-child': {
+                                        padding: '12px',
+                                        borderRight: '1px solid #e5e7eb',
+                                        '&:last-child': {
                                             borderRight: 'none',
-                                            },
+                                        },
                                         },
                                     }}
-                                    layout={{ 
+                                    layout={{
                                         fixedHeader: true,
-                                        horizontalScroll: true 
+                                        horizontalScroll: true,
+                                        custom: true
                                     }}
                                 />
                             </div>
@@ -372,13 +372,31 @@ function TableComp({ id_table, table_name, columns, dataRaw, downloadBtns, actio
                         </div>
                     </div>
                 
-                    {/* Pagination */}
+                    {/* ------ PAGINATION ------- */}
                     <div className="mt-4 text-sm text-gray-500 text-center md:text-left">
                         Mostrando {filteredNodes.length} de {data.nodes.length} resultados
                         {search && (
                         <span> para "{search}"</span>
                         )}
                     </div>
+
+                    <div className="mt-1 flex justify-between items-center">
+                        <span className="text-sm text-gray-500">Página {currentPage} de {totalPages}</span>
+
+                        <div className="flex gap-1">
+                            {[...Array(totalPages)].map((_, index) => (
+                                <button
+                                    key={index}
+                                    className={`px-3 py-1 rounded-lg text-sm ${currentPage === index + 1 ? 'bg-[var(--primary)] text-white' : ''}`}
+                                    onClick={() => onPageChange(index + 1)}
+                                >
+                                    {index + 1}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                    {/* ------------------------ */}
+
                 </div>
             </div>
     

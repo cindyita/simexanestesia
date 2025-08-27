@@ -1,11 +1,21 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, usePage } from "@inertiajs/react";
+import { router, Head, usePage } from "@inertiajs/react";
+import { useState } from 'react';
 import TableComp from '@/CustomComponents/TableComp';
 import PrimaryButton from '@/CustomComponents/button/PrimaryButton';
 
 export default function Users() {
 
     const data = usePage().props.data;
+
+    const [currentPage, setCurrentPage] = useState(data.current_page);
+    
+    const handlePageChange = (page) => {
+        setCurrentPage(page);
+        router.get('users', { page }, {});
+    };
+
+    const users = data.data;
 
     const columns = {
         'id': 'id',
@@ -27,7 +37,7 @@ export default function Users() {
 
             <div className="users">
                 <div>
-                    <div className="bg-white rounded-lg">
+                    <div className="bg-white rounded-lg shadow">
                         <div className="flex justify-between px-6 md:px-10 pt-6">
                             <div className="flex items-center gap-2">
                                 <h3 className="text-lg font-semibold">
@@ -42,9 +52,14 @@ export default function Users() {
                             <TableComp
                                 id_table={'users_table'}
                                 columns={columns}
-                                dataRaw={data}
+                                dataRaw={users}
                                 downloadBtns={true}
                                 actionBtns={true}
+                                useFormatDate={true}
+                                showTime={true}
+                                currentPage={currentPage}
+                                totalPages={data.last_page}
+                                onPageChange={handlePageChange}
                             />
                         </div>
                     </div>

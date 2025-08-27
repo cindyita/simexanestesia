@@ -7,4 +7,24 @@ class Company extends Model
 {
     protected $table = 'sys_company';
 
+    protected $fillable = [
+        'id',
+        'name',
+        'description',
+        'title',
+        'primary_color',
+        'secondary_color',
+        'tertiary_color',
+        'font_color',
+        'box_color',
+        'text_color',
+        'style_type',
+        'logo',
+        'icon',
+        'url',
+        'register_key',
+        'created_at',
+        'updated_at'
+    ];
+
 }
