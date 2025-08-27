@@ -15,7 +15,10 @@ return new class extends Migration
             $table->text('description')->nullable();
             $table->string('color', 7)->nullable();
             $table->boolean('is_active')->default(true);
+            $table->unsignedBigInteger('id_company');
             $table->timestamps();
+
+            $table->index(['is_active','id_company']);
         });
     }
 

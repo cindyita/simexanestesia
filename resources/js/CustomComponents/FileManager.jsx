@@ -18,7 +18,9 @@ import { Link } from '@inertiajs/react';
 import PrimaryButton from './button/PrimaryButton';
 import UploadFileModal from './UploadFileModal';
 
-const FileManager = ({files,subjects}) => {
+import { FormatDate } from '@/Functions/FormatDate';
+
+const FileManager = ({files,subjects, currentPage=1, totalPages=1, onPageChange={}}) => {
   const [viewType, setViewType] = useState('grid');
   const [filterSubject, setFilterSubject] = useState('');
   const [filterFileType, setFilterFileType] = useState('');
@@ -59,12 +61,12 @@ const FileManager = ({files,subjects}) => {
   };
 
   const subjectsList = [...new Set(files.map(file => file.subject))].sort();
-  const fileTypes = [...new Set(files.map(file => file.type))].sort();
+  const fileTypes = [...new Set(files.map(file => file.file_type))].sort();
 
   const filteredFiles = useMemo(() => {
     return files.filter(file => {
       const matchesSubject = !filterSubject || file.subject === filterSubject;
-      const matchesFileType = !filterFileType || file.type === filterFileType;
+      const matchesFileType = !filterFileType || file.file_type === filterFileType;
       return matchesSubject && matchesFileType;
     });
   }, [filterSubject, filterFileType]);
@@ -76,7 +78,7 @@ const FileManager = ({files,subjects}) => {
 
   return (
     <div className="px-6">
-      <div className="max-w-7xl mx-auto">
+      <div>
         {/* Header */}
         <div className="mb-6">
           <div className="flex justify-between gap-2">
@@ -171,7 +173,7 @@ const FileManager = ({files,subjects}) => {
               <div key={file.id} className="bg-white rounded-lg shadow hover:shadow-lg hover:border-emerald-500 transition-shadow p-4 cursor-pointer border border-gray-200">
                 <div className="flex flex-col items-center text-center">
                   <div className="mb-3">
-                    {getFileIcon(file.type)}
+                    {getFileIcon(file.file_type)}
                   </div>
                   <h3 className="font-medium text-gray-800 text-sm mb-2 line-clamp-2 leading-tight min-h-9">
                     {file.name}
@@ -179,11 +181,11 @@ const FileManager = ({files,subjects}) => {
                   <div className="text-xs text-gray-500 space-y-1 w-full">
                     <div className="flex justify-between">
                       <span>Tamaño:</span>
-                      <span className="font-medium">{file.size}</span>
+                      <span className="font-medium">{file.file_size}</span>
                     </div>
                     <div className="flex justify-between">
                       <span>Fecha:</span>
-                      <span className="font-medium">{file.date}</span>
+                      <span className="font-medium">{FormatDate(file.created_at)}</span>
                     </div>
                     <div className="mt-2 pt-2 border-t border-gray-100 flex justify-between">
                         <span className="inline-block bg-emerald-100  text-emerald-800 px-2 py-1 rounded-lg text-xs font-medium">
@@ -219,12 +221,12 @@ const FileManager = ({files,subjects}) => {
                     <tr key={file.id} className={`border-b border-emerald-300 hover:bg-emerald-100 cursor-pointer transition-colors ${index % 2 === 0 ? 'bg-white' : 'bg-emerald-50'}`}>
                       <td className="py-3 px-4">
                         <div className="flex items-center gap-3">
-                          {getFileIcon(file.type)}
+                          {getFileIcon(file.file_type)}
                           <span className="font-medium text-emerald-800">{file.name}</span>
                         </div>
                       </td>
-                      <td className="py-3 px-4 text-emerald-600">{file.size}</td>
-                      <td className="py-3 px-4 text-emerald-600">{file.date}</td>
+                      <td className="py-3 px-4 text-emerald-600">{file.file_size}</td>
+                      <td className="py-3 px-4 text-emerald-600">{FormatDate(file.created_at)}</td>
                       <td className="py-3 px-4">
                         <span className="inline-block bg-emerald-100 text-emerald-800 px-2 py-1 rounded-full text-xs font-medium">
                           {file.subject}
@@ -247,11 +249,30 @@ const FileManager = ({files,subjects}) => {
         {filteredFiles.length === 0 && (
           <div className="text-center py-12 bg-white rounded-lg shadow">
             <div className="text-gray-400 text-6xl mb-4">📁</div>
-            <h3 className="text-lg font-medium text-gray-700 mb-2">No se encontraron archivos</h3>
+            <h3 className="text-lg font-medium text-gray-700 mb-2">No se encontraron recursos</h3>
             <p className="text-gray-500">Intenta cambiar los filtros para ver más resultados</p>
           </div>
         )}
       </div>
+
+      {/* ------ PAGINATION ------- */}
+      <div className="mt-6 flex justify-center items-center gap-4">
+          <span className="text-sm text-gray-500">Página {currentPage} de {totalPages}</span>
+
+          <div className="flex gap-1">
+              {[...Array(totalPages)].map((_, index) => (
+                  <button
+                      key={index}
+                      className={`px-3 py-1 rounded-lg text-sm ${currentPage === index + 1 ? 'bg-[var(--primary)] text-white' : ''}`}
+                      onClick={() => onPageChange(index + 1)}
+                  >
+                      {index + 1}
+                  </button>
+              ))}
+          </div>
+      </div>
+      {/* ------------------------ */}
+
     </div>
   );
 };

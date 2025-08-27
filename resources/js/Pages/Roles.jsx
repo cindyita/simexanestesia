@@ -1,5 +1,5 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, usePage } from "@inertiajs/react";
+import { router,Head, usePage } from "@inertiajs/react";
 import { useState } from 'react';
 import TableComp from '@/CustomComponents/TableComp';
 import PrimaryButton from '@/CustomComponents/button/PrimaryButton';
@@ -11,8 +11,15 @@ import { FaKey } from "react-icons/fa";
 export default function Roles() {
 
     const [modalKeyOpen, setModalKeyOpen] = useState(false);
+    const [currentPage, setCurrentPage] = useState(data.current_page);
 
     const data = usePage().props.data;
+    const roles = data.data;
+
+    const handlePageChange = (page) => {
+        setCurrentPage(page);
+        router.get('users', { page }, {});
+    };
 
     const columns = {
         'id_rol': 'id',
@@ -39,7 +46,7 @@ export default function Roles() {
 
             <div className="roles">
                 <div>
-                    <div className="bg-white rounded-lg">
+                    <div className="bg-white rounded-lg shadow">
                         <div className="flex justify-between px-6 md:px-10 pt-6">
                             <div className="flex items-center gap-2">
                                 <h3 className="text-lg font-semibold">
@@ -54,10 +61,13 @@ export default function Roles() {
                             <TableComp
                                 id_table={'roles_table'}
                                 columns={columns}
-                                dataRaw={data}
+                                dataRaw={roles}
                                 downloadBtns={true}
                                 actionBtns={true}
                                 customActions={permissionAction}
+                                currentPage={currentPage}
+                                totalPages={data.last_page}
+                                onPageChange={handlePageChange}
                             />
                         </div>
                     </div>

@@ -46,11 +46,13 @@ return new class extends Migration
             
             // Información adicional
             $table->json('tags')->nullable(); // Etiquetas para búsqueda: ["beginner", "advanced", "tutorial"]
+
+            $table->unsignedBigInteger('id_company');
             
             $table->timestamps();
             
             // Índices
-            $table->index(['id_subject', 'is_active']);
+            $table->index(['id_subject', 'is_active','id_company']);
             $table->index(['resource_type', 'visibility']);
             $table->index(['file_type']);
             $table->index(['uploaded_by']);

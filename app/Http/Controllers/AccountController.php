@@ -75,8 +75,14 @@ class AccountController extends Controller
         return Redirect::to('/');
     }
 
-    public function getLogs() {
-        $logs = Activity::where('event',session('user')['id_company'])->orderBy('id', 'desc')->get();
+    public function getLogs(Request $request) {
+        $perPage = $request->input('per_page', 15);
+        $logs = Activity::select('activity_log.*','sys_users.name')
+        ->leftJoin('sys_users', 'sys_users.id', '=', 'activity_log.causer_id')
+        ->where('activity_log.event',session('user')['id_company'])
+        ->orderBy('activity_log.id', 'desc')
+        ->paginate($perPage);
+
         return Inertia::render('Logs', [
             'data' => $logs
         ]);

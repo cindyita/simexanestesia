@@ -30,11 +30,13 @@ return new class extends Migration
             // Control de disponibilidad
             $table->boolean('is_active')->default(true);
             $table->boolean('show_results')->default(true); // Mostrar resultados al terminar
+
+            $table->unsignedBigInteger('id_company');
             
             $table->timestamps();
             
             // Índices
-            $table->index(['id_subject', 'is_active']);
+            $table->index(['id_subject', 'is_active','id_company']);
         });
     }
 
