@@ -134,7 +134,7 @@ export default function Register() {
                 <div className="mt-2 flex flex-col gap-4 items-center justify-end">
                     <Link
                         href={route('login')}
-                        className="rounded-xl text-sm text-emerald-600 underline hover:text-emerald-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
+                        className="text-sm text-emerald-600 underline hover:text-emerald-900"
                     >
                         Ya tengo cuenta
                     </Link>

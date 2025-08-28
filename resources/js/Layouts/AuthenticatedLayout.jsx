@@ -18,7 +18,7 @@ import { FaBook } from "react-icons/fa";
 export default function AuthenticatedLayout({ header, children }) {
     const user = usePage().props.auth.user;
     const company = usePage().props.company;
-    const menu = usePage().props.menu;
+    const menu = usePage().props.menu ?? {"1":{"id":1,"name":"Dashboard","icon":"MdDashboard","url":"\/","reg_order":1,"level":1,"has_permission":1}};
     
     useEffect(() => {
         if (company) {
