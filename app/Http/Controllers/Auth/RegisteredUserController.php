@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Models\Company; 
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -28,8 +29,16 @@ class RegisteredUserController extends Controller
      *
      * @throws \Illuminate\Validation\ValidationException
      */
-    public function store(Request $request): RedirectResponse
+    public function store(Request $request)
     {
+        $company = Company::select("id")
+                ->where("register_key", $request->register_key)
+                ->first();
+
+        if(!$company){
+            return Inertia::render('ErrorPage',[
+            'status' => 'invalid_key']);
+        }
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|lowercase|email|max:255|unique:'.User::class,
@@ -39,13 +48,15 @@ class RegisteredUserController extends Controller
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
+            'id_company'=>$company->id,
+            'id_rol'=>5,
             'password' => Hash::make($request->password),
         ]);
 
         event(new Registered($user));
 
         activity('auth create')
-            ->causedBy($request->user())
+            ->causedBy($user)
             ->withProperties(['Nueva cuenta: '=>$user])
             ->log('Se registró un usuario');
 

@@ -13,6 +13,8 @@ class Users extends Model
         'id',
         'name',
         'email',
+        'id_company',
+        'id_rol',
         'email_verified_at',
         'created_at',
         'updated_at'

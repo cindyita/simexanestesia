@@ -12,7 +12,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        DB::statement("CREATE VIEW view_role_permissions AS
+        DB::statement("CREATE OR REPLACE ALGORITHM=UNDEFINED SQL SECURITY INVOKER VIEW view_role_permissions AS
             SELECT 
                 r.id AS id_rol,
                 r.name AS rol_name,
@@ -31,6 +31,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('view_role_permissions');
+         DB::statement("DROP VIEW IF EXISTS view_role_permissions");
     }
 };
