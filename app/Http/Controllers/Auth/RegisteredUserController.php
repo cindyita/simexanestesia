@@ -41,7 +41,7 @@ class RegisteredUserController extends Controller
         }
         $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|string|lowercase|email|max:255|unique:'.User::class,
+            'email' => 'required|string|lowercase|email|max:255|unique:sys_users,email',
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
@@ -53,11 +53,15 @@ class RegisteredUserController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
+        if (!$user) {
+            return redirect()->back()->withErrors(['msg' => 'No se pudo crear el usuario. Intenta de nuevo.']);
+        }
+
         event(new Registered($user));
 
         activity('auth create')
             ->causedBy($user)
-            ->withProperties(['Nueva cuenta: '=>$user])
+            ->withProperties(['Nueva cuenta: '=>$user->only(['id','name','email'])])
             ->log('Se registró un usuario');
 
         Auth::login($user);

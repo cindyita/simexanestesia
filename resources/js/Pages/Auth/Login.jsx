@@ -81,14 +81,23 @@ export default function Login({ status, canResetPassword }) {
                 </div>
 
                 <div className="mt-2 flex flex-col gap-5 items-center justify-end">
-                    {canResetPassword && (
+                    <div className="flex flex-col gap-2 items-center">
+                        {canResetPassword && (
+                            <Link
+                                href={route('password.request')}
+                                className="text-sm text-emerald-600 underline hover:text-emerald-900"
+                            >
+                                Olvidé mi contraseña
+                            </Link>
+                        )}
+
                         <Link
-                            href={route('password.request')}
-                            className="rounded-xl text-sm text-emerald-600 underline hover:text-emerald-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
+                            href='/register'
+                            className="text-sm text-emerald-600 underline hover:text-emerald-900"
                         >
-                            Olvidé mi contraseña
+                            No tengo cuenta
                         </Link>
-                    )}
+                    </div>
 
                     <PrimaryButton disabled={processing}>
                         Iniciar sesión
