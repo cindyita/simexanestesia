@@ -10,7 +10,8 @@ export default function ErrorPage({ status }) {
         case 403: message = 'No tienes permisos para acceder a esta página'; break;
         case 404: message = 'La página no existe'; break;
         case 500: message = 'Error interno del servidor.'; break;
-        case 503: message = 'Servicio temporalmente no disponible.'; break;
+      case 503: message = 'Servicio temporalmente no disponible.'; break;
+      case 'invalid_key': message = 'La clave de registro no coincide.'; break;
         default: message = 'Ocurrió un error inesperado.'; break;
     }
   
