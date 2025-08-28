@@ -1,5 +1,5 @@
-import AppLogo from '@/CustomComponents/AppLogo';
-import Dropdown from '@/CustomComponents/Dropdown';
+import AppLogo from '@/CustomComponents/logo/AppLogo';
+import Dropdown from '@/CustomComponents/dropdown/Dropdown';
 import { Link, usePage } from '@inertiajs/react';
 import { useEffect } from 'react';
 

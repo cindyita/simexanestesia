@@ -9,7 +9,7 @@ return new class extends Migration
     public function up()
     {
         Schema::create('reg_exams_questions', function (Blueprint $table) {
-            $table->id();
+            $table->id()->primary();
             $table->foreignId('id_exam')->constrained('reg_exams')->onDelete('cascade');
             $table->text('question'); // La pregunta
             $table->enum('question_type', ['multiple_choice', 'true_false', 'essay','other'])->default('multiple_choice');

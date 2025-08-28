@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('sys_company', function (Blueprint $table) {
-            $table->id();
+            $table->id()->primary();
             $table->string('name');
             $table->longText('description');
             $table->string('title');
@@ -26,6 +26,7 @@ return new class extends Migration
             $table->string('logo');
             $table->string('url');
             $table->string('register_key');
+            $table->unsignedBigInteger('id_rol_register')->index();
             $table->timestamps();
         });
     }

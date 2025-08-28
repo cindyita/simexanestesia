@@ -1,8 +1,8 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { router,Head, usePage } from "@inertiajs/react";
 import { useState } from 'react';
-import FileManager from '@/CustomComponents/FileManager';
-import UploadFileModal from '@/CustomComponents/UploadFileModal';
+import FileManager from '@/CustomComponents/manager/FileManager';
+import UploadFileModal from '@/CustomComponents/modal/UploadFileModal';
 
 export default function Resources() {
 

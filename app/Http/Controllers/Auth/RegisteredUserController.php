@@ -31,7 +31,7 @@ class RegisteredUserController extends Controller
      */
     public function store(Request $request)
     {
-        $company = Company::select("id")
+        $company = Company::select("id","id_rol_register")
                 ->where("register_key", $request->register_key)
                 ->first();
 
@@ -49,7 +49,7 @@ class RegisteredUserController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'id_company'=>$company->id,
-            'id_rol'=>5,
+            'id_rol'=>$company->id_rol_register,
             'password' => Hash::make($request->password),
         ]);
 

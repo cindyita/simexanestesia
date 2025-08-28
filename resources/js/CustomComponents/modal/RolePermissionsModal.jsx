@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
-import Modal from "@/CustomComponents/Modal";
+import Modal from "@/CustomComponents/modal/Modal";
 import { FaKey, FaTimes, FaLock } from "react-icons/fa";
-import PrimaryButton from "./button/PrimaryButton";
+import PrimaryButton from "../button/PrimaryButton";
 
 export default function RolePermissionsModal({ show, onClose, roleName, data = [], onSave }) {
 
@@ -84,6 +84,11 @@ export default function RolePermissionsModal({ show, onClose, roleName, data = [
             </tbody>
           </table>
         </div>
+        {
+          permissions.length == 0 ? (
+            <>Cargando información..</>
+          ) : ""
+        }
 
         <div className="mt-6 flex justify-end">
           <PrimaryButton onClick={handleSave}>

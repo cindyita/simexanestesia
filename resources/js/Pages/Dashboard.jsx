@@ -12,7 +12,7 @@ import { MdOutlineTrendingUp, MdOutlineTrendingDown } from "react-icons/md";
 import { FaSyringe } from "react-icons/fa";
 
 import MiniButton from '@/CustomComponents/button/MiniButton';
-import Modal from '@/CustomComponents/Modal';
+import Modal from '@/CustomComponents/modal/Modal';
 import PrimaryButton from '@/CustomComponents/button/PrimaryButton';
 import SecondaryButton from '@/CustomComponents/button/SecondaryButton';
 

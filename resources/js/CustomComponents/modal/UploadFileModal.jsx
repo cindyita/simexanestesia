@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import Modal from "@/CustomComponents/Modal";
+import Modal from "@/CustomComponents/modal/Modal";
 import { FaUpload, FaTimes } from "react-icons/fa";
 
 export default function UploadFileModal({ show, onClose, subjects, onUpload }) {

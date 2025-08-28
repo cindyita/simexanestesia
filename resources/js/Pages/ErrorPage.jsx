@@ -1,5 +1,5 @@
 import PrimaryButton from "@/CustomComponents/button/PrimaryButton";
-import AppLogoFull from '@/CustomComponents/AppLogoFull';
+import AppLogoFull from '@/CustomComponents/logo/AppLogoFull';
 import { Link } from '@inertiajs/react';
 
 export default function ErrorPage({ status }) {

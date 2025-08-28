@@ -9,7 +9,7 @@ return new class extends Migration
     public function up()
     {
         Schema::create('reg_resources', function (Blueprint $table) {
-            $table->id();
+            $table->id()->primary();
             $table->string('name', 255);
             $table->text('description')->nullable();
             

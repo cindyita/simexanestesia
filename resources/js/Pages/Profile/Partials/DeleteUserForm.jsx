@@ -1,7 +1,7 @@
 import DangerButton from '@/CustomComponents/button/DangerButton';
 import InputError from '@/CustomComponents/form/InputError';
 import InputLabel from '@/CustomComponents/form/InputLabel';
-import Modal from '@/CustomComponents/Modal';
+import Modal from '@/CustomComponents/modal/Modal';
 import SecondaryButton from '@/CustomComponents/button/SecondaryButton';
 import TextInput from '@/CustomComponents/form/TextInput';
 import { useForm } from '@inertiajs/react';

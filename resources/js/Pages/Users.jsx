@@ -1,7 +1,7 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { router, Head, usePage } from "@inertiajs/react";
 import { useState } from 'react';
-import TableComp from '@/CustomComponents/TableComp';
+import TableComp from '@/CustomComponents/table/TableComp';
 import PrimaryButton from '@/CustomComponents/button/PrimaryButton';
 
 export default function Users() {
