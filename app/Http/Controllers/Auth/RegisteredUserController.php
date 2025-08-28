@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\Company; 
+use App\Models\Roles;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -13,6 +14,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 use Inertia\Inertia;
 use Inertia\Response;
+use App\Services\MenuService;
 
 class RegisteredUserController extends Controller
 {
@@ -65,6 +67,28 @@ class RegisteredUserController extends Controller
             ->log('Se registró un usuario');
 
         Auth::login($user);
+
+        //------------------------------
+        $role = Roles::select('mode_admin','name')
+        ->where('id', $user->id_rol)
+        ->first();
+
+        $request->session()->put('user', [
+            'id' => $user->id,
+            'name' => $user->name,
+            'email' => $user->email,
+            'id_rol' => $user->id_rol,
+            'rol_name' => $role->name,
+            'mode_admin' => $role->mode_admin,
+            'id_company' => $user->id_company,
+        ]);
+
+        $company = Company::where("id", $user->id_company)->first();
+
+        $request->session()->put('company', $company);
+        $menu = new MenuService;
+        $menu->setMenuInSession($user->id_rol);
+        //------------------------------
 
         return redirect(route('dashboard', absolute: false));
     }
