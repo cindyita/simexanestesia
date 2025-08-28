@@ -1,12 +1,15 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { router,Head, usePage } from "@inertiajs/react";
 import { useState } from 'react';
-import TableComp from '@/CustomComponents/TableComp';
+import TableComp from '@/CustomComponents/table/TableComp';
 import PrimaryButton from '@/CustomComponents/button/PrimaryButton';
 
-import RolePermissionsModal from '@/CustomComponents/RolePermissionsModal';
+import RolePermissionsModal from '@/CustomComponents/modal/RolePermissionsModal';
+import RoleSettingsModal from '@/CustomComponents/modal/RoleSettingsModal';
 
 import { FaKey } from "react-icons/fa";
+import { FaGear } from "react-icons/fa6";
+import IconButton from '@/CustomComponents/button/IconButton';
 
 export default function Roles() {
     if (!usePage().props.menu[7]) return;
@@ -15,6 +18,7 @@ export default function Roles() {
     const pageLevel = usePage().props.menu[7]['level'];
 
     const [modalKeyOpen, setModalKeyOpen] = useState(false);
+    const [modalSettingsOpen, setModalSettingsOpen] = useState(false);
     const [currentPage, setCurrentPage] = useState(data.current_page);
     const [permissions, setPermissions] = useState([]);
     const [roleName, setRoleName] = useState([]);
@@ -62,7 +66,6 @@ export default function Roles() {
 
                 const data = await response.json();
                 setPermissions(data.permissions);
-                console.log(data.permissions);
 
             } catch (error) {
                 console.error("Error:", error);
@@ -89,7 +92,8 @@ export default function Roles() {
                                     Roles
                                 </h3>
                             </div>
-                            <div>
+                            <div className="flex items-center gap-2">
+                                <IconButton onClick={() => setModalSettingsOpen(true)}><FaGear className="w-4 h-4 mx-1" /></IconButton>
                                 <PrimaryButton>Nuevo rol</PrimaryButton>
                             </div>
                         </div>
@@ -112,6 +116,7 @@ export default function Roles() {
             </div>
 
             <RolePermissionsModal show={modalKeyOpen} onClose={() => setModalKeyOpen(false)} roleName={roleName} data={permissions} />
+            <RoleSettingsModal show={modalSettingsOpen} onClose={() => setModalSettingsOpen(false)} />
 
         </AuthenticatedLayout>
     );

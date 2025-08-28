@@ -8,7 +8,7 @@ import { useSort } from "@table-library/react-table-library/sort";
 
 import IconButton from '@/CustomComponents/button/IconButton';
 import TextInput from '@/CustomComponents/form/TextInput';
-import ActionDropdown from '@/CustomComponents/ActionDropdown';
+import ActionDropdown from '@/CustomComponents/dropdown/ActionDropdown';
 
 import html2canvas from "html2canvas";
 import { jsPDF } from "jspdf";

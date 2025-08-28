@@ -9,7 +9,7 @@ return new class extends Migration
     public function up()
     {
         Schema::create('reg_history', function (Blueprint $table) {
-            $table->id();
+            $table->id()->primary();
             $table->foreignId('id_user')->constrained('sys_users')->onDelete('cascade'); // Estudiante
             $table->foreignId('id_exam')->constrained('reg_exams')->onDelete('cascade');
             

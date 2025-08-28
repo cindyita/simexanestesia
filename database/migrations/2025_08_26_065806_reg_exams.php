@@ -9,7 +9,7 @@ return new class extends Migration
     public function up()
     {
         Schema::create('reg_exams', function (Blueprint $table) {
-            $table->id();
+            $table->id()->primary();
             $table->string('name', 200);
             $table->text('description')->nullable();
             $table->foreignId('id_subject')->constrained('reg_subjects')->onDelete('cascade');

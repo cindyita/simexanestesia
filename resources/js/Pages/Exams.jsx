@@ -1,7 +1,7 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { router, Head, usePage } from "@inertiajs/react";
 import { useState } from 'react';
-import ExamManager from '@/CustomComponents/ExamManager';
+import ExamManager from '@/CustomComponents/manager/ExamManager';
 
 export default function Exams() {
 

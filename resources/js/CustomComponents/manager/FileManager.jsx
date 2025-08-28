@@ -13,10 +13,10 @@ import {
     FaFilter,
     FaTimes
 } from 'react-icons/fa';
-import ActionFileDropdown from './ActionFileDropdown';
+import ActionFileDropdown from '../dropdown/ActionFileDropdown';
 import { Link } from '@inertiajs/react';
-import PrimaryButton from './button/PrimaryButton';
-import UploadFileModal from './UploadFileModal';
+import PrimaryButton from '../button/PrimaryButton';
+import UploadFileModal from '../modal/UploadFileModal';
 
 import { FormatDate } from '@/Functions/FormatDate';
 

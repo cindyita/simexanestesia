@@ -17,12 +17,12 @@ import {
 } from 'react-icons/fa';
 import { MdOutlineRateReview } from "react-icons/md";
 
-import PrimaryButton from './button/PrimaryButton';
-import SecondaryButton from './button/SecondaryButton';
+import PrimaryButton from '../button/PrimaryButton';
+import SecondaryButton from '../button/SecondaryButton';
 
 import { Link } from '@inertiajs/react';
-import ActionExamDropdown from './ActionExamDropdown';
-import TertiaryButton from './button/TertiaryButton';
+import ActionExamDropdown from '../dropdown/ActionExamDropdown';
+import TertiaryButton from '../button/TertiaryButton';
 import { FormatDate } from '@/Functions/FormatDate';
 
 const ExamManager = ({exams, currentPage=1,totalPages=1, onPageChange={},pageLevel=1,isAdmin=false}) => {

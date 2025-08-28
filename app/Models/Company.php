@@ -23,6 +23,7 @@ class Company extends Model
         'icon',
         'url',
         'register_key',
+        'id_rol_register',
         'created_at',
         'updated_at'
     ];
