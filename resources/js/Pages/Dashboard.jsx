@@ -19,6 +19,8 @@ import SecondaryButton from '@/CustomComponents/button/SecondaryButton';
 export default function Dashboard() {
 
     const alertsProp = usePage().props.alerts;
+    const isAdmin = usePage().props.user['mode_admin'] ? true : false;
+
     const alerts = alertsProp.length > 0 ? alertsProp : [
         {
             id: 0,
@@ -121,7 +123,10 @@ export default function Dashboard() {
                                             <CardDescription className="text-gray-600 text-sm">
                                                 {alert.description}
                                             </CardDescription>
-                                            <MiniButton className="mt-2 md:mt-0" onClick={() => handleAlertEdit(alert)}>Cambiar aviso</MiniButton>
+                                            {(isAdmin ? (
+                                                <MiniButton className="mt-2 md:mt-0" onClick={() => handleAlertEdit(alert)}>Cambiar aviso</MiniButton>
+                                            ) : "")}
+                                            
                                         </div>
                                         
                                     </div>
@@ -293,69 +298,71 @@ export default function Dashboard() {
             </div>
 
             {/* Modal */}
-            <Modal show={modalAlertOpen} onClose={() => setModalAlertOpen(false)}>
-                {data && <form
-                    onSubmit={handleAlertSave}
-                    className="p-6 space-y-4"
-                >
-                    <input type="hidden" name="id" value={data.id} />
-                    <h2 className="text-xl font-bold">Cambiar Aviso</h2>
-                    <div>
-                        <label className="block text-sm font-medium">Título</label>
-                        <input
-                            type="text"
-                            name="title"
-                            value={data.title}
-                            onChange={(e) => setData('title', e.target.value)}
-                            className="mt-1 block w-full border border-gray-300 rounded-md p-2"
-                        />
-                    </div>
-                    <div>
-                        <label className="block text-sm font-medium">Descripción</label>
-                        <textarea
-                            name="description"
-                            value={data.description}
-                            onChange={(e) => setData('description', e.target.value)}
-                            className="mt-1 block w-full border border-gray-300 rounded-md p-2"
-                        />
-                    </div>
-                    <div>
-                        <label className="block text-sm font-medium">Expiración</label>
-                        <input type="datetime-local" name="expire" value={data.expire}
-                            onChange={(e) => setData('expire', e.target.value)}
-                            className="mt-1 block w-full border border-gray-300 rounded-md p-2" />
-                    </div>
-                    <div>
-                        <label className="block text-sm font-medium">Tipo</label>
-                        <select
-                            name="type"
-                            value={data.type}
-                            onChange={(e) => setData('type', e.target.value)}
-                            className="mt-1 block w-full border border-gray-300 rounded-md p-2"
-                        >
-                            <option value="warning">Advertencia (Verde)</option>
-                            <option value="info">Información (Blanco)</option>
-                            <option value="precaution">Precaución (Amarillo)</option>
-                            <option value="danger">Peligro (Rojo)</option>
-                        </select>
-                    </div>
+            {(isAdmin ? (
+                <Modal show={modalAlertOpen} onClose={() => setModalAlertOpen(false)}>
+                    {data && <form
+                        onSubmit={handleAlertSave}
+                        className="p-6 space-y-4"
+                    >
+                        <input type="hidden" name="id" value={data.id} />
+                        <h2 className="text-xl font-bold">Cambiar Aviso</h2>
+                        <div>
+                            <label className="block text-sm font-medium">Título</label>
+                            <input
+                                type="text"
+                                name="title"
+                                value={data.title}
+                                onChange={(e) => setData('title', e.target.value)}
+                                className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium">Descripción</label>
+                            <textarea
+                                name="description"
+                                value={data.description}
+                                onChange={(e) => setData('description', e.target.value)}
+                                className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium">Expiración</label>
+                            <input type="datetime-local" name="expire" value={data.expire}
+                                onChange={(e) => setData('expire', e.target.value)}
+                                className="mt-1 block w-full border border-gray-300 rounded-md p-2" />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium">Tipo</label>
+                            <select
+                                name="type"
+                                value={data.type}
+                                onChange={(e) => setData('type', e.target.value)}
+                                className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+                            >
+                                <option value="warning">Advertencia (Verde)</option>
+                                <option value="info">Información (Blanco)</option>
+                                <option value="precaution">Precaución (Amarillo)</option>
+                                <option value="danger">Peligro (Rojo)</option>
+                            </select>
+                        </div>
 
-                    <div className="flex gap-2 mt-4 justify-between">
-                        <SecondaryButton
-                            type="button"
-                            onClick={() => setModalAlertOpen(false)}
-                        >
-                            Cancelar
-                        </SecondaryButton>
-                        <PrimaryButton
-                            type="submit"
-                        >
-                            Guardar
-                        </PrimaryButton>
-                    </div>
-                </form>
-                }
-            </Modal>
+                        <div className="flex gap-2 mt-4 justify-between">
+                            <SecondaryButton
+                                type="button"
+                                onClick={() => setModalAlertOpen(false)}
+                            >
+                                Cancelar
+                            </SecondaryButton>
+                            <PrimaryButton
+                                type="submit"
+                            >
+                                Guardar
+                            </PrimaryButton>
+                        </div>
+                    </form>
+                    }
+                </Modal>
+            ): "")}
             {/*---------------------*/}
 
         </AuthenticatedLayout>
