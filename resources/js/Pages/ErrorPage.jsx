@@ -4,10 +4,10 @@ import { Link } from '@inertiajs/react';
 
 export default function ErrorPage({ status }) {
 
-  let message;
+  let message = 'Ocurrió un error inesperado.';
   let button = <Link href="/"><PrimaryButton>Regresar al inicio</PrimaryButton></Link>;
 
-    if (status == 'invalid_key') {
+    if (status === 'invalid_key') {
       message = 'La clave de registro no coincide.';
       button = <Link href="/register"><PrimaryButton>Regresar al registro</PrimaryButton></Link>;
     }
@@ -16,8 +16,7 @@ export default function ErrorPage({ status }) {
         case 403: message = 'No tienes permisos para acceder a esta página'; break;
         case 404: message = 'La página no existe'; break;
         case 500: message = 'Error interno del servidor.'; break;
-      case 503: message = 'Servicio temporalmente no disponible.'; break;
-        default: message = 'Ocurrió un error inesperado.'; break;
+        case 503: message = 'Servicio temporalmente no disponible.'; break;
     }
   
   return (

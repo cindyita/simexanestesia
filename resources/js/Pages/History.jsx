@@ -47,7 +47,7 @@ export default function History() {
             <div className="logs">
                 <div>
                     <div className="bg-white rounded-lg shadow">
-                        <div className="p-6 text-emerald-900">
+                        <div className="p-3 md:p-6 text-emerald-900">
 
                             <TableComp
                                 id_table={'history_table'}

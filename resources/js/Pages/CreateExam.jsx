@@ -229,7 +229,7 @@ const CreateExam = () => {
               >
             <Head title="Nuevo examen" />
 
-            <div className="p-6 bg-white rounded-lg shadow">
+            <div className="p-3 sm:p-6 bg-white rounded-lg shadow">
             {/* Header */}
             <div className="mb-6">
                 <div className="flex items-center gap-2 mb-4 justify-between">

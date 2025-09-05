@@ -30,13 +30,14 @@ Route::middleware('auth')->group(function () {
     Route::delete('/account', [AccountController::class, 'destroy'])->name('account.destroy');
 
     // PAGES ------------------------
-    Route::get('/users', [UsersController::class, 'getUsers'])->middleware(['menu.permission:6'])->name('users');
-    Route::get('/logs', [AccountController::class, 'getLogs'])->middleware(['menu.permission:8'])->name('logs');
-    Route::get('/roles', [UsersController::class, 'getRoles'])->middleware(['menu.permission:7'])->name('roles');
     Route::get('/exams', [ExamsController::class, 'get'])->middleware(['menu.permission:2'])->name('exams');
     Route::get('/newexam', [ExamsController::class, 'createExam'])->middleware(['menu.permission:2'])->name('newexam');
     Route::get('/history', [ExamsController::class, 'getHistory'])->middleware(['menu.permission:3'])->name('history');
     Route::get('/resources', [ResourcesController::class, 'get'])->middleware(['menu.permission:4'])->name('resources');
+    Route::get('/users', [UsersController::class, 'getUsers'])->middleware(['menu.permission:6'])->name('users');
+    Route::get('/roles', [UsersController::class, 'getRoles'])->middleware(['menu.permission:7'])->name('roles');
+    Route::get('/logs', [AccountController::class, 'getLogs'])->middleware(['menu.permission:8'])->name('logs');
+    Route::get('/registerkeys', [UsersController::class, 'getRegisterKeys'])->middleware(['menu.permission:9'])->name('registerkeys');
 
     //dashboard ----------------------
     Route::post('/alert', [DashboardController::class, 'alertUpdate'])->name('alert.update');

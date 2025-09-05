@@ -77,7 +77,7 @@ const FileManager = ({files,subjects, currentPage=1, totalPages=1, onPageChange=
   };
 
   return (
-    <div className="px-6">
+    <div className="px-3 md:px-6">
       <div>
         {/* Header */}
         <div className="mb-6">
