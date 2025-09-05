@@ -12,6 +12,7 @@ import { IoSchool } from "react-icons/io5";
 import { FaUsers } from "react-icons/fa";
 import { FaUserShield } from "react-icons/fa6";
 import { FaBook } from "react-icons/fa";
+import { GoPasskeyFill } from "react-icons/go";
 // import { IoMdNotifications } from "react-icons/io";
 // import IconButton from '@/Components/IconButton';
 
@@ -31,9 +32,6 @@ export default function AuthenticatedLayout({ header, children }) {
         }
     }, [company]);
 
-    // const [showingNavigationDropdown, setShowingNavigationDropdown] =
-    //         useState(false);
-
     const icons = {
         MdDashboard,
         RiCheckboxMultipleFill,
@@ -42,12 +40,13 @@ export default function AuthenticatedLayout({ header, children }) {
         IoSchool,
         FaUsers,
         FaUserShield,
-        FaBook
+        FaBook,
+        GoPasskeyFill
     };
 
-        return (
-            <>
-                <div className="content-layout">
+    return (
+        <>
+            <div className="content-layout">
                 
                 <aside className="menu">
                     

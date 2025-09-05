@@ -19,7 +19,7 @@ import { FaSearch } from "react-icons/fa";
 import { FormatDate } from '@/Functions/FormatDate';
 
 
-function TableComp({ id_table, table_name, columns, dataRaw, downloadBtns, actionBtns, useFormatDate = true, showTime = false, customActions=[], currentPage=1,totalPages=1, onPageChange={},pageLevel=1 }) {
+function TableComp({ id_table, table_name, columns, dataRaw, downloadBtns, actionBtns, useFormatDate = true, showTime = false, customActions=[], currentPage=1,totalPages=1, onPageChange={}, pageLevel=1 }) {
 
     //--------------------------------------------
     //--------------------------------------------
@@ -45,7 +45,6 @@ function TableComp({ id_table, table_name, columns, dataRaw, downloadBtns, actio
             id: item.id ?? index+1, ...item,
         })),
     };
-
 
     //--------------------------------------------
     // GENERAL AND USESTATE
@@ -180,6 +179,7 @@ function TableComp({ id_table, table_name, columns, dataRaw, downloadBtns, actio
         const filename = `${exportName}.csv`;
         downloadAsCsv(mapColumns, data.nodes, filename);
     };
+
     //--------------------------------------------
     // DOWNLOAD PDF
     const printRef = useRef();
@@ -222,22 +222,22 @@ function TableComp({ id_table, table_name, columns, dataRaw, downloadBtns, actio
         {filteredNodes.map((item, index) => (
             <div key={index} className="bg-white border border-emerald-200 rounded-lg p-4 shadow-sm">
             {keys.map((key) => (
-                <div key={key} className="flex justify-between items-center py-1 border-b border-emerald-100 last:border-b-0">
+                <div key={key} className="flex justify-between items-center py-1 border-b border-emerald-100 last:border-b-0 gap-2">
                     <span className="font-medium text-emerald-600 text-sm">
                         {key.charAt(0).toUpperCase() + key.slice(1)}:
                     </span>
-                    <span className="text-emerald-900 text-sm">
+                    <span className="text-emerald-900 text-sm text-right">
                         {item[key] instanceof Date
                         ? item[key].toLocaleDateString()
                         : item[key]?.toString()}
                     </span>
                 </div>
             ))}
-                <div className="flex justify-between items-center py-1">
+                <div className="flex justify-between items-center py-1 gap-2">
                     <span className="font-medium text-emerald-600 text-sm">
                         Acciones:
                     </span>
-                    <span className="text-emerald-900 text-sm">
+                    <span className="text-emerald-900 text-sm text-right">
                         <div>
                             <ActionDropdown
                                 item={item}
@@ -255,12 +255,12 @@ function TableComp({ id_table, table_name, columns, dataRaw, downloadBtns, actio
         </div>
     );
 
-    const getSortIcon = (key) => {
-        if (sort.state?.sortKey === key.toUpperCase()) {
-            return sort.state.reverse ? <FaSortDown className="ml-1" /> : <FaSortUp className="ml-1" />;
-        }
-        return <FaSort className="ml-1 opacity-50" />;
-    };
+    // const getSortIcon = (key) => {
+    //     if (sort.state?.sortKey === key.toUpperCase()) {
+    //         return sort.state.reverse ? <FaSortDown className="ml-1" /> : <FaSortUp className="ml-1" />;
+    //     }
+    //     return <FaSort className="ml-1 opacity-50" />;
+    // };
 
     // RETURN --------------------------------------------------------
     return (
@@ -270,7 +270,7 @@ function TableComp({ id_table, table_name, columns, dataRaw, downloadBtns, actio
                 <div className="p-2 sm:p-4 sm:pb-0 sm:pt-2">
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                         <div className="flex items-center">
-                            <h3 className="text-lg font-semibold">
+                            <h3 className="text-lg font-semibold text-emerald-800">
                                 {table_name}
                             </h3>
                         </div>

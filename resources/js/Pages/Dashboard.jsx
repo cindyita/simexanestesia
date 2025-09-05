@@ -119,12 +119,16 @@ export default function Dashboard() {
                                             <CardTitle className="text-lg font-semibold text-emerald-900">{alert.title}</CardTitle>
                                             <span className="text-xs text-gray-500">{formattedDate(alert.created_at)}</span>
                                         </div>
-                                        <div className="flex items-end md:justify-between md:items-center mb-1 flex-col md:flex-row gap-1">
-                                            <CardDescription className="text-gray-600 text-sm">
-                                                {alert.description}
-                                            </CardDescription>
+                                        <div className="flex items-end md:justify-between md:items-center mb-1 flex-col md:flex-row gap-1 w-full">
+                                            <div className="w-full text-start">
+                                                <CardDescription className="text-gray-600 text-sm">
+                                                    {alert.description}
+                                                </CardDescription>
+                                            </div>
                                             {(isAdmin ? (
-                                                <MiniButton className="mt-2 md:mt-0" onClick={() => handleAlertEdit(alert)}>Cambiar aviso</MiniButton>
+                                                <div className="w-full text-end">
+                                                    <MiniButton className="mt-2 md:mt-0" onClick={() => handleAlertEdit(alert)}>Cambiar aviso</MiniButton>
+                                                </div>
                                             ) : "")}
                                             
                                         </div>
@@ -158,8 +162,8 @@ export default function Dashboard() {
                         </div>
                     </div>
 
-                    <div className="bg-white flex gap-2 p-3 shadow rounded-lg flex-col flex-1 md:flex-initial justify-center max-h-24 items-center">
-                        <FaSyringe className="text-5xl text-emerald-800" />
+                    <div className="syringe-icon bg-white flex gap-1 p-2 sm:p-3 shadow rounded-lg flex-col flex-1 md:flex-initial justify-center max-h-24 items-center">
+                        <FaSyringe className="text-4xl text-emerald-800" />
                     </div>
 
                 </div>

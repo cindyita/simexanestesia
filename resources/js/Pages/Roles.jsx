@@ -97,7 +97,7 @@ export default function Roles() {
                                 <PrimaryButton>Nuevo rol</PrimaryButton>
                             </div>
                         </div>
-                        <div className="px-6 pb-6 text-emerald-900">
+                        <div className="px-3 md:px-6 pb-6 text-emerald-900">
                             <TableComp
                                 id_table={'roles_table'}
                                 columns={columns}

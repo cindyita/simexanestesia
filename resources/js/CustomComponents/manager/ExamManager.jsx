@@ -131,7 +131,7 @@ const ExamManager = ({exams, currentPage=1,totalPages=1, onPageChange={},pageLev
   }
 
   return (
-    <div className="px-6">
+    <div className="px-3 md:px-6">
       <div>
         {/* Header */}
         <div className="mb-6">
@@ -314,16 +314,16 @@ const ExamManager = ({exams, currentPage=1,totalPages=1, onPageChange={},pageLev
                           {exam.lastAttempt.score}%
                         </span>
                       </div>
-                      <div className="text-xs text-emerald-600 space-y-1">
-                        <div className="flex justify-between">
+                      <div className="w-full text-xs text-emerald-600 flex gap-2 flex-wrap items-center md:items-start md:flex-col">
+                        <div className="w-full flex justify-between">
                           <span>Fecha:</span>
                           <span>{FormatDate(exam.lastAttempt.completedAt,true)}</span>
                         </div>
-                        <div className="flex justify-between">
+                        <div className="w-full flex justify-between">
                           <span>Tiempo usado:</span>
                           <span>{exam.lastAttempt.timeUsed} min</span>
                         </div>
-                        <div className="flex justify-between">
+                        <div className="w-full flex justify-between">
                           <span>Intentos:</span>
                           <span>{exam.lastAttempt.attempts}</span>
                         </div>

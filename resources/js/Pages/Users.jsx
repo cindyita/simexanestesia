@@ -50,7 +50,7 @@ export default function Users() {
                                 <PrimaryButton>Nuevo usuario</PrimaryButton>
                             </div>
                         </div>
-                        <div className="px-6 pb-6 text-emerald-900">
+                        <div className="px-3 md:px-6 pb-6 text-emerald-900">
                             <TableComp
                                 id_table={'users_table'}
                                 columns={columns}
