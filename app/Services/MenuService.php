@@ -19,6 +19,8 @@ class MenuService
                 'm.name',
                 'm.icon',
                 'm.url',
+                'm.menu_level',
+                'm.id_parent',
                 'm.reg_order',
                 'p.level',
                 DB::raw('CASE WHEN p.id_menu IS NOT NULL THEN 1 ELSE 0 END as has_permission')
@@ -33,36 +35,6 @@ class MenuService
         return $query->get();
     }
 
-    // /**
-    //  * Construye el menú jerárquico (si tienes parent_id en sys_menu)
-    //  */
-    // public function buildHierarchicalMenu($roleId, $companyId = null)
-    // {
-    //     $menuItems = $this->getMenuByRole($roleId, $companyId);
-        
-    //     // Si no tienes parent_id, retorna el menú plano
-    //     return $menuItems;
-        
-    //     // Si tienes parent_id, aquí construirías la jerarquía
-    //     // return $this->buildMenuTree($menuItems);
-    // }
-
-    // /**
-    //  * Construye árbol de menú (para menús jerárquicos)
-    //  */
-    // private function buildMenuTree($items, $parentId = null)
-    // {
-    //     $tree = [];
-        
-    //     foreach ($items as $item) {
-    //         if ($item->parent_id == $parentId) {
-    //             $item->children = $this->buildMenuTree($items, $item->id);
-    //             $tree[] = $item;
-    //         }
-    //     }
-        
-    //     return $tree;
-    // }
 
     public function setMenuInSession($roleId) {
         $menu = $this->getMenuByRole($roleId);

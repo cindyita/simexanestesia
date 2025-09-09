@@ -1,7 +1,7 @@
 :root {
   --primary: #0d7560;
   --secondary: #0ab586;
-  --tertiary: #9df0cc;
+  --tertiary: #82e0b8;
   --fontWhite: white;
   --font: #e4f3ed;
   --fontBox: #84e2ba;
@@ -184,6 +184,10 @@ main .main-content {
 .menu-nav ul li {
   width: 100%;
 }
+.menu-nav ul li.selected {
+  background-color: var(--secondary);
+  border-radius: var(--radiusBtn);
+}
 @media (max-width: 800px) {
   .menu-nav ul {
     flex-direction: row;
@@ -250,6 +254,79 @@ header {
 
 .main-outlet {
   padding: 10px 0;
+}
+
+.submenu, .subsubmenu {
+  width: 0px;
+  transition: width 0.2s ease;
+  overflow: hidden;
+  overflow-y: auto;
+}
+.submenu.open, .subsubmenu.open {
+  width: 190px;
+}
+@media (max-width: 800px) {
+  .submenu, .subsubmenu {
+    width: 100%;
+  }
+}
+.submenu ul, .subsubmenu ul {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  gap: 10px;
+  width: 100%;
+  height: 100%;
+}
+.submenu ul li, .subsubmenu ul li {
+  width: 100%;
+  padding: 10px;
+  border-radius: var(--radiusBox);
+}
+.submenu ul li.selected, .subsubmenu ul li.selected {
+  background-color: var(--tertiary);
+}
+@media (max-width: 800px) {
+  .submenu ul, .subsubmenu ul {
+    flex-direction: row;
+    overflow: auto;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+  }
+  .submenu ul li, .subsubmenu ul li {
+    width: auto;
+  }
+}
+.submenu a, .subsubmenu a {
+  color: var(--textReverse);
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12pt;
+  border-radius: 15px;
+  position: relative;
+  width: 100%;
+}
+.submenu a svg, .subsubmenu a svg {
+  font-size: 17pt;
+}
+.submenu a:hover, .subsubmenu a:hover {
+  opacity: 0.7;
+}
+.submenu a.active, .subsubmenu a.active {
+  background-color: var(--secondary);
+}
+@media (max-width: 800px) {
+  .submenu a, .subsubmenu a {
+    width: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    padding: 0;
+  }
 }
 
 footer {
@@ -321,6 +398,14 @@ footer hr {
     -webkit-overflow-scrolling: touch;
     overscroll-behavior: contain;
   }
+}
+
+.modal {
+  max-height: 100%;
+}
+
+input:disabled, select:disabled, textarea:disabled {
+  background-color: #cee0d4;
 }
 
 .animations-pulse-content {

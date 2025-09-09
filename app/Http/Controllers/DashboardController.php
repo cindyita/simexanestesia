@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Models\Alerts;
 use Inertia\Inertia;
 use Inertia\Response;
+
 
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -13,7 +15,15 @@ use Spatie\Activitylog\Models\Activity;
 
 class DashboardController extends Controller
 {
-    public function get(): Response {
+    public function get(Request $request) {
+
+        $user = session('user');
+
+        if(!$user){
+            AuthenticatedSessionController::logout($request);
+            return redirect()->route('login');
+        }
+        
         $alerts = Alerts::where('id_company', session('user')['id_company'])
         ->where(function ($query) {
             $query->whereNull('expire')

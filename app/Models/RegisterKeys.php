@@ -16,6 +16,7 @@ class RegisterKeys extends Model
         'id_rol',
         'created_by',
         'created_at',
+        'updated_at',
         'used_by',
         'used_at'
     ];

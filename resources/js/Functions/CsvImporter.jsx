@@ -12,7 +12,6 @@ export default function CsvImporter({ file, onData, options = {} }) {
       complete: (results) => {
         if (onData) {
             onData(results.data);
-            console.log(results.data);
         } 
       },
     });

@@ -9,6 +9,7 @@ use App\Models\ViewRolesPermissions;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
+use Illuminate\Support\Facades\Log;
 
 class ExamsController extends Controller
 {
@@ -58,6 +59,7 @@ class ExamsController extends Controller
         if($isAdmin){
             return Inertia::render('CreateExam');
         }else{
+            Log::stack(['single'])->info('Error 403 para id: '.session('user')['id']);
             return Inertia::render('ErrorPage',[
             'status' => '403']);
         }    

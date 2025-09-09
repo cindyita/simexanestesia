@@ -4,7 +4,8 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
-use App\Models\Company; 
+use App\Models\Company;
+use App\Models\RegisterKeys;
 use App\Models\Roles;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
@@ -21,9 +22,20 @@ class RegisteredUserController extends Controller
     /**
      * Display the registration view.
      */
-    public function create(): Response
-    {
-        return Inertia::render('Auth/Register');
+    public function create($key = null): Response
+    {   
+        if($key){
+            $registerkey = RegisterKeys::select('email', 'used_by')->where('key', $key)->first();
+            if(!$registerkey || $registerkey['used_by']){
+                return Inertia::render('ErrorPage',[
+                'status' => 'invalid_key']);
+            }
+        }
+        
+        return Inertia::render('Auth/Register', [
+            'key'=>$key,
+            'email'=>$registerkey['email'] ?? null
+        ]);
     }
 
     /**
@@ -33,14 +45,20 @@ class RegisteredUserController extends Controller
      */
     public function store(Request $request)
     {
-        $company = Company::select("id","id_rol_register")
-                ->where("register_key", $request->register_key)
-                ->first();
+        $registerkey = RegisterKeys::select('email', 'used_by','id_company','id_rol')->where('key', $request->register_key)->first();
 
-        if(!$company){
+        if(!$registerkey || $registerkey['used_by']){
             return Inertia::render('ErrorPage',[
             'status' => 'invalid_key']);
         }
+
+        $emailunique = User::where('email', $request->email)->first();
+
+        if($emailunique){
+            return Inertia::render('ErrorPage',[
+            'status' => 'email_used']);
+        }
+
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|lowercase|email|max:255|unique:sys_users,email',
@@ -50,8 +68,8 @@ class RegisteredUserController extends Controller
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
-            'id_company'=>$company->id,
-            'id_rol'=>$company->id_rol_register,
+            'id_company'=>$registerkey->id_company,
+            'id_rol'=>$registerkey->id_rol,
             'password' => Hash::make($request->password),
         ]);
 
