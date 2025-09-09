@@ -1,7 +1,7 @@
 import AppLogo from '@/CustomComponents/logo/AppLogo';
 import Dropdown from '@/CustomComponents/dropdown/Dropdown';
 import { Link, usePage } from '@inertiajs/react';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 import { MdDashboard } from "react-icons/md";
 import { FaUser } from "react-icons/fa";
@@ -19,7 +19,12 @@ import { GoPasskeyFill } from "react-icons/go";
 export default function AuthenticatedLayout({ header, children }) {
     const user = usePage().props.auth.user;
     const company = usePage().props.company;
-    const menu = usePage().props.menu ?? {"1":{"id":1,"name":"Dashboard","icon":"MdDashboard","url":"\/","reg_order":1,"level":1,"has_permission":1}};
+    const menu = usePage().props.menu ?? { "1": { "id": 1, "name": "Dashboard", "icon": "MdDashboard", "url": "\/", "reg_order": 1, "level": 1, "has_permission": 1 } };
+    
+    const [openSubMenu1, setOpenSubMenu1] = useState(false);
+    const [openSubMenu2, setOpenSubMenu2] = useState(false);
+    const [menuSelected1, setMenuSelected1] = useState(0);
+    const [menuSelected2, setMenuSelected2] = useState(0);
     
     useEffect(() => {
         if (company) {
@@ -44,6 +49,19 @@ export default function AuthenticatedLayout({ header, children }) {
         GoPasskeyFill
     };
 
+    const handleSubMenu1 = (idParent) => {
+        setOpenSubMenu1(!openSubMenu1);
+        setOpenSubMenu2(false);
+        const idParentSelected = openSubMenu1 ? 0 : idParent;
+        setMenuSelected1(idParentSelected);
+    }
+
+    const handleSubMenu2 = (idParent) => {
+        setOpenSubMenu2(!openSubMenu2);
+        const idParentSelected = openSubMenu2 ? 0 : idParent;
+        setMenuSelected2(idParentSelected);
+    }
+
     return (
         <>
             <div className="content-layout">
@@ -53,20 +71,34 @@ export default function AuthenticatedLayout({ header, children }) {
                     <div className="menu-nav-content w-full h-full">
                         <nav className="menu-nav">
                             <ul>
-                                {menu && Object.values(menu).length > 0 ? (
-                                    
-                                    Object.values(menu).map((item) => {
-                                        const Icon = icons[item.icon];
-                                        return (<li key={item.id}>
-                                            <Link href={item.url || '#'}>
-                                                <div>{Icon && <Icon />}</div>
-                                                <span>{item.name}</span>
-                                            </Link>
-                                        </li>);
+                                {menu && Object.values(menu).length > 0
+                                    ? Object.values(menu).map((item) => {
+                                        if (item.menu_level === 1) {
+                                            const Icon = icons[item.icon];
+                                            return (
+                                                <li key={item.id} className={`${menuSelected1 == item.id ? 'selected' : ''}`}>
+                                                {item.url != null ? (
+                                                    <Link href={item.url || '#'}>
+                                                        <div>{Icon && <Icon />}</div>
+                                                        <span>{item.name}</span>
+                                                    </Link>
+                                                ) : (
+                                                    <a
+                                                        onClick={() => handleSubMenu1(item.id)}
+                                                        className="cursor-pointer"
+                                                    >
+                                                        <div>{Icon && <Icon />}</div>
+                                                        <span>{item.name}</span>
+                                                    </a>
+                                                )}
+                                                </li>
+                                            );
+                                        }
+                                        return null;
                                     })
-                                ) : null}
-
+                                : null}
                             </ul>
+
                         </nav>
                     </div>
                     <div className="logo-content logo-desktop hidden lg:flex lg:justify-center lg:w-full">
@@ -77,6 +109,58 @@ export default function AuthenticatedLayout({ header, children }) {
                         </div>
                     </div>
                     
+                </aside>
+
+                <aside className={`submenu bg-[var(--secondary)] rounded-lg ${openSubMenu1 ? 'open' : ''}`}>
+                    <ul className="px-3 py-4">
+                        {menu && Object.values(menu).length > 0
+                            ? Object.values(menu).map((item) => {
+                                if (item.menu_level === 2 && item.id_parent == menuSelected1) {
+                                    const Icon = icons[item.icon];
+                                    return (
+                                        <li key={item.id} className={`${menuSelected2 == item.id ? 'selected' : ''}`}>
+                                        {item.url != null ? (
+                                            <Link href={item.url || '#'} className="flex gap-2 items-center">
+                                                <div>{Icon && <Icon />}</div>
+                                                <span>{item.name}</span>
+                                            </Link>
+                                        ) : (
+                                            <a
+                                                onClick={() => handleSubMenu2(item.id)}
+                                                className="cursor-pointer flex gap-2 items-center"
+                                            >
+                                                <div>{Icon && <Icon />}</div>
+                                                <span>{item.name}</span>
+                                            </a>
+                                        )}
+                                        </li>
+                                    );
+                                }
+                                return null;
+                            })
+                        : null}
+                    </ul>
+                </aside>
+
+                <aside className={`subsubmenu bg-[var(--tertiary)] rounded-lg ${openSubMenu2 ? 'open' : ''}`}>
+                    <ul className="px-3 py-4">
+                        {menu && Object.values(menu).length > 0
+                            ? Object.values(menu).map((item) => {
+                                if (item.menu_level === 3 && item.id_parent == menuSelected2) {
+                                    const Icon = icons[item.icon];
+                                    return (
+                                        <li key={item.id}>
+                                            <Link href={item.url || '#'} className="flex gap-2 items-center">
+                                                <div>{Icon && <Icon />}</div>
+                                                <span>{item.name}</span>
+                                            </Link>
+                                        </li>
+                                    );
+                                }
+                                return null;
+                            })
+                        : null}
+                    </ul>
                 </aside>
 
                 <main className="overflow-y-auto">

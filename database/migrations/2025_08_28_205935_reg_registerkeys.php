@@ -17,6 +17,7 @@ return new class extends Migration
             $table->unsignedBigInteger('id_rol');
             $table->unsignedBigInteger('created_by')->nullable();
             $table->timestamp('created_at')->nullable();
+            $table->timestamp('updated_at')->nullable();
             $table->unsignedBigInteger('used_by')->nullable();
             $table->timestamp('used_at')->nullable();
 

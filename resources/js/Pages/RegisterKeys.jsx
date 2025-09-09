@@ -1,6 +1,6 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { router, Head, usePage, useForm } from "@inertiajs/react";
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import TableComp from '@/CustomComponents/table/TableComp';
 import PrimaryButton from '@/CustomComponents/button/PrimaryButton';
 import SecondaryButton from '@/CustomComponents/button/SecondaryButton';
@@ -8,6 +8,8 @@ import Modal from '@/CustomComponents/modal/Modal';
 import FileDropInput from '@/CustomComponents/form/FileDropInput';
 import CsvImporter from '@/Functions/CsvImporter';
 import { FaTimes } from "react-icons/fa";
+import DownloadCsvExample from '@/Functions/DownloadCsvExample';
+import { copyToClipboard } from '@/Functions/CopyToClipboard';
 
 export default function RegisterKeys() {
     // if (!usePage().props.menu[9]) return;
@@ -16,15 +18,44 @@ export default function RegisterKeys() {
     const [modalKeysGenerateOpen, setModalKeysGenerateOpen] = useState(false);
     
     const keys = usePage().props.data;
+    const roles = usePage().props.roles;
+    const dataImported = usePage().props.imported ?? {};
+
+    const registerkeys = keys['data'];
+
     const isAdmin = usePage().props.user['mode_admin'] ? true : false;
     const pageLevel = usePage().props.menu[9]['level'] ?? 1;
 
     const [currentPage, setCurrentPage] = useState(keys.current_page ?? 1);
 
+    const [file, setFile] = useState(null);
+    const [dataCsv, setDataCsv] = useState([]);
+
+    const [successEmail, setSuccessEmail] = useState(0);
+
+    const [typeKeys, setTypeKeys] = useState('unique');
+
     const { data, setData, post, put, errors, processing } = useForm({
         email: '',
-        note: ''
+        note: '',
+        id_rol: roles[0]['id'],
+        imported: dataCsv,
+        type: typeKeys
     });
+
+    useEffect(() => {
+        if (dataCsv && dataCsv.length > 0) {
+            setData('imported', dataCsv);
+        }
+    }, [dataCsv]);
+
+    useEffect(() => {
+        setData('type', 'imported');
+    }, [modalLoteKeysOpen]);
+
+    useEffect(() => {
+        setData('type', 'unique');
+    }, [modalKeysOpen]);
     
     const handlePageChange = (page) => {
         setCurrentPage(page);
@@ -33,16 +64,24 @@ export default function RegisterKeys() {
 
     const handleKeysSave = (e) => {
         e.preventDefault();
-        // post(route('alert.update', selectedAlert.id), {
-        // onSuccess: () => setModalAlertOpen(false),
-        // onError: () => console.log(errors),
-        // });
-        console.log("key save");
-        
+        post(route('registerkeys'), {
+            onSuccess: () => {
+                setModalKeysOpen(false);
+                setModalKeysGenerateOpen(true);
+            },
+        });
     };
 
-    const [file, setFile] = useState(null);
-    const [dataCsv, setDataCsv] = useState([]);
+    const handleKeysImportSave = async (e) => {
+        e.preventDefault();
+        
+        post(route('registerkeys'), {
+            onSuccess: () => {
+                setModalLoteKeysOpen(false);
+                setModalKeysGenerateOpen(true);
+            },
+        });
+    }
 
     const handleFile = (e) => {
         const selectedFile = e.target.files[0];
@@ -51,22 +90,47 @@ export default function RegisterKeys() {
         }
     };
 
-    const registerkeys = [{
-        'id': '1',
-        "key": 'ahl56n24',
-        'rol': 'Usuario',
-        'used_by': '',
-        'created_at': '',
-        'used_at':''
-    }];
+    const handleSendEmails = async (e) => {
+        e.preventDefault();
+        setSuccessEmail(1);
+        try {
+            const response = await fetch("/registerkeys/send", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute("content"),
+                },
+                body: JSON.stringify({
+                    keys: dataImported
+                }),
+            });
+
+            if (!response.ok) {
+                throw new Error("Error en la petición");
+            } else {
+                setSuccessEmail(2);
+            }
+
+        } catch (error) {
+            console.error("Error:", error);
+        }
+    };
+
+    const handleCopy = () => {
+        const texto = dataImported
+            .map(item => Object.values(item).join(" - "))
+            .join("\n");
+
+        copyToClipboard(texto);
+    };
 
     const columns = {
         'id': 'id',
         'key': 'Clave', 
         'rol': 'Rol al registro',
-        'used_by': 'Usado por',
-        'created_at': 'Creado en',
-        'used_at': 'Usado en'
+        'email': 'Email',
+        'note': 'Nota',
+        'used_by': 'Usado por'
     };
 
     return (
@@ -88,9 +152,20 @@ export default function RegisterKeys() {
                                     Claves de registro
                                 </h3>
                             </div>
-                            <div className="flex gap-2">
-                                <PrimaryButton onClick={() => setModalLoteKeysOpen(true)}>Crear lote de claves</PrimaryButton>
-                                <PrimaryButton onClick={() => setModalKeysOpen(true)}>Nueva clave</PrimaryButton>
+                            <div className="flex gap-2 flex-col md:flex-row">
+                                <select
+                                    name="view_keys"
+                                    className="px-3 py-2 pr-8 border border-emerald-300 rounded-md text-sm focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                                >
+                                    <option value="no_used_keys">
+                                        Claves sin usar
+                                    </option>
+                                    <option value="all_keys">
+                                        Todas las claves
+                                    </option>
+                                </select>
+                                <PrimaryButton className="whitespace-nowrap" onClick={() => setModalLoteKeysOpen(true)}>Crear lote de claves</PrimaryButton>
+                                <PrimaryButton className="whitespace-nowrap" onClick={() => setModalKeysOpen(true)}>Nueva clave</PrimaryButton>
                             </div>
                         </div>
                         <div className="px-3 md:px-6 pb-6 text-emerald-900">
@@ -136,10 +211,12 @@ export default function RegisterKeys() {
                                 value={data.id_rol}
                                 onChange={(e) => setData('id_rol', e.target.value)}
                                 className="mt-1 block w-full border border-gray-300 rounded-md p-2"
-                            >
-                                <option value="5">Usuario</option>
-                                <option value="2">Moderador</option>
-                                <option value="1">Administrador</option>
+                                    >
+                                {roles && roles.map(el => (
+                                    <option key={el.id} value={el.id}>
+                                        {el.name}
+                                    </option>
+                                ))}
                             </select>
                         </div>
                         <div>
@@ -158,21 +235,16 @@ export default function RegisterKeys() {
                             />
                         </div>
 
-                        <div className="flex gap-2 mt-4 justify-between">
-                            <PrimaryButton>
-                                Solo generar
-                            </PrimaryButton>
-                            <PrimaryButton
-                                type="submit"
-                            >
-                                Generar y enviar por email
+                        <div className="flex gap-2 mt-4 justify-end">
+                            <PrimaryButton onClick={() => handleKeysSave}>
+                                Generar
                             </PrimaryButton>
                         </div>
                     </form>
                     }
                 </Modal>
                     
-                <Modal show={modalKeysGenerateOpen} onClose={() => setModalKeysGenerateOpen(false)}>
+                    <Modal show={modalKeysGenerateOpen} onClose={() => { setModalKeysGenerateOpen(false); setSuccessEmail(0); }}>
                     {data &&
                         <>
                             <div className="p-6 space-y-4">
@@ -184,21 +256,55 @@ export default function RegisterKeys() {
                                         <FaTimes />
                                     </button>
                                 </div>
-                                <div>
-                                    
+
+                                <div className="overflow-x-auto max-w-[80vh] md:max-w-full">
+                                    {dataImported.length > 0 && (
+                                        <>
+                                            <label className="block text-sm font-medium mb-1">Claves creadas:</label>
+                                            
+                                            <table className="table-auto border-collapse border border-emerald-300 w-full">
+                                                <thead>
+                                                    <tr>
+                                                    {Object.keys(dataImported[0]).map((key, i) => (
+                                                        <th key={i} className="border border-emerald-300 px-2 py-1 bg-emerald-200 text-emerald-700">
+                                                        {key}
+                                                        </th>
+                                                    ))}
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {dataImported.map((row, i) => (
+                                                    <tr key={i}>
+                                                        {Object.values(row).map((value, j) => (
+                                                        <td key={j} className="border border-emerald-300 px-2 py-1">
+                                                            {value}
+                                                        </td>
+                                                        ))}
+                                                    </tr>
+                                                    ))}
+                                                </tbody>
+                                            </table>
+                                        </>
+                                    )}
                                 </div>
 
                                 <div className="flex gap-2 mt-4 justify-between">
-                                    <SecondaryButton
+                                    <PrimaryButton
                                         type="button"
-                                        onClick={() => setModalKeysGenerateOpen(false)}
+                                        onClick={handleSendEmails} 
                                     >
-                                        Cerrar
-                                    </SecondaryButton>
-                                    <PrimaryButton>
-                                        Copiar
+                                        Enviar por correo
+                                    </PrimaryButton>
+                                    <PrimaryButton onClick={handleCopy}>
+                                        Copiar al portapapeles
                                     </PrimaryButton>
                                 </div>
+                                {successEmail == 2 && (
+                                    <p className="text-green-600">¡Se han enviado las claves por correo!</p>
+                                )}
+                                {successEmail == 1 && (
+                                    <p className="text-gray-500">Enviando claves...</p>
+                                )}
                             </div>
                         </>
                     }
@@ -220,10 +326,11 @@ export default function RegisterKeys() {
                                 <p>Puedes enviar claves de registro a emails de forma masiva.</p>
                                     
                                 <div>
-                                    <h4>Importar .CSV con emails</h4>
+                                    <h4>Importar .CSV con emails <DownloadCsvExample /></h4>
                                     <FileDropInput onChange={handleFile} />
                                     <CsvImporter file={file} onData={setDataCsv} />    
                                 </div>
+                                
 
                                 <div>
                                     <label className="block text-sm font-medium">Rol de usuario al registro</label>
@@ -233,16 +340,19 @@ export default function RegisterKeys() {
                                         onChange={(e) => setData('id_rol', e.target.value)}
                                         className="mt-1 block w-full border border-gray-300 rounded-md p-2"
                                     >
-                                        <option value="5">Usuario</option>
-                                        <option value="2">Moderador</option>
-                                        <option value="1">Administrador</option>
+                                        {roles && roles.map(el => (
+                                            <option key={el.id} value={el.id}>
+                                                {el.name}
+                                            </option>
+                                        ))}
                                     </select>
                                 </div>
                                 
-                                <div>
+                                <div key={file ? file.name : 'empty'} className="overflow-x-auto max-w-[80vh] md:max-w-full">
                                     {dataCsv.length > 0 && (
                                         <>
                                             <label className="block text-sm font-medium mb-1">Datos importados:</label>
+
                                             <table className="table-auto border-collapse border border-emerald-300 w-full">
                                                 <thead>
                                                     <tr>
@@ -272,12 +382,9 @@ export default function RegisterKeys() {
                                     )}
                                 </div>
 
-                                <div className="flex gap-2 mt-4 justify-between">
-                                    <PrimaryButton>
-                                        Solo generar
-                                    </PrimaryButton>
-                                    <PrimaryButton>
-                                        Generar y enviar por email
+                                <div className="flex gap-2 mt-4 justify-end">
+                                    <PrimaryButton type="submit" onClick={handleKeysImportSave}>
+                                        Generar
                                     </PrimaryButton>
                                 </div>
                             </div>

@@ -3,17 +3,21 @@ import InputLabel from '@/CustomComponents/form/InputLabel';
 import PrimaryButton from '@/CustomComponents/button/PrimaryButton';
 import TextInput from '@/CustomComponents/form/TextInput';
 import GuestLayout from '@/Layouts/GuestLayout';
-import { Head, Link, useForm } from '@inertiajs/react';
+import { Head, Link, useForm, usePage } from '@inertiajs/react';
 
 import { FaKey } from "react-icons/fa";
 
 export default function Register() {
+
+    const key = usePage().props.key;
+    const email = usePage().props.email;
+
     const { data, setData, post, processing, errors, reset } = useForm({
         name: '',
-        email: '',
+        email: (email ?? ''),
         password: '',
         password_confirmation: '',
-        register_key: ''
+        register_key: (key ?? '')
     });
 
     const submit = (e) => {
@@ -48,18 +52,32 @@ export default function Register() {
 
                 <div className="mt-4">
                     <InputLabel htmlFor="email" value="Correo electrónico" />
-
-                    <TextInput
-                        id="email"
-                        type="email"
-                        name="email"
-                        value={data.email}
-                        className="mt-1 block w-full"
-                        autoComplete="username"
-                        onChange={(e) => setData('email', e.target.value)}
-                        required
-                    />
-
+                    {
+                        email ? (
+                            
+                            <TextInput
+                                    id="email"
+                                    type="email"
+                                    name="email"
+                                    value={email}
+                                    className="mt-1 block w-full"
+                                    disabled
+                                    required
+                                />
+                        ) : (
+                            <TextInput
+                                id="email"
+                                type="email"
+                                name="email"
+                                value={data.email}
+                                className="mt-1 block w-full"
+                                autoComplete="username"
+                                onChange={(e) => setData('email', e.target.value)}
+                                required
+                            />    
+                        )
+                    }
+                    
                     <InputError message={errors.email} className="mt-2" />
                 </div>
 
@@ -112,18 +130,32 @@ export default function Register() {
                         htmlFor="password_confirmation"
                             value="Clave de registro" />
                     </div>
-
-                    <TextInput
-                        id="register_key"
-                        type="password"
-                        name="register_key"
-                        value={data.register_key}
-                        className="mt-1 block w-full"
-                        onChange={(e) =>
-                            setData('register_key', e.target.value)
-                        }
-                        required
-                    />
+                    {
+                        key ? (
+                            <TextInput
+                                id="register_key"
+                                type="text"
+                                name="register_key"
+                                value={key}
+                                className="mt-1 block w-full"
+                                required
+                                disabled
+                            />
+                        ) : (
+                                <TextInput
+                                    id="register_key"
+                                    type="text"
+                                    name="register_key"
+                                    value={data.register_key}
+                                    className="mt-1 block w-full"
+                                    onChange={(e) =>
+                                        setData('register_key', e.target.value)
+                                    }
+                                    required
+                                />
+                        )
+                    }
+                    
 
                     <InputError
                         message={errors.register_key}

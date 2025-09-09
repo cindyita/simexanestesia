@@ -2,10 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Permissions;
-use App\Models\RegisterKeys;
 use App\Models\Users;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Models\ViewRolesPermissions;
@@ -68,16 +65,5 @@ class UsersController extends Controller
         ]);
     }
 
-    public function getRegisterKeys(Request $request) {
-        $perPage = $request->input('per_page', 15);
-        
-        $keys = RegisterKeys::where('id_company',session('user')['id_company'])
-        ->orderBy('id', 'desc')
-        ->paginate($perPage);
-
-        return Inertia::render('RegisterKeys', [
-            'data' => $keys
-        ]);
-    }
 }
 
