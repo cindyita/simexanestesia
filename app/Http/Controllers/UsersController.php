@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Users;
+use App\Models\Menu;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Models\ViewRolesPermissions;
@@ -47,17 +48,18 @@ class UsersController extends Controller
     public function getRolPermission(Request $request) {
         $idRol = $request->input('id');
 
-        $permissions = DB::table('sys_menu as m')
-            ->leftJoin('sys_permissions as p', function($join) use ($idRol) {
-                $join->on('m.id', '=', 'p.id_menu')
-                    ->where('p.id_rol', '=', $idRol);
+        $permissions = Menu::select(
+            'sys_menu.id',
+            'sys_menu.name',
+            'sys_menu.url',
+            'sys_menu.menu_level',
+            'sys_menu.id_parent',
+            DB::raw('COALESCE(sys_permissions.level, NULL) as level'))
+            ->leftJoin('sys_permissions', function($join) use ($idRol) {
+                $join->on('sys_permissions.id_menu', '=', 'sys_menu.id')
+                    ->where('sys_permissions.id_rol', '=', $idRol);
             })
-            ->select(
-                'm.id',
-                'm.name',
-                DB::raw('COALESCE(p.level, NULL) as level')
-            )
-            ->orderBy('m.reg_order')
+            ->orderBy('sys_menu.reg_order', 'asc')
             ->get();
 
         return response()->json([

@@ -5,10 +5,10 @@ import TableComp from '@/CustomComponents/table/TableComp';
 import PrimaryButton from '@/CustomComponents/button/PrimaryButton';
 
 export default function Users() {
-    if (!usePage().props.menu[6]) return;
+    if (!usePage().props.menu[7]) return;
 
     const data = usePage().props.data;
-    const pageLevel = usePage().props.menu[6]['level'];
+    const pageLevel = usePage().props.menu[7]['level'];
 
     const [currentPage, setCurrentPage] = useState(data.current_page);
     

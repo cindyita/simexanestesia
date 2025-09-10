@@ -103,7 +103,9 @@ class AccountController extends Controller
     }
 
     public function getRegisterKeys(Request $request) {
-        $perPage = $request->input('per_page', 15);    
+        $perPage = $request->input('per_page', 15);
+        $show = $request->route('show');
+
         $idCompany = session('user')['id_company'];
 
         $import = $request->input('imported',null);
@@ -150,8 +152,9 @@ class AccountController extends Controller
 
         $roles = Roles::where('id_company', $idCompany)->orderBy('id', 'desc')->get();
 
-        $keys = DB::table('reg_registerkeys as k')
+        $query = DB::table('reg_registerkeys as k')
         ->leftJoin('sys_roles as r', 'r.id', '=', 'k.id_rol')
+        ->leftJoin('sys_users as u', 'u.id', '=', 'k.used_by')
         ->select(
             'k.id',
             'k.key',
@@ -161,19 +164,26 @@ class AccountController extends Controller
             'k.id_rol',
             'k.created_by',
             'k.created_at',
-            'k.used_by',
+            'k.used_by as used_by_id',
+            'u.name as used_by',
             'k.used_at',
             'r.name as rol'
         )
         ->where('k.id_company', $idCompany)
-        ->orderBy('k.id', 'desc')
-        ->paginate($perPage);
+        ->orderBy('k.id', 'desc');
+
+        if (!$show || $show === 'noused') {
+            $query->whereNull('k.used_at')->whereNull('k.used_by');
+        }
+
+        $keys = $query->paginate($perPage);
 
         return Inertia::render('RegisterKeys', [
             'data' => $keys,
             'roles'=> $roles,
             'imported' => $import,
-            'type' => $type ?? 0
+            'type' => $type ?? 0,
+            'show' => $show
         ]);
     }
 

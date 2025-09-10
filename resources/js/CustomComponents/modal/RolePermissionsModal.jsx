@@ -5,6 +5,7 @@ import PrimaryButton from "../button/PrimaryButton";
 
 export default function RolePermissionsModal({ show, onClose, roleName, data = [], onSave }) {
 
+  const [loading, setLoading] = useState(true);
   const [permissions, setPermissions] = useState([]);
 
   useEffect(() => {
@@ -15,6 +16,7 @@ export default function RolePermissionsModal({ show, onClose, roleName, data = [
         level: item.level ?? 0
       })));
     }
+    setLoading(false);
   }, [data]);
 
   const handleLevelChange = (id, level) => {
@@ -63,7 +65,7 @@ export default function RolePermissionsModal({ show, onClose, roleName, data = [
               </tr>
             </thead>
             <tbody>
-              {permissions.map(screen => (
+              {permissions.length > 0 && permissions.map(screen => (
                 <tr key={screen.id} className="border-b border-emerald-200 hover:bg-emerald-50">
                   <td className="py-2 px-4 font-medium text-emerald-800">{screen.name}</td>
                   <td className="py-2 px-4 text-center flex gap-2 items-center justify-center">
@@ -85,9 +87,9 @@ export default function RolePermissionsModal({ show, onClose, roleName, data = [
           </table>
         </div>
         {
-          permissions.length == 0 ? (
+          loading && (
             <>Cargando información..</>
-          ) : ""
+          )
         }
 
         <div className="mt-6 flex justify-end">

@@ -1,4 +1,5 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import axios from 'axios';
 import { router, Head, usePage, useForm } from "@inertiajs/react";
 import { useState, useEffect } from 'react';
 import TableComp from '@/CustomComponents/table/TableComp';
@@ -12,19 +13,20 @@ import DownloadCsvExample from '@/Functions/DownloadCsvExample';
 import { copyToClipboard } from '@/Functions/CopyToClipboard';
 
 export default function RegisterKeys() {
-    // if (!usePage().props.menu[9]) return;
+    // if (!usePage().props.menu[10]) return;
     const [modalKeysOpen, setModalKeysOpen] = useState(false);
     const [modalLoteKeysOpen, setModalLoteKeysOpen] = useState(false);
     const [modalKeysGenerateOpen, setModalKeysGenerateOpen] = useState(false);
     
     const keys = usePage().props.data;
     const roles = usePage().props.roles;
+    const show = usePage().props.show ?? 'noused';
     const dataImported = usePage().props.imported ?? {};
 
     const registerkeys = keys['data'];
 
     const isAdmin = usePage().props.user['mode_admin'] ? true : false;
-    const pageLevel = usePage().props.menu[9]['level'] ?? 1;
+    const pageLevel = usePage().props.menu[10]['level'] ?? 1;
 
     const [currentPage, setCurrentPage] = useState(keys.current_page ?? 1);
 
@@ -59,7 +61,7 @@ export default function RegisterKeys() {
     
     const handlePageChange = (page) => {
         setCurrentPage(page);
-        router.get('registerkeys', { page }, {});
+        router.get('/registerkeys/'+show, { page }, {});
     };
 
     const handleKeysSave = (e) => {
@@ -93,26 +95,26 @@ export default function RegisterKeys() {
     const handleSendEmails = async (e) => {
         e.preventDefault();
         setSuccessEmail(1);
-        try {
-            const response = await fetch("/registerkeys/send", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute("content"),
-                },
-                body: JSON.stringify({
-                    keys: dataImported
-                }),
-            });
 
-            if (!response.ok) {
-                throw new Error("Error en la petición");
-            } else {
-                setSuccessEmail(2);
-            }
+        try {
+            const response = await axios.post(
+                "/registerkeys/send",
+                { keys: dataImported },
+                {
+                    headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRF-TOKEN": document
+                        .querySelector('meta[name="csrf-token"]')
+                        .getAttribute("content"),
+                    },
+                }
+            );
+
+            setSuccessEmail(2);
 
         } catch (error) {
             console.error("Error:", error);
+            setSuccessEmail(0);
         }
     };
 
@@ -124,15 +126,24 @@ export default function RegisterKeys() {
         copyToClipboard(texto);
     };
 
-    const columns = {
-        'id': 'id',
-        'key': 'Clave', 
-        'rol': 'Rol al registro',
-        'email': 'Email',
-        'note': 'Nota',
-        'used_by': 'Usado por'
+    const handleChangeShowKeys = (value) => {
+        router.get('/registerkeys/'+value, {});
+    }
+
+    let columns = {
+            'id': 'id',
+            'key': 'Clave', 
+            'rol': 'Rol al registro',
+            'email': 'Email',
+            'note': 'Nota'
     };
 
+    let columnsHidden = ['Nota'];
+
+    if (show && show === 'all') {
+        columns.used_by = 'Usado por';
+    }
+    
     return (
         <AuthenticatedLayout
             header={
@@ -146,7 +157,7 @@ export default function RegisterKeys() {
             <div className="registerkeys">
                 <div>
                     <div className="bg-white rounded-lg shadow">
-                        <div className="flex justify-between px-6 md:px-10 pt-6">
+                        <div className="flex gap-3 flex-col md:flex-row md:justify-between px-6 md:px-10 pt-6">
                             <div className="flex items-center gap-2">
                                 <h3 className="text-lg font-semibold">
                                     Claves de registro
@@ -156,11 +167,13 @@ export default function RegisterKeys() {
                                 <select
                                     name="view_keys"
                                     className="px-3 py-2 pr-8 border border-emerald-300 rounded-md text-sm focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                                    onChange={(e) => handleChangeShowKeys(e.target.value)}
+                                    value={show}
                                 >
-                                    <option value="no_used_keys">
+                                    <option value="noused">
                                         Claves sin usar
                                     </option>
-                                    <option value="all_keys">
+                                    <option value="all">
                                         Todas las claves
                                     </option>
                                 </select>
@@ -172,6 +185,7 @@ export default function RegisterKeys() {
                             <TableComp
                                 id_table={'registerkeys_table'}
                                 columns={columns}
+                                columnsHidden = {columnsHidden}
                                 dataRaw={registerkeys}
                                 downloadBtns={true}
                                 actionBtns={true}
@@ -200,7 +214,7 @@ export default function RegisterKeys() {
                             <h3 className="text-lg font-semibold text-emerald-800">
                                 Crear clave de registro
                             </h3>
-                            <button onClick={() => setModalKeysOpen(false)} className="text-emerald-400 hover:text-emerald-600">
+                            <button type="button" onClick={() => setModalKeysOpen(false)} className="text-emerald-400 hover:text-emerald-600">
                                 <FaTimes />
                             </button>
                         </div>
@@ -244,7 +258,7 @@ export default function RegisterKeys() {
                     }
                 </Modal>
                     
-                    <Modal show={modalKeysGenerateOpen} onClose={() => { setModalKeysGenerateOpen(false); setSuccessEmail(0); }}>
+                <Modal show={modalKeysGenerateOpen} onClose={() => { setModalKeysGenerateOpen(false); setSuccessEmail(0); }}>
                     {data &&
                         <>
                             <div className="p-6 space-y-4">
