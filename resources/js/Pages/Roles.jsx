@@ -1,3 +1,4 @@
+import axios from 'axios';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { router,Head, usePage } from "@inertiajs/react";
 import { useState } from 'react';
@@ -12,10 +13,10 @@ import { FaGear } from "react-icons/fa6";
 import IconButton from '@/CustomComponents/button/IconButton';
 
 export default function Roles() {
-    if (!usePage().props.menu[7]) return;
+    if (!usePage().props.menu[8]) return;
     
     const data = usePage().props.data;
-    const pageLevel = usePage().props.menu[7]['level'];
+    const pageLevel = usePage().props.menu[8]['level'];
 
     const [modalKeyOpen, setModalKeyOpen] = useState(false);
     const [modalSettingsOpen, setModalSettingsOpen] = useState(false);
@@ -49,26 +50,14 @@ export default function Roles() {
             setModalKeyOpen(true);
             setRoleName(item.Nombre);
             try {
-                const response = await fetch('getRolPermission', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document
-                            .querySelector('meta[name="csrf-token"]')
-                            .getAttribute('content'),
-                    },
-                    body: JSON.stringify({ id: item.id }),
+                const response = await axios.post('/getRolPermission', {
+                    id: item.id
                 });
-
-                if (!response.ok) {
-                    throw new Error("Error en la petición");
-                }
-
-                const data = await response.json();
-                setPermissions(data.permissions);
-
+                
+                setPermissions(response.data.permissions || []);
+                
             } catch (error) {
-                console.error("Error:", error);
+                console.error("Error al obtener permisos:", error);
             }
         }
     }];
@@ -93,7 +82,7 @@ export default function Roles() {
                                 </h3>
                             </div>
                             <div className="flex items-center gap-2">
-                                <IconButton onClick={() => setModalSettingsOpen(true)}><FaGear className="w-4 h-4 mx-1" /></IconButton>
+                                {/* <IconButton onClick={() => setModalSettingsOpen(true)}><FaGear className="w-4 h-4 mx-1" /></IconButton> */}
                                 <PrimaryButton>Nuevo rol</PrimaryButton>
                             </div>
                         </div>
@@ -109,7 +98,7 @@ export default function Roles() {
                                 totalPages={data.last_page}
                                 onPageChange={handlePageChange}
                                 pageLevel={pageLevel}
-                            />
+                            ></TableComp>
                         </div>
                     </div>
                 </div>

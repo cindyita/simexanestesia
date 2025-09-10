@@ -13,6 +13,7 @@ import { FaUsers } from "react-icons/fa";
 import { FaUserShield } from "react-icons/fa6";
 import { FaBook } from "react-icons/fa";
 import { GoPasskeyFill } from "react-icons/go";
+import { FaUserCog } from "react-icons/fa";
 // import { IoMdNotifications } from "react-icons/io";
 // import IconButton from '@/Components/IconButton';
 
@@ -28,12 +29,12 @@ export default function AuthenticatedLayout({ header, children }) {
     
     useEffect(() => {
         if (company) {
-        document.documentElement.style.setProperty('--primary', company.primary_color);
-        document.documentElement.style.setProperty('--secondary', company.secondary_color);
-        document.documentElement.style.setProperty('--tertiary', company.tertiary_color);
-        document.documentElement.style.setProperty('--font', company.font_color);
-        document.documentElement.style.setProperty('--fontBox', company.box_color);
-        document.documentElement.style.setProperty('--text', company.text_color);
+            document.documentElement.style.setProperty('--primary', company.primary_color);
+            document.documentElement.style.setProperty('--secondary', company.secondary_color);
+            document.documentElement.style.setProperty('--tertiary', company.tertiary_color);
+            document.documentElement.style.setProperty('--font', company.font_color);
+            document.documentElement.style.setProperty('--fontBox', company.box_color);
+            document.documentElement.style.setProperty('--text', company.text_color);
         }
     }, [company]);
 
@@ -46,7 +47,8 @@ export default function AuthenticatedLayout({ header, children }) {
         FaUsers,
         FaUserShield,
         FaBook,
-        GoPasskeyFill
+        GoPasskeyFill,
+        FaUserCog
     };
 
     const handleSubMenu1 = (idParent) => {
@@ -119,20 +121,20 @@ export default function AuthenticatedLayout({ header, children }) {
                                     const Icon = icons[item.icon];
                                     return (
                                         <li key={item.id} className={`${menuSelected2 == item.id ? 'selected' : ''}`}>
-                                        {item.url != null ? (
-                                            <Link href={item.url || '#'} className="flex gap-2 items-center">
-                                                <div>{Icon && <Icon />}</div>
-                                                <span>{item.name}</span>
-                                            </Link>
-                                        ) : (
-                                            <a
-                                                onClick={() => handleSubMenu2(item.id)}
-                                                className="cursor-pointer flex gap-2 items-center"
-                                            >
-                                                <div>{Icon && <Icon />}</div>
-                                                <span>{item.name}</span>
-                                            </a>
-                                        )}
+                                            {item.url != null ? (
+                                                <Link href={item.url || '#'} className="flex gap-2 items-center">
+                                                    <div>{Icon && <Icon />}</div>
+                                                    <span>{item.name}</span>
+                                                </Link>
+                                            ) : (
+                                                <a
+                                                    onClick={() => handleSubMenu2(item.id)}
+                                                    className="cursor-pointer flex gap-2 items-center"
+                                                >
+                                                    <div>{Icon && <Icon />}</div>
+                                                    <span>{item.name}</span>
+                                                </a>
+                                            )}
                                         </li>
                                     );
                                 }

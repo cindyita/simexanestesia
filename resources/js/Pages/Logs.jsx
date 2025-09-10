@@ -4,10 +4,10 @@ import { useState } from 'react';
 import TableComp from '@/CustomComponents/table/TableComp';
 
 export default function Logs() {
-    if (!usePage().props.menu[8]) return;
+    if (!usePage().props.menu[12]) return;
     
     const data = usePage().props.data;
-    const pageLevel = usePage().props.menu[8]['level'];
+    const pageLevel = usePage().props.menu[12]['level'];
     
     const logs = data.data;
 

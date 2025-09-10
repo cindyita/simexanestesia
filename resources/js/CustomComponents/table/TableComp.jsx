@@ -14,30 +14,35 @@ import html2canvas from "html2canvas";
 import { jsPDF } from "jspdf";
 
 import { FaFileCsv, FaFilePdf, FaGear, FaSort, FaSortUp, FaSortDown, FaChevronLeft, FaChevronRight } from "react-icons/fa6";
-import { FaSearch } from "react-icons/fa";
+import { FaSearch, FaTimes } from "react-icons/fa";
 
 import { FormatDate } from '@/Functions/FormatDate';
 
+import Modal from '@/CustomComponents/modal/Modal';
+import Checkbox from '@/CustomComponents/form/Checkbox';
 
-function TableComp({ id_table, table_name, columns, dataRaw, downloadBtns, actionBtns, useFormatDate = true, showTime = false, customActions=[], currentPage=1,totalPages=1, onPageChange={}, pageLevel=1 }) {
+// Children = custom settings
+function TableComp({ children,id_table, table_name, columns, columnsHidden = [], dataRaw, downloadBtns, actionBtns, settingsBtns = true, useFormatDate = true, showTime = false, customActions=[], currentPage=1,totalPages=1, onPageChange={}, pageLevel=1 }) {
 
     //--------------------------------------------
     //--------------------------------------------
     // PROCESS RAW DATA
+    const allColumns = Object.keys(columns);
+
     const processData = dataRaw.map(user => {
-        const filteredUser = {};
+        const filtered = {};
         
-        Object.keys(columns).forEach(originalKey => {
+        allColumns.forEach(originalKey => {
             const newKey = columns[originalKey];
             
             if (useFormatDate && (originalKey === 'created_at' || originalKey === 'updated_at')) {
-                filteredUser[newKey] = FormatDate(user[originalKey],showTime);
+                filtered[newKey] = FormatDate(user[originalKey],showTime);
             } else {
-                filteredUser[newKey] = user[originalKey];
+                filtered[newKey] = user[originalKey];
             }
         });
         
-        return filteredUser;
+        return filtered;
     });
 
     const data = {
@@ -54,9 +59,24 @@ function TableComp({ id_table, table_name, columns, dataRaw, downloadBtns, actio
 
     const [search, setSearch] = useState('');
 
+    const [modalSettingsOpen, setModalSettingsOpen] = useState(false);
+
+    const allKeys = Object.keys(data.nodes[0] || {});
+    const [visibleColumns, setVisibleColumns] = useState(() => {
+        return allKeys.filter((col) => !columnsHidden.includes(col));
+    });
+
     //--------------------------------------------
     // HANDLES
     const handleSearch = (event) => setSearch(event.target.value);
+
+    const handleToggleColumn = (key) => {
+        setVisibleColumns(prev =>
+            prev.includes(key)
+                ? prev.filter(col => col !== key)
+                : [...prev, key]
+        );
+    };
 
     const actionHandlers = {
         onView: (item) => {
@@ -74,67 +94,71 @@ function TableComp({ id_table, table_name, columns, dataRaw, downloadBtns, actio
 
     //--------------------------------------------
     // MAP COLUMNS AND SORT
-    const keys = Object.keys(data.nodes[0] || {});
-    const sortFns = {};
+    const { mapColumns, sortFns } = useMemo(() => {
+        const sortFunctions = {};
 
-    const createColumns = (keys, actionBtns = false, actionHandlers = {}) => {
-      const mapColumns = keys.map((key) => {
-        sortFns[key.toUpperCase()] = (array) =>
-          array.sort((a, b) => {
-            const valA = a[key];
-            const valB = b[key];
-            if (typeof valA === "string" && typeof valB === "string") {
-              return valA.localeCompare(valB);
+        const createColumns = (keys, actionBtns = false, actionHandlers = {}) => {
+            const columns = keys.map((key) => {
+                sortFunctions[key.toUpperCase()] = (array) =>
+                    array.sort((a, b) => {
+                        const valA = a[key];
+                        const valB = b[key];
+                        if (typeof valA === "string" && typeof valB === "string") {
+                            return valA.localeCompare(valB);
+                        }
+                        if (typeof valA === "number" && typeof valB === "number") {
+                            return valA - valB;
+                        }
+                        if (valA instanceof Date && valB instanceof Date) {
+                            return valA.getTime() - valB.getTime();
+                        }
+                        return 0;
+                    });
+
+                return {
+                    key,
+                    label: key.charAt(0).toUpperCase() + key.slice(1),
+                    renderCell: (item) =>
+                        item[key] instanceof Date
+                            ? item[key].toLocaleDateString()
+                            : item[key]?.toString(),
+                    accessor: (item) => item[key],
+                    sort: { sortKey: key.toUpperCase() },
+                    resize: true
+                };
+            });
+
+            if (actionBtns) {
+                columns.push({
+                    key: 'action',
+                    label: "Acciones",
+                    renderCell: (item) => (
+                        <ActionDropdown
+                            item={item}
+                            onView={actionHandlers.onView}
+                            onEdit={actionHandlers.onEdit}
+                            onDelete={actionHandlers.onDelete}
+                            customActions={customActions}
+                            pageLevel={+pageLevel}
+                        />
+                    ),
+                    accessor: () => "",
+                    sort: false,
+                    resize: false,
+                    pinWidth: "95px"
+                });
             }
-            if (typeof valA === "number" && typeof valB === "number") {
-              return valA - valB;
-            }
-            if (valA instanceof Date && valB instanceof Date) {
-              return valA.getTime() - valB.getTime();
-            }
-            return 0;
-          });
-    
+
+            return columns;
+        };
+
+        const columns = createColumns(visibleColumns, actionBtns, actionHandlers);
+        
         return {
-            key,
-            label: key.charAt(0).toUpperCase() + key.slice(1),
-            renderCell: (item) =>
-                item[key] instanceof Date
-                ? item[key].toLocaleDateString()
-                : item[key]?.toString(),
-            accessor: (item) => item[key],
-            sort: { sortKey: key.toUpperCase() },
-            resize: true
+            mapColumns: columns,
+            sortFns: sortFunctions
         };
-      });
-    
-      if (actionBtns) {
-        const actionsColumn = {
-        key:'action',
-          label: "Acciones",
-          renderCell: (item) => (
-            <ActionDropdown
-                item={item}
-                onView={actionHandlers.onView}
-                onEdit={actionHandlers.onEdit}
-                onDelete={actionHandlers.onDelete}
-                customActions={customActions}
-                pageLevel={+pageLevel}
-            />
-          ),
-          accessor: () => "",
-            sort: false,
-            resize: false,
-            pinWidth: "95px"
-        };
-    
-        mapColumns.push(actionsColumn);
-      }
-    
-      return mapColumns;
-    };
-    
-    const mapColumns = createColumns(keys, actionBtns, actionHandlers);
+    }, [visibleColumns, actionBtns, customActions, pageLevel]);
 
     const sort = useSort(data, {}, { sortFns });
     
@@ -159,7 +183,7 @@ function TableComp({ id_table, table_name, columns, dataRaw, downloadBtns, actio
             .map(({ accessor }) => escapeCsvCell(accessor(rowItem)))
             .join(",") + "\r\n"
         );
-        }, columns.map(({ name }) => escapeCsvCell(name)).join(",") + "\r\n");
+        }, columns.map(({ label }) => escapeCsvCell(label)).join(",") + "\r\n");
     };
 
     const downloadAsCsv = (columns, data, filename) => {
@@ -199,68 +223,75 @@ function TableComp({ id_table, table_name, columns, dataRaw, downloadBtns, actio
     };
 
     //--------------------------------------------
-    // SEARCH FILTER
-    // const filteredNodes = data.nodes.filter((item) => {
-    //     return keys.some((key) =>
-    //         item[key]?.toString().toLowerCase().includes(search.toLowerCase())
-    //     );
-    // });
+    // FILTERS AND MAPS
     const filteredNodes = useMemo(() => {
         return data.nodes.filter((item) => {
-            return keys.some((key) =>
+            return visibleColumns.some((key) =>
                 item[key]?.toString().toLowerCase().includes(search.toLowerCase())
             );
         });
-    }, [data.nodes, keys, search]);
+    }, [data.nodes, visibleColumns, search]);
 
     const filteredData = { nodes: filteredNodes };
+
+    const gridTemplateColumns = useMemo(() => {
+        return mapColumns
+            .map((col) => {
+                if (col.key === "action") return "95px";
+                if (col.key === 'id') return "95px";
+                return "auto";
+            })
+            .join(" ");
+    }, [mapColumns]);
 
     //---------------------------------------------
     // MOBILE CARDS
     const renderMobileCards = () => (
         <div className="grid gap-4 md:hidden">
-        {filteredNodes.map((item, index) => (
-            <div key={index} className="bg-white border border-emerald-200 rounded-lg p-4 shadow-sm">
-            {keys.map((key) => (
-                <div key={key} className="flex justify-between items-center py-1 border-b border-emerald-100 last:border-b-0 gap-2">
-                    <span className="font-medium text-emerald-600 text-sm">
-                        {key.charAt(0).toUpperCase() + key.slice(1)}:
-                    </span>
-                    <span className="text-emerald-900 text-sm text-right">
-                        {item[key] instanceof Date
-                        ? item[key].toLocaleDateString()
-                        : item[key]?.toString()}
-                    </span>
+            {filteredNodes.map((item, index) => (
+                <div
+                    key={index}
+                    className="bg-white border border-emerald-200 rounded-lg p-4 shadow-sm"
+                >
+                    {visibleColumns.map((key) => (
+                        <div
+                            key={key}
+                            className="flex justify-between items-center py-1 border-b border-emerald-100 last:border-b-0 gap-2"
+                        >
+                            <span className="font-medium text-emerald-600 text-sm">
+                                {key.charAt(0).toUpperCase() + key.slice(1)}:
+                            </span>
+                            <span className="text-emerald-900 text-sm text-right">
+                                {item[key] instanceof Date
+                                    ? item[key].toLocaleDateString()
+                                    : item[key]?.toString()}
+                            </span>
+                        </div>
+                    ))}
+
+                    {actionBtns && (
+                        <div className="flex justify-between items-center py-1 gap-2">
+                            <span className="font-medium text-emerald-600 text-sm">
+                                Acciones:
+                            </span>
+                            <span className="text-emerald-900 text-sm text-right">
+                                <div>
+                                    <ActionDropdown
+                                        item={item}
+                                        onView={actionHandlers.onView}
+                                        onEdit={actionHandlers.onEdit}
+                                        onDelete={actionHandlers.onDelete}
+                                        customActions={customActions}
+                                        pageLevel={+pageLevel}
+                                    />
+                                </div>
+                            </span>
+                        </div>
+                    )}
                 </div>
             ))}
-                <div className="flex justify-between items-center py-1 gap-2">
-                    <span className="font-medium text-emerald-600 text-sm">
-                        Acciones:
-                    </span>
-                    <span className="text-emerald-900 text-sm text-right">
-                        <div>
-                            <ActionDropdown
-                                item={item}
-                                onView={actionHandlers.onView}
-                                onEdit={actionHandlers.onEdit}
-                                onDelete={actionHandlers.onDelete}
-                                customActions={customActions}
-                                pageLevel={+pageLevel}
-                            />
-                        </div>
-                    </span>
-                </div>
-            </div>
-        ))}
         </div>
     );
-
-    // const getSortIcon = (key) => {
-    //     if (sort.state?.sortKey === key.toUpperCase()) {
-    //         return sort.state.reverse ? <FaSortDown className="ml-1" /> : <FaSortUp className="ml-1" />;
-    //     }
-    //     return <FaSort className="ml-1 opacity-50" />;
-    // };
 
     // RETURN --------------------------------------------------------
     return (
@@ -276,26 +307,30 @@ function TableComp({ id_table, table_name, columns, dataRaw, downloadBtns, actio
                         </div>
             
                         <div className="flex flex-col sm:flex-row gap-3">
-                        {/* DATA DOWNLOAD BUTTONS */}
-                            {downloadBtns &&
-                                <div className="flex gap-2 justify-start sm:justify-start">
-                                    <IconButton
-                                        onClick={handleDownloadCsv}
-                                        className="text-xs px-3 py-2"
-                                    >
-                                        <FaFileCsv className="w-4 h-4" />
-                                    </IconButton>
-                                    <IconButton
-                                        onClick={handleDownloadPdf}
-                                        className="text-xs px-3 py-2"
-                                    >
-                                        <FaFilePdf className="w-4 h-4" />
-                                    </IconButton>
-                                    {/* <IconButton className="text-xs px-3 py-2">
-                                    <FaGear className="w-4 h-4" />
-                                </IconButton> */}
-                                </div>
-                            }
+                            {/* DATA DOWNLOAD BUTTONS */}
+                            <div className="flex gap-2 justify-start sm:justify-start">
+                                {downloadBtns &&
+                                    <>
+                                        <IconButton
+                                            onClick={handleDownloadCsv}
+                                            className="text-xs px-3 py-2"
+                                        >
+                                            <FaFileCsv className="w-4 h-4" />
+                                        </IconButton>
+                                        <IconButton
+                                            onClick={handleDownloadPdf}
+                                            className="text-xs px-3 py-2"
+                                        >
+                                            <FaFilePdf className="w-4 h-4" />
+                                        </IconButton>
+                                    </>    
+                                }
+                                {settingsBtns && 
+                                    (<IconButton className="text-xs px-3 py-2" onClick={() => setModalSettingsOpen(true)}>
+                                        <FaGear className="w-4 h-4" />
+                                    </IconButton>)
+                                }
+                            </div>
                 
                             {/* SEARCH */}
                             <div className="relative">
@@ -321,6 +356,7 @@ function TableComp({ id_table, table_name, columns, dataRaw, downloadBtns, actio
                         <div className="overflow-x-auto overflow-y-auto">
                             <div style={{ minWidth: '600px' }}>
                                 <CompactTable
+                                    key={visibleColumns.join('-')} // Key para forzar re-render cuando cambien las columnas
                                     columns={mapColumns}
                                     data={filteredData}
                                     sort={sort}
@@ -330,9 +366,7 @@ function TableComp({ id_table, table_name, columns, dataRaw, downloadBtns, actio
                                         background-color: white;
                                         border-radius: 8px;
                                         font-size: 14px;
-                                        --data-table-library_grid-template-columns: ${mapColumns
-                                                .map((col) => (col.key === "action" ? "95px" : (col.key === 'id' ? "95px" :"auto")))
-                                            .join(" ")};
+                                        --data-table-library_grid-template-columns: ${gridTemplateColumns};
                                         `,
                                         Header: {
                                         backgroundColor: '#f8fafc',
@@ -401,6 +435,46 @@ function TableComp({ id_table, table_name, columns, dataRaw, downloadBtns, actio
 
                 </div>
             </div>
+
+            { /* MODALS */}
+            <Modal show={modalSettingsOpen} onClose={() => setModalSettingsOpen(false)}>
+                {columns &&
+                    <>
+                        <div className="p-6 space-y-4">
+                            <div className="flex justify-between items-center mb-4">
+                                <h3 className="text-lg font-semibold text-emerald-800">
+                                    Configuración de tabla
+                                </h3>
+                                <button onClick={() => setModalSettingsOpen(false)} className="text-emerald-400 hover:text-emerald-600">
+                                    <FaTimes />
+                                </button>
+                            </div>
+                            <div className="grid gap-2">
+                                <div className="py-2">
+                                    <strong>Mostrar columnas</strong>
+                                    <hr />
+                                </div>
+                                {allKeys.map((key) => (
+                                    <label key={key} className="flex items-center gap-2">
+                                        <Checkbox
+                                            type="checkbox"
+                                            checked={visibleColumns.includes(key)}
+                                            onChange={() => handleToggleColumn(key)}
+                                        />
+                                        <span className="capitalize">{key}</span>
+                                    </label>
+                                ))}
+                            
+                                <div>
+                                    {children}
+                                </div>
+                                
+                            </div>
+                        </div>
+                    </>
+                }
+            </Modal>
+            {/*-----------------------*/}
     
         </div>
     );

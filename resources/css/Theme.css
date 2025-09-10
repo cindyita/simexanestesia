@@ -73,7 +73,7 @@ a:focus, .btn-close:focus {
   background-color: var(--primary);
   padding: 10px;
   display: flex;
-  gap: 10px;
+  gap: 3px;
 }
 .content-layout ul {
   margin-inline-start: 0;
@@ -128,8 +128,6 @@ main .main-content {
   gap: 30px;
   transition: 0.2s;
   width: 70px;
-  overflow-y: auto;
-  overflow-x: hidden;
   z-index: 10;
 }
 @media (max-width: 800px) {
@@ -163,6 +161,11 @@ main .main-content {
   }
 }
 
+.menu-nav-content {
+  overflow: hidden;
+  overflow-y: auto;
+}
+
 .menu-nav {
   padding: 0 5px;
 }
@@ -194,7 +197,7 @@ main .main-content {
     overflow: auto;
     justify-content: space-between;
     align-items: center;
-    gap: 15px;
+    gap: 10px;
   }
   .menu-nav ul li {
     width: auto;
@@ -232,7 +235,7 @@ main .main-content {
     align-items: center;
     justify-content: center;
     gap: 0;
-    padding: 0;
+    padding: 5px;
   }
   .menu-nav a span {
     display: none;
@@ -268,6 +271,14 @@ header {
 @media (max-width: 800px) {
   .submenu, .subsubmenu {
     width: 100%;
+    height: 0;
+    transition: height 0.2s ease;
+    overflow-y: initial;
+    overflow-x: auto;
+  }
+  .submenu.open, .subsubmenu.open {
+    width: 100%;
+    height: 75px;
   }
 }
 .submenu ul, .subsubmenu ul {
@@ -275,7 +286,7 @@ header {
   flex-direction: column;
   justify-content: flex-start;
   align-items: flex-start;
-  gap: 10px;
+  gap: 5px;
   width: 100%;
   height: 100%;
 }
@@ -291,7 +302,6 @@ header {
   .submenu ul, .subsubmenu ul {
     flex-direction: row;
     overflow: auto;
-    justify-content: space-between;
     align-items: center;
     gap: 15px;
   }
@@ -303,14 +313,14 @@ header {
   color: var(--textReverse);
   display: flex;
   align-items: center;
-  gap: 7px;
-  font-size: 12pt;
+  gap: 8px;
+  font-size: 13pt;
   border-radius: 15px;
   position: relative;
   width: 100%;
 }
 .submenu a svg, .subsubmenu a svg {
-  font-size: 17pt;
+  font-size: 18pt;
 }
 .submenu a:hover, .subsubmenu a:hover {
   opacity: 0.7;
@@ -324,8 +334,26 @@ header {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 0;
     padding: 0;
+  }
+}
+
+.submenu.open {
+  margin-right: 5px;
+}
+@media (max-width: 800px) {
+  .submenu.open {
+    margin-top: 5px;
+    margin-bottom: 47px;
+  }
+}
+
+.subsubmenu.open {
+  margin-right: 5px;
+}
+@media (max-width: 800px) {
+  .subsubmenu.open {
+    margin-top: 5px;
   }
 }
 
