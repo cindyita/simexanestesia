@@ -20,9 +20,10 @@ import { FormatDate } from '@/Functions/FormatDate';
 
 import Modal from '@/CustomComponents/modal/Modal';
 import Checkbox from '@/CustomComponents/form/Checkbox';
+import ConfirmDeleteModal from '../modal/ConfirmDeleteModal';
 
 // Children = custom settings
-function TableComp({ children,id_table, table_name, columns, columnsHidden = [], dataRaw, downloadBtns, actionBtns, settingsBtns = true, useFormatDate = true, showTime = false, customActions=[], currentPage=1,totalPages=1, onPageChange={}, pageLevel=1 }) {
+function TableComp({ children,id_table, table_name, columns, columnsHidden = [], dataRaw, downloadBtns, actionBtns, settingsBtns = true, useFormatDate = true, showTime = false, customActions=[], currentPage=1,totalPages=1, onPageChange={}, pageLevel=1, handleActionDelete = {}, handleActionDetails = {}, handleActionUpdate = {} }) {
 
     //--------------------------------------------
     //--------------------------------------------
@@ -66,6 +67,11 @@ function TableComp({ children,id_table, table_name, columns, columnsHidden = [],
         return allKeys.filter((col) => !columnsHidden.includes(col));
     });
 
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [deleteId, setDeleteId] = useState(0);
+    const [modalDetailsOpen, setModalDetailsOpen] = useState(false);
+    const [viewDetails, setViewDetails] = useState([]);
+
     //--------------------------------------------
     // HANDLES
     const handleSearch = (event) => setSearch(event.target.value);
@@ -79,16 +85,30 @@ function TableComp({ children,id_table, table_name, columns, columnsHidden = [],
     };
 
     const actionHandlers = {
-        onView: (item) => {
-            console.log('Viendo:', item);
+        onView: async (item) => {
+            const details = await handleActionDetails(item.id);
+            const formattedDetails = details.map(row => {
+                const newRow = {};
+                for (const [key, value] of Object.entries(row)) {
+                    if (typeof value === "string" && value.match(/^\d{4}-\d{2}-\d{2}(T|\s)/)) {
+                        newRow[key] = FormatDate(value, true);
+                    } else if (typeof value === "object" && value !== null) {
+                        newRow[key] = JSON.stringify(value, null, 2);
+                    } else {
+                        newRow[key] = value;
+                    }
+                }
+                return newRow;
+            });
+                        setViewDetails(formattedDetails);
+            setModalDetailsOpen(true);
         },
         onEdit: (item) => {
             console.log('Editando:', item);
         },
         onDelete: (item) => {
-            if (confirm('¿Eliminar este registro?')) {
-                console.log('Eliminando:', item);
-            }
+            setDeleteId(item.id);
+            setShowDeleteModal(true);
         }
     };
 
@@ -251,17 +271,17 @@ function TableComp({ children,id_table, table_name, columns, columnsHidden = [],
             {filteredNodes.map((item, index) => (
                 <div
                     key={index}
-                    className="bg-white border border-emerald-200 rounded-lg p-4 shadow-sm"
+                    className="bg-[var(--fontBox)] border border-[var(--font)] rounded-lg p-4 shadow-sm"
                 >
                     {visibleColumns.map((key) => (
                         <div
                             key={key}
-                            className="flex justify-between items-center py-1 border-b border-emerald-100 last:border-b-0 gap-2"
+                            className="flex justify-between items-center py-1 border-b border-[var(--font)] last:border-b-0 gap-2"
                         >
-                            <span className="font-medium text-emerald-600 text-sm">
+                            <span className="font-medium text-[var(--primary)] text-sm">
                                 {key.charAt(0).toUpperCase() + key.slice(1)}:
                             </span>
-                            <span className="text-emerald-900 text-sm text-right">
+                            <span className="text-[var(--primary)] text-sm text-right">
                                 {item[key] instanceof Date
                                     ? item[key].toLocaleDateString()
                                     : item[key]?.toString()}
@@ -271,10 +291,10 @@ function TableComp({ children,id_table, table_name, columns, columnsHidden = [],
 
                     {actionBtns && (
                         <div className="flex justify-between items-center py-1 gap-2">
-                            <span className="font-medium text-emerald-600 text-sm">
+                            <span className="font-medium text-[var(--primary)] text-sm">
                                 Acciones:
                             </span>
-                            <span className="text-emerald-900 text-sm text-right">
+                            <span className="text-[var(--primary)] text-sm text-right">
                                 <div>
                                     <ActionDropdown
                                         item={item}
@@ -301,7 +321,7 @@ function TableComp({ children,id_table, table_name, columns, columnsHidden = [],
                 <div className="p-2 sm:p-4 sm:pb-0 sm:pt-2">
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                         <div className="flex items-center">
-                            <h3 className="text-lg font-semibold text-emerald-800">
+                            <h3 className="text-lg font-semibold text-[var(--primary)]">
                                 {table_name}
                             </h3>
                         </div>
@@ -335,7 +355,7 @@ function TableComp({ children,id_table, table_name, columns, columnsHidden = [],
                             {/* SEARCH */}
                             <div className="relative">
                                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <FaSearch className="h-4 w-4 text-emerald-300" />
+                                    <FaSearch className="h-4 w-4 text-[var(--secondary)]" />
                                 </div>
                                 <TextInput
                                     type="text"
@@ -423,7 +443,7 @@ function TableComp({ children,id_table, table_name, columns, columnsHidden = [],
                             {[...Array(totalPages)].map((_, index) => (
                                 <button
                                     key={index}
-                                    className={`px-3 py-1 rounded-lg text-sm ${currentPage === index + 1 ? 'bg-[var(--primary)] text-white' : ''}`}
+                                    className={`px-3 py-1 rounded-lg text-sm ${currentPage === index + 1 ? 'bg-[var(--primary)] text-[var(--textReverse)]' : ''}`}
                                     onClick={() => onPageChange(index + 1)}
                                 >
                                     {index + 1}
@@ -442,10 +462,10 @@ function TableComp({ children,id_table, table_name, columns, columnsHidden = [],
                     <>
                         <div className="p-6 space-y-4">
                             <div className="flex justify-between items-center mb-4">
-                                <h3 className="text-lg font-semibold text-emerald-800">
+                                <h3 className="text-lg font-semibold text-[var(--primary)]">
                                     Configuración de tabla
                                 </h3>
-                                <button onClick={() => setModalSettingsOpen(false)} className="text-emerald-400 hover:text-emerald-600">
+                                <button onClick={() => setModalSettingsOpen(false)} className="text-[var(--secondary)] hover:text-[var(--primary)]">
                                     <FaTimes />
                                 </button>
                             </div>
@@ -474,6 +494,52 @@ function TableComp({ children,id_table, table_name, columns, columnsHidden = [],
                     </>
                 }
             </Modal>
+
+            {/* DETAILS MODAL */}
+            <Modal show={modalDetailsOpen} onClose={() => setModalDetailsOpen(false)}>
+                <div className="p-6 space-y-4">
+                    <div className="flex justify-between items-center mb-4">
+                        <h3 className="text-lg font-semibold text-[var(--primary)]">
+                            Detalles del registro
+                        </h3>
+                        <button onClick={() => setModalDetailsOpen(false)} className="text-[var(--secondary)] hover:text-[var(--primary)]">
+                            <FaTimes />
+                        </button>
+                    </div>
+            
+                    <div>
+                        {/* Table */}
+                        {viewDetails.length > 0 && (
+                            <div className="overflow-x-auto">
+                                <table className="table-auto border-collapse border border-[var(--secondary)] w-full">
+                                <tbody>
+                                    {Object.entries(viewDetails[0]).map(([key, value], i) => (
+                                    <tr key={i}>
+                                        <th className="border border-[var(--secondary)] px-2 py-1 bg-[var(--font)] text-[var(--primary)] text-left w-1/3">
+                                        {key}
+                                        </th>
+                                        <td className="border border-[var(--secondary)] px-2 py-1">
+                                        {String(value)}
+                                        </td>
+                                    </tr>
+                                    ))}
+                                </tbody>
+                                </table>
+                            </div>
+                        )}
+
+                    </div>
+                </div>
+
+            </Modal>
+
+            {/* DELETE MODAL */}
+            <ConfirmDeleteModal
+                show={showDeleteModal}
+                onClose={() => setShowDeleteModal(false)}
+                onConfirm={handleActionDelete}
+                id={deleteId}
+            />
             {/*-----------------------*/}
     
         </div>

@@ -19,10 +19,13 @@ export default function ErrorPage({ status }) {
   }
 
   switch (+status) {
-      case 403: message = 'No tienes permisos para acceder a esta página'; break;
-      case 404: message = 'La página no existe'; break;
-      case 500: message = 'Error interno del servidor.'; break;
-      case 503: message = 'Servicio temporalmente no disponible.'; break;
+    case 403: message = 'No tienes permisos para acceder a esta página'; break;
+    case 404: message = 'La página no existe'; break;
+    case 500: message = 'Error interno del servidor.'; break;
+    case 503:
+      message = 'Servicio temporalmente no disponible.';
+      button = <Link href="/"><PrimaryButton>Actualizar</PrimaryButton></Link>;
+    break;
   }
   
   return (

@@ -25,11 +25,11 @@ class Alerts extends Model
             ->where('expire', '<', Carbon::now())
             ->delete();
         
-        activity('alert delete')
+        activity('delete alert')
             ->causedBy(session('user')['id'])
             ->withProperties($res)
             ->event(session('user')['id_company'])
-            ->log('Se depuraron las alertas expiradas');
+            ->log('Se eliminaron los avisos expirados');
     }
 
 }

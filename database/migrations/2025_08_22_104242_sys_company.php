@@ -22,6 +22,7 @@ return new class extends Migration
             $table->string('font_color');
             $table->string('box_color');
             $table->string('text_color');
+            $table->string('text_color_reverse');
             $table->string('style_type')->default(1);
             $table->string('logo');
             $table->string('url');

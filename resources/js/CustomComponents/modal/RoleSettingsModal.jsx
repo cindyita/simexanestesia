@@ -17,10 +17,10 @@ export default function RoleSettingsModal({ show, onClose, data = [], onSave }) 
           <div className="p-6">
             {/* Header */}
             <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg font-semibold text-emerald-800">
+                <h3 className="text-lg font-semibold text-[var(--primary)]">
                     Rol de usuario default al registro:
                 </h3>
-                <button onClick={onClose} className="text-emerald-400 hover:text-emerald-600">
+                <button onClick={onClose} className="text-[var(--secondary)] hover:text-[var(--primary)]">
                     <FaTimes />
                 </button>
             </div>

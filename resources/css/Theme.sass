@@ -1,10 +1,10 @@
 :root
     --primary: #0d7560
     --secondary: #0ab586
-    --tertiary: #82e0b8
+    --tertiary: #ffec6b
     --fontWhite: white
     --font: #e4f3ed
-    --fontBox: #84e2ba
+    --fontBox: #ffffff
     --radiusBox: 8px
     --radiusBtn: 8px
     --text: #0d7559
@@ -201,7 +201,7 @@ main
             font-size: 20pt
 
         &:hover
-            color: var(--tertiary)
+            opacity: 0.7
         
         &.active
             background-color: var(--secondary)
@@ -338,15 +338,18 @@ footer
     @media (min-width: 546px) and (max-width: 800px)
         display: none
 
+.box
+    background-color: var(--fontBox)
+
 //----------------------------------
 // TABLE
 .table
-    background-color: var(--fontBox)
+    background-color: var(--tertiary)
     border-radius: var(--radiusBox)
     color: var(--text)
-    border-bottom: 1px solid var(--tertiary)
-    border-left: 1px solid var(--tertiary)
-    border-top: 1px solid var(--tertiary)
+    border-bottom: 1px solid rgba(155,155,155,0.5)
+    border-left: 1px solid rgba(155,155,155,0.5)
+    border-top: 1px solid rgba(155,155,155,0.5)
 
     tr,td,th
         color: var(--text)
@@ -358,16 +361,16 @@ footer
             color: var(--textReverse)
     
     td,th
-        border-right: 1px solid var(--tertiary)
+        border-right: 1px solid rgba(155,155,155,0.5)
     
     td
         overflow: visible
     
     tr:not(:last-child) td
-        border-bottom: 1px solid var(--tertiary)
+        border-bottom: 1px solid rgba(155,155,155,0.5)
     
     .css-i7pdg7-getRowContainerStyle-Row:not(:last-of-type) > .td
-        border-bottom: 1px solid var(--tertiary)
+        border-bottom: 1px solid rgba(155,155,155,0.5)
     
     .css-19pq5fe-HEADER_CELL_CONTAINER_STYLE-HeaderCell .resizer-handle
         opacity: 0
@@ -395,7 +398,9 @@ footer
 // INPUT
 input, select, textarea 
     &:disabled
-        background-color: #cee0d4
+        background-color: #eff1f3
+        border: 1px solid rgb(194, 194, 194)
+        color: rgb(177, 177, 177)
 
 //---------------------------------------------
 // ANIMATIONS

@@ -96,17 +96,14 @@ class AuthenticatedSessionController extends Controller
         return redirect('/');
     }
     
-    public function refreshMenu()
+    public static function refreshMenuInSession($idRol = null)
     {
-
-        $menu = $this->menuService->setMenuInSession(
-            session('id_rol'),
-            session('id_company')
+        $idRol = $idRol ? $idRol : session('id_rol');
+        $menuService = new MenuService;
+        $menuService->setMenuInSession(
+            $idRol
         );
 
-        return response()->json([
-            'success' => true,
-            'menu' => $menu
-        ]);
+        return 1;
     }
 }

@@ -68,17 +68,17 @@ export default function UploadFileModal({ show, onClose, subjects, onUpload }) {
       <Modal show={show} onClose={onClose} maxWidth="lg">
         <div className="p-6">
           <div className="flex justify-between items-center mb-4">
-            <h3 className="text-lg font-semibold text-emerald-800">Subir nuevo recurso</h3>
-            <button onClick={onClose} className="text-emerald-400 hover:text-emerald-600">
+            <h3 className="text-lg font-semibold text-[var(--primary)]">Subir nuevo recurso</h3>
+            <button onClick={onClose} className="text-[var(--secondary)] hover:text-[var(--primary)]">
               <FaTimes />
             </button>
           </div>
 
           {/* Selector de materia */}
           <div className="mb-4">
-            <label className="block text-sm font-medium text-emerald-700 mb-1">Materia asociada</label>
+            <label className="block text-sm font-medium text-[var(--primary)] mb-1">Materia asociada</label>
             <select
-              className="w-full border border-emerald-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+              className="w-full border border-[var(--secondary)] rounded-md px-3 py-2 focus:ring-2 focus:ring-[var(--secondary)] focus:border-transparent"
               value={selectedSubject}
               onChange={(e) => setSelectedSubject(e.target.value)}
             >
@@ -93,13 +93,13 @@ export default function UploadFileModal({ show, onClose, subjects, onUpload }) {
           <div
             onDragOver={(e) => e.preventDefault()}
             onDrop={handleDrop}
-            className="mb-4 border-2 border-dashed border-emerald-300 rounded-lg p-6 text-center cursor-pointer hover:border-emerald-500 transition-colors"
+            className="mb-4 border-2 border-dashed border-[var(--secondary)] rounded-lg p-6 text-center cursor-pointer hover:border-[var(--secondary)] transition-colors"
             onClick={() => fileInputRef.current.click()}
           >
             {selectedFile ? (
-              <p className="text-emerald-700">{selectedFile.name}</p>
+              <p className="text-[var(--primary)]">{selectedFile.name}</p>
             ) : (
-              <p className="text-emerald-400">Arrastra el archivo aquí o haz click para seleccionar</p>
+              <p className="text-[var(--secondary)]">Arrastra el archivo aquí o haz click para seleccionar</p>
             )}
             <input
               type="file"
@@ -110,17 +110,17 @@ export default function UploadFileModal({ show, onClose, subjects, onUpload }) {
           </div>
 
           {/* Restricciones */}
-          <p className="text-xs text-emerald-500 mb-4">
+          <p className="text-xs text-[var(--secondary)] mb-4">
             Tipos permitidos: {ALLOWED_TYPES.join(", ")} | Tamaño máximo: {MAX_SIZE_MB} MB
           </p>
 
           {/* Barra de carga */}
           {uploading && (
             <div className="mb-4">
-              <div className="w-full bg-emerald-200 rounded-full h-2 overflow-hidden">
-                <div className="bg-emerald-500 h-2" style={{ width: `${progress}%` }}></div>
+              <div className="w-full bg-[var(--font)] rounded-full h-2 overflow-hidden">
+                <div className="bg-[var(--secondary)] h-2" style={{ width: `${progress}%` }}></div>
               </div>
-              <p className="text-sm text-emerald-600 mt-1">Subiendo... {progress}%</p>
+              <p className="text-sm text-[var(--primary)] mt-1">Subiendo... {progress}%</p>
             </div>
           )}
 
@@ -128,8 +128,8 @@ export default function UploadFileModal({ show, onClose, subjects, onUpload }) {
           <button
             onClick={handleUpload}
             disabled={uploading}
-            className={`w-full py-2 px-4 rounded-md text-white font-medium transition-colors ${
-              uploading ? "bg-emerald-400 cursor-not-allowed" : "bg-emerald-600 hover:bg-emerald-700"
+            className={`w-full py-2 px-4 rounded-md text-[var(--textReverse)] font-medium transition-colors ${
+              uploading ? "bg-[var(--secondary)] cursor-not-allowed" : "bg-[var(--primary)] hover:bg-[var(--primary)]"
             }`}
           >
             {uploading ? "Subiendo..." : "Subir recurso"}

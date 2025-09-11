@@ -8,7 +8,7 @@ export default function IconButton({
         <button
             {...props}
             className={
-                `inline-flex items-center rounded-[var(--radiusBtn)] bg-[--primary] p-2 font-semibold uppercase tracking-widest text-white transition duration-150 ease-in-out hover:bg-emerald-800 text-lg  ${
+                `inline-flex items-center rounded-[var(--radiusBtn)] bg-[--primary] p-2 font-semibold uppercase tracking-widest text-[var(--textReverse)] transition duration-150 ease-in-out hover:opacity-80 disabled:opacity-25 text-lg  ${
                     disabled && 'opacity-25'
                 } ` + className
             }

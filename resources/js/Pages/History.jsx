@@ -38,7 +38,7 @@ export default function History() {
     return (
         <AuthenticatedLayout
             header={
-                <h2 className="text-xl font-semibold leading-tight text-emerald-800">
+                <h2 className="text-xl font-semibold leading-tight text-[var(--primary)]">
                     {isAdmin ? 'Historial de intentos de alumnos' : 'Mi Historial de Intentos'}
                 </h2>
             }
@@ -46,8 +46,8 @@ export default function History() {
             <Head title="Historial" />
             <div className="logs">
                 <div>
-                    <div className="bg-white rounded-lg shadow">
-                        <div className="p-3 md:p-6 text-emerald-900">
+                    <div className="bg-[var(--fontBox)] rounded-lg shadow">
+                        <div className="p-3 md:p-6 text-[var(--primary)]">
 
                             <TableComp
                                 id_table={'history_table'}

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Functions\UniqueKey;
 use App\Http\Requests\ProfileUpdateRequest;
 use App\Models\RegisterKeys;
+use App\Models\User;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -44,11 +45,11 @@ class AccountController extends Controller
 
         $request->user()->save();
 
-        activity('auth update')
-            ->causedBy($request->user())
-            ->withProperties(['Nombre'=>$request->user()->name])
-            ->event($request->user()->id_company)
-            ->log('Usuario editó su cuenta');
+        // activity('update user')
+        //     ->causedBy($request->user())
+        //     ->withProperties(['Nombre'=>$request->user()->name])
+        //     ->event($request->user()->id_company)
+        //     ->log('Usuario editó su cuenta');
 
         return Redirect::route('account.edit');
     }
@@ -71,7 +72,7 @@ class AccountController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        activity('auth delete')
+        activity('delete user')
             ->causedBy($request->user())
             ->withProperties($request->user())
             ->event($request->user()->id_company)
@@ -98,6 +99,17 @@ class AccountController extends Controller
         ]);
     }
 
+    public function getLog(Request $request) {
+        $id = $request->query('id');
+
+        $log = Activity::select('activity_log.*','sys_users.name as name_user_causer')
+        ->leftJoin('sys_users', 'sys_users.id', '=', 'activity_log.causer_id')
+        ->where('activity_log.id',$id)
+        ->get();
+
+        return response()->json($log);
+    }
+
     public function getSession(Request $request) {
         return $request->session()->all();
     }
@@ -122,7 +134,7 @@ class AccountController extends Controller
                 $lastId++;
                 $clave = UniqueKey::getUniqueKey($value['email'], $lastId);
                 $import[$key]['clave'] = $clave;
-                RegisterKeys::create([
+                $registerKeysCreate = RegisterKeys::create([
                     'key'        => $clave,
                     'note'       => $value['nota'] ?? ($value['note'] ?? null),
                     'email'      => $value['email'] ?? null,
@@ -132,6 +144,12 @@ class AccountController extends Controller
                     'created_at' => now(),
                 ]);
             }
+            if ($registerKeysCreate > 0) {
+                activity('create registerKeys')
+                    ->causedBy($request->user())
+                    ->event($request->user()->id_company)
+                    ->log('Se crearon claves de registro por importación');
+            }
         }else if($type == 'unique' && $email){
             $lastId++;
             $import = [[]];
@@ -139,7 +157,7 @@ class AccountController extends Controller
             $import[0]['email'] = $email;
             $import[0]['note'] = $note ?? null;
             $import[0]['clave'] = $clave ?? null;
-            RegisterKeys::create([
+            $registerKeyCreate = RegisterKeys::create([
                 'key'        => $clave,
                 'note'       => $note ?? null,
                 'email'      => $email ?? null,
@@ -148,6 +166,12 @@ class AccountController extends Controller
                 'created_by' => session('user')['id'],
                 'created_at' => now(),
             ]);
+            if ($registerKeyCreate > 0) {
+                activity('create registerKey')
+                    ->causedBy($request->user())
+                    ->event($request->user()->id_company)
+                    ->log('Se creó una clave de registro');
+            }
         }
 
         $roles = Roles::where('id_company', $idCompany)->orderBy('id', 'desc')->get();
@@ -185,6 +209,15 @@ class AccountController extends Controller
             'type' => $type ?? 0,
             'show' => $show
         ]);
+    }
+
+    public static function closeAllRolSession($idRol) {
+        $userIds = User::where('id_rol', $idRol)->pluck('id');
+        DB::table('sys_sessions')->whereIn('user_id', $userIds)->delete();
+        activity('delete session')
+        ->causedBy(session('user')['id'])
+        ->event(session('user')['id_company'])
+        ->log('Se cerró la sesión de usuarios con rol: '.$idRol);
     }
 
 }

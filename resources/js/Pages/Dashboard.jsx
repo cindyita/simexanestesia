@@ -15,6 +15,7 @@ import MiniButton from '@/CustomComponents/button/MiniButton';
 import Modal from '@/CustomComponents/modal/Modal';
 import PrimaryButton from '@/CustomComponents/button/PrimaryButton';
 import SecondaryButton from '@/CustomComponents/button/SecondaryButton';
+import Textarea from '@/CustomComponents/form/Textarea';
 
 export default function Dashboard() {
 
@@ -87,8 +88,8 @@ export default function Dashboard() {
     };
 
     const AlertBgColors = {
-        warning: 'bg-emerald-200',
-        info: 'bg-white',
+        warning: 'bg-[var(--font)]',
+        info: 'bg-[var(--fontBox)]',
         precaution: 'bg-yellow-200',
         danger: 'bg-red-300'
     };
@@ -96,7 +97,7 @@ export default function Dashboard() {
     return (
         <AuthenticatedLayout
             header={
-                <h2 className="text-xl font-semibold leading-tight text-emerald-800">
+                <h2 className="text-xl font-semibold leading-tight text-[var(--primary)]">
                     Dashboard
                 </h2>
             }
@@ -109,14 +110,14 @@ export default function Dashboard() {
 
                     <div className="space-y-4 flex-1 flex flex-col">
                         {alerts && alerts.map((alert) => (
-                            <Card key={alert.id} className={`@container/card shadow rounded-lg p-4 ${AlertBgColors[alert.type] || 'bg-white'}`}>
+                            <Card key={alert.id} className={`@container/card shadow rounded-lg p-4 ${AlertBgColors[alert.type] || 'bg-[var(--fontBox)]'}`}>
                                 <div className="flex items-start space-x-4 flex-1">
-                                    <div className="w-10 h-10 flex items-center justify-center rounded-full  text-emerald-600 font-bold bg-emerald-100">
+                                    <div className="w-10 h-10 flex items-center justify-center rounded-full  text-[var(--primary)] font-bold bg-[var(--font)]">
                                         <IoAlert className="text-2xl" />
                                     </div>
                                     <div className="flex-1">
                                         <div className="flex items-start md:justify-between md:items-center mb-1 flex-col md:flex-row gap-1">
-                                            <CardTitle className="text-lg font-semibold text-emerald-900">{alert.title}</CardTitle>
+                                            <CardTitle className="text-lg font-semibold text-[var(--primary)]">{alert.title}</CardTitle>
                                             <span className="text-xs text-gray-500">{formattedDate(alert.created_at)}</span>
                                         </div>
                                         <div className="flex items-end md:justify-between md:items-center mb-1 flex-col md:flex-row gap-1 w-full">
@@ -140,41 +141,41 @@ export default function Dashboard() {
 
                     </div>
 
-                    <div className="bg-white flex gap-2 p-2 shadow rounded-lg max-h-24">
-                        <div className="text-emerald-900 flex items-center">
-                            {activeIndex === 0 && (<li className="animations-pulse-content bg-emerald-800 rounded-lg border-4 border-emerald-300">
+                    <div className="box flex gap-2 p-2 shadow rounded-lg max-h-24">
+                        <div className="text-[var(--primary)] flex items-center">
+                            {activeIndex === 0 && (<li className="animations-pulse-content bg-[var(--primary)] rounded-lg border-4 border-[var(--secondary)]">
                                 <div className='animation-pulse'></div>
                                 <div className='animation-pulse'></div>
                             </li>)}
-                            {activeIndex === 1 && (<li className="animations-pulse-content bg-emerald-800 rounded-lg border-4 border-emerald-300">
+                            {activeIndex === 1 && (<li className="animations-pulse-content bg-[var(--primary)] rounded-lg border-4 border-[var(--secondary)]">
                                 <div className='animation-pulse2'></div>
                             </li>)}
-                            {activeIndex === 2 && (<li className="animations-pulse-content bg-emerald-800 rounded-lg border-4 border-emerald-300">
+                            {activeIndex === 2 && (<li className="animations-pulse-content bg-[var(--primary)] rounded-lg border-4 border-[var(--secondary)]">
                                 <div className='animation-pulse3'></div>
                             </li>)}
                         </div>
                         <div className="bg-[var(--tertiary)] p-2 rounded-lg max-h-20">
                             <ul className="flex flex-col gap-1 items-center justify-center h-full">
-                                <li className="cursor-pointer" onClick={() => setActiveIndex(0)}><MdRadioButtonChecked className="hover:text-emerald-600" /></li>
+                                <li className="cursor-pointer" onClick={() => setActiveIndex(0)}><MdRadioButtonChecked className="hover:text-[var(--primary)]" /></li>
                                 <li className="cursor-pointer" onClick={() => setActiveIndex(1)}><MdRadioButtonChecked className="text-yellow-600 hover:text-yellow-700" /></li>
                                 <li className="cursor-pointer" onClick={() => setActiveIndex(2)}><MdRadioButtonChecked className="text-red-500 hover:text-red-600" /></li>
                             </ul>
                         </div>
                     </div>
 
-                    <div className="syringe-icon bg-white flex gap-1 p-2 sm:p-3 shadow rounded-lg flex-col flex-1 md:flex-initial justify-center max-h-24 items-center">
-                        <FaSyringe className="text-4xl text-emerald-800" />
+                    <div className="syringe-icon box flex gap-1 p-2 sm:p-3 shadow rounded-lg flex-col flex-1 md:flex-initial justify-center max-h-24 items-center">
+                        <FaSyringe className="text-4xl text-[var(--primary)]" />
                     </div>
 
                 </div>
                 
                 <div className="flex flex-wrap gap-4">
                     
-                    <Card className="@container/card bg-white shadow rounded-lg flex-1">
+                    <Card className="@container/card box shadow rounded-lg flex-1">
                         <CardHeader>
                             <CardDescription>Total examenes</CardDescription>
                             <div className="flex gap-2 items-center">
-                                <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl text-emerald-700">
+                                <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl text-[var(--primary)]">
                                     15
                                 </CardTitle>
                                 <div>
@@ -192,11 +193,11 @@ export default function Dashboard() {
                         </CardHeader>
                     </Card>
 
-                    <Card className="@container/card bg-white shadow rounded-lg flex-1">
+                    <Card className="@container/card box shadow rounded-lg flex-1">
                         <CardHeader>
                             <CardDescription>Total intentos</CardDescription>
                             <div className="flex gap-2 items-center">
-                                <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl text-emerald-700">
+                                <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl text-[var(--primary)]">
                                     300
                                 </CardTitle>
                                 <div>
@@ -214,11 +215,11 @@ export default function Dashboard() {
                         </CardHeader>
                     </Card>
 
-                    <Card className="@container/card bg-white shadow rounded-lg flex-1">
+                    <Card className="@container/card box shadow rounded-lg flex-1">
                         <CardHeader>
                             <CardDescription>Total usuarios</CardDescription>
                             <div className="flex gap-2 items-center">
-                                <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl text-emerald-700">
+                                <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl text-[var(--primary)]">
                                     450
                                 </CardTitle>
                                 <div>
@@ -236,11 +237,11 @@ export default function Dashboard() {
                         </CardHeader>
                     </Card>
 
-                    <Card className="@container/card bg-white shadow rounded-lg flex-1">
+                    <Card className="@container/card box shadow rounded-lg flex-1">
                         <CardHeader>
                             <CardDescription>Porcentaje de aciertos</CardDescription>
                             <div className="flex gap-2 items-center">
-                                <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl text-emerald-700">
+                                <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl text-[var(--primary)]">
                                     57%
                                 </CardTitle>
                                 <div>
@@ -263,7 +264,7 @@ export default function Dashboard() {
 
                 <div className="flex flex-wrap gap-4 pt-4 w-full flex-col md:flex-row">
                     {/* GRÁFICAS */}
-                    <Card className="bg-white shadow rounded-lg flex-1">
+                    <Card className="box shadow rounded-lg flex-1">
                         <CardHeader>
                             <CardTitle className="text-lg font-semibold">Estadísticas de aciertos</CardTitle>
                             </CardHeader>
@@ -281,7 +282,7 @@ export default function Dashboard() {
                     </Card>
 
                     {/* Tarjeta de gráfico de barras */}
-                    <Card className="flex-1 bg-white shadow rounded-lg">
+                    <Card className="flex-1 box shadow rounded-lg">
                         <CardHeader>
                         <CardTitle className="text-lg font-semibold">Estadísticas de intentos</CardTitle>
                         </CardHeader>
@@ -322,7 +323,7 @@ export default function Dashboard() {
                         </div>
                         <div>
                             <label className="block text-sm font-medium">Descripción</label>
-                            <textarea
+                            <Textarea
                                 name="description"
                                 value={data.description}
                                 onChange={(e) => setData('description', e.target.value)}

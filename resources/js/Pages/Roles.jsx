@@ -22,6 +22,7 @@ export default function Roles() {
     const [modalSettingsOpen, setModalSettingsOpen] = useState(false);
     const [currentPage, setCurrentPage] = useState(data.current_page);
     const [permissions, setPermissions] = useState([]);
+    const [idRol, setIdRol] = useState([]);
     const [roleName, setRoleName] = useState([]);
 
     const roles = data.data.map(role => ({
@@ -48,24 +49,43 @@ export default function Roles() {
         icon: <FaKey className="mr-3 h-4 w-4 text-yellow-400 group-hover:text-yellow-500" />,
         callback: async (item) => {
             setModalKeyOpen(true);
+            setIdRol(item.id);
             setRoleName(item.Nombre);
             try {
                 const response = await axios.post('/getRolPermission', {
                     id: item.id
                 });
-                
                 setPermissions(response.data.permissions || []);
-                
             } catch (error) {
                 console.error("Error al obtener permisos:", error);
             }
         }
     }];
 
+    const handleSavePermissions = (permissions, id_rol) => {
+        router.visit('/roles', {
+            method: 'post',
+            data: {
+                permissions: permissions,
+                id_rol: id_rol,
+                page: currentPage
+            },
+        });
+    }
+
+    const handleDelete = (id) => {
+        router.visit('/roles', {
+            method: 'post',
+            data: {
+                id_delete: id
+            },
+        });
+    }
+
     return (
         <AuthenticatedLayout
             header={
-                <h2 className="text-xl font-semibold leading-tight text-emerald-800">
+                <h2 className="text-xl font-semibold leading-tight text-[var(--primary)]">
                     Roles
                 </h2>
             }
@@ -74,7 +94,7 @@ export default function Roles() {
 
             <div className="roles">
                 <div>
-                    <div className="bg-white rounded-lg shadow">
+                    <div className="bg-[var(--fontBox)] rounded-lg shadow">
                         <div className="flex justify-between px-6 md:px-10 pt-6">
                             <div className="flex items-center gap-2">
                                 <h3 className="text-lg font-semibold">
@@ -86,7 +106,7 @@ export default function Roles() {
                                 <PrimaryButton>Nuevo rol</PrimaryButton>
                             </div>
                         </div>
-                        <div className="px-3 md:px-6 pb-6 text-emerald-900">
+                        <div className="px-3 md:px-6 pb-6 text-[var(--primary)]">
                             <TableComp
                                 id_table={'roles_table'}
                                 columns={columns}
@@ -98,13 +118,21 @@ export default function Roles() {
                                 totalPages={data.last_page}
                                 onPageChange={handlePageChange}
                                 pageLevel={pageLevel}
+                                handleActionDelete={handleDelete}
                             ></TableComp>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <RolePermissionsModal show={modalKeyOpen} onClose={() => setModalKeyOpen(false)} roleName={roleName} data={permissions} />
+            <RolePermissionsModal
+                show={modalKeyOpen}
+                onClose={() => setModalKeyOpen(false)}
+                idRol= {idRol}
+                roleName={roleName}
+                data={permissions}
+                onSave={handleSavePermissions}
+            />
             <RoleSettingsModal show={modalSettingsOpen} onClose={() => setModalSettingsOpen(false)} />
 
         </AuthenticatedLayout>

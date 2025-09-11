@@ -30,7 +30,7 @@ export default function Users() {
     return (
         <AuthenticatedLayout
             header={
-                <h2 className="text-xl font-semibold leading-tight text-emerald-800">
+                <h2 className="text-xl font-semibold leading-tight text-[var(--primary)]">
                     Usuarios
                 </h2>
             }
@@ -39,7 +39,7 @@ export default function Users() {
 
             <div className="users">
                 <div>
-                    <div className="bg-white rounded-lg shadow">
+                    <div className="bg-[var(--fontBox)] rounded-lg shadow">
                         <div className="flex justify-between px-6 md:px-10 pt-6">
                             <div className="flex items-center gap-2">
                                 <h3 className="text-lg font-semibold">
@@ -50,7 +50,7 @@ export default function Users() {
                                 <PrimaryButton>Nuevo usuario</PrimaryButton>
                             </div>
                         </div>
-                        <div className="px-3 md:px-6 pb-6 text-emerald-900">
+                        <div className="px-3 md:px-6 pb-6 text-[var(--primary)]">
                             <TableComp
                                 id_table={'users_table'}
                                 columns={columns}

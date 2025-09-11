@@ -53,9 +53,9 @@ const ActionDropdown = ({ item, onView, onEdit, onDelete, customActions = [],pag
         ref={buttonRef}
         type="button"
         onClick={toggleDropdown}
-        className="inline-flex justify-center w-7 h-6 text-sm font-medium text-emerald-700"
+        className="inline-flex justify-center w-7 h-6 text-sm font-medium text-[var(--primary)]"
       >
-        <FaEllipsisV className="w-3 h-4 self-center text-emerald-600" />
+        <FaEllipsisV className="w-3 h-4 self-center text-[var(--primary)]" />
       </button>
 
       {isOpen &&
@@ -69,23 +69,23 @@ const ActionDropdown = ({ item, onView, onEdit, onDelete, customActions = [],pag
 
             {/* Dropdown */}
             <div
-              className="absolute z-50 mt-2 w-48 rounded-md shadow-lg bg-[var(--fontWhite)] ring-1 ring-emerald-300 focus:outline-none"
+              className="absolute z-50 mt-2 w-48 rounded-md shadow-lg bg-[var(--fontWhite)] ring-1 ring-[var(--secondary)] focus:outline-none"
               style={{ top: position.top, left: position.left }}
             >
               <div className="py-1">
                 <button
                   onClick={() => handleAction({ type: "view" })}
-                  className="group flex items-center px-4 py-2 text-sm text-emerald-700 hover:bg-emerald-100 hover:text-emerald-900 w-full text-left"
+                  className="group flex items-center px-4 py-2 text-sm text-[var(--primary)] hover:bg-[var(--font)] hover:text-[var(--primary)] w-full text-left"
                 >
-                  <FaEye className="mr-3 h-4 w-4 text-emerald-400 group-hover:text-emerald-500" />
+                  <FaEye className="mr-3 h-4 w-4 text-[var(--secondary)] group-hover:text-[var(--secondary)]" />
                   Ver Detalles
                 </button>
                 {( pageLevel > 1 ? 
                   (<button
                     onClick={() => handleAction({ type: "edit" })}
-                    className="group flex items-center px-4 py-2 text-sm text-emerald-700 hover:bg-emerald-100 hover:text-emerald-900 w-full text-left"
+                    className="group flex items-center px-4 py-2 text-sm text-[var(--primary)] hover:bg-[var(--font)] hover:text-[var(--primary)] w-full text-left"
                   >
-                    <FaEdit className="mr-3 h-4 w-4 text-emerald-400 group-hover:text-emerald-500" />
+                    <FaEdit className="mr-3 h-4 w-4 text-[var(--secondary)] group-hover:text-[var(--secondary)]" />
                     Editar
                   </button>) : ""
                 )}
@@ -94,7 +94,7 @@ const ActionDropdown = ({ item, onView, onEdit, onDelete, customActions = [],pag
                   <button
                     key={index}
                     onClick={(e) => { e.stopPropagation(); setIsOpen(false); action.callback(item); }}
-                    className="group flex items-center px-4 py-2 text-sm text-emerald-700 hover:bg-emerald-100 hover:text-emerald-900 w-full text-left"
+                    className="group flex items-center px-4 py-2 text-sm text-[var(--primary)] hover:bg-[var(--font)] hover:text-[var(--primary)] w-full text-left"
                   >
                     {action.icon && action.icon}
                     {action.label}
@@ -103,7 +103,7 @@ const ActionDropdown = ({ item, onView, onEdit, onDelete, customActions = [],pag
                 {(pageLevel > 2 ? 
                   (
                     <>
-                      <hr className="border-emerald-200" />
+                      <hr className="border-[var(--font)]" />
 
                       <button
                         onClick={() => handleAction({ type: "delete" })}

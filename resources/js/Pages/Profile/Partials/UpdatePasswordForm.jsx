@@ -47,7 +47,7 @@ export default function UpdatePasswordForm({ className = '' }) {
     return (
         <section className={className}>
             <header>
-                <h2 className="text-lg font-medium text-emerald-900">
+                <h2 className="text-lg font-medium text-[var(--primary)]">
                     Actualizar contraseña
                 </h2>
 
@@ -127,7 +127,7 @@ export default function UpdatePasswordForm({ className = '' }) {
                         leave="transition ease-in-out"
                         leaveTo="opacity-0"
                     >
-                        <p className="text-sm text-emerald-600">
+                        <p className="text-sm text-[var(--primary)]">
                             Guardado
                         </p>
                     </Transition>

@@ -1,4 +1,5 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import axios from 'axios';
 import { router, Head, usePage } from "@inertiajs/react";
 import { useState } from 'react';
 import TableComp from '@/CustomComponents/table/TableComp';
@@ -18,6 +19,39 @@ export default function Logs() {
         router.get('logs', { page }, {});
     };
 
+    const handleActionView = async (id) => {
+
+        const headerMap = {
+            id: "id",
+            log_name: "Tipo de log",
+            description: "Descripción",
+            causer_id: "Id usuario causante",
+            name_user_causer: "Usuario causante",
+            created_at: "Fecha de creación",
+            updated_at: "Última actualización",
+            properties: "Detalles"
+        };
+
+        try {
+            const response = await axios.get('/getLog', {
+                params: { id: id }
+            });
+            const formattedData = response.data.map(item => {
+                let newItem = {};
+                for (const key in headerMap) {
+                    if (item.hasOwnProperty(key)) {
+                        newItem[headerMap[key]] = item[key];
+                    }
+                }
+                return newItem;
+            });
+
+            return formattedData;
+        } catch (error) {
+            console.error("Error:", error);
+        }
+    }
+
     const columns = {
         'id': 'id',
         'log_name': 'Tipo', 
@@ -29,7 +63,7 @@ export default function Logs() {
     return (
         <AuthenticatedLayout
             header={
-                <h2 className="text-xl font-semibold leading-tight text-emerald-800">
+                <h2 className="text-xl font-semibold leading-tight text-[var(--primary)]">
                     Auditoría
                 </h2>
             }
@@ -38,8 +72,8 @@ export default function Logs() {
 
             <div className="logs">
                 <div>
-                    <div className="bg-white rounded-lg shadow">
-                        <div className="p-3 md:p-6 text-emerald-900">
+                    <div className="bg-[var(--fontBox)] rounded-lg shadow">
+                        <div className="p-3 md:p-6 text-[var(--primary)]">
                             <TableComp
                                 id_table={'log_table'}
                                 table_name={'Registro de auditoría'}
@@ -53,6 +87,7 @@ export default function Logs() {
                                 totalPages={data.last_page}
                                 onPageChange={handlePageChange}
                                 pageLevel={pageLevel}
+                                handleActionDetails={handleActionView}
                             />
                         </div>
                     </div>
