@@ -11,6 +11,7 @@ import CsvImporter from '@/Functions/CsvImporter';
 import { FaTimes } from "react-icons/fa";
 import DownloadCsvExample from '@/Functions/DownloadCsvExample';
 import { copyToClipboard } from '@/Functions/CopyToClipboard';
+import Textarea from '@/CustomComponents/form/Textarea';
 
 export default function RegisterKeys() {
     // if (!usePage().props.menu[10]) return;
@@ -147,7 +148,7 @@ export default function RegisterKeys() {
     return (
         <AuthenticatedLayout
             header={
-                <h2 className="text-xl font-semibold leading-tight text-emerald-800">
+                <h2 className="text-xl font-semibold leading-tight text-[var(--primary)]">
                     Claves de registro
                 </h2>
             }
@@ -156,7 +157,7 @@ export default function RegisterKeys() {
 
             <div className="registerkeys">
                 <div>
-                    <div className="bg-white rounded-lg shadow">
+                    <div className="bg-[var(--fontBox)] rounded-lg shadow">
                         <div className="flex gap-3 flex-col md:flex-row md:justify-between px-6 md:px-10 pt-6">
                             <div className="flex items-center gap-2">
                                 <h3 className="text-lg font-semibold">
@@ -166,7 +167,7 @@ export default function RegisterKeys() {
                             <div className="flex gap-2 flex-col md:flex-row">
                                 <select
                                     name="view_keys"
-                                    className="px-3 py-2 pr-8 border border-emerald-300 rounded-md text-sm focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                                    className="px-3 py-2 pr-8 border border-[var(--secondary)] rounded-md text-sm focus:ring-2 focus:ring-[var(--secondary)] focus:border-transparent"
                                     onChange={(e) => handleChangeShowKeys(e.target.value)}
                                     value={show}
                                 >
@@ -181,7 +182,7 @@ export default function RegisterKeys() {
                                 <PrimaryButton className="whitespace-nowrap" onClick={() => setModalKeysOpen(true)}>Nueva clave</PrimaryButton>
                             </div>
                         </div>
-                        <div className="px-3 md:px-6 pb-6 text-emerald-900">
+                        <div className="px-3 md:px-6 pb-6 text-[var(--primary)]">
                             <TableComp
                                 id_table={'registerkeys_table'}
                                 columns={columns}
@@ -211,10 +212,10 @@ export default function RegisterKeys() {
                     className="p-6 space-y-4"
                         >
                         <div className="flex justify-between items-center mb-4">
-                            <h3 className="text-lg font-semibold text-emerald-800">
+                            <h3 className="text-lg font-semibold text-[var(--primary)]">
                                 Crear clave de registro
                             </h3>
-                            <button type="button" onClick={() => setModalKeysOpen(false)} className="text-emerald-400 hover:text-emerald-600">
+                            <button type="button" onClick={() => setModalKeysOpen(false)} className="text-[var(--secondary)] hover:text-[var(--primary)]">
                                 <FaTimes />
                             </button>
                         </div>
@@ -241,7 +242,7 @@ export default function RegisterKeys() {
                         </div>
                         <div>
                             <label className="block text-sm font-medium">Nota</label>
-                            <textarea
+                            <Textarea
                                 name="note"
                                 value={data.note}
                                 onChange={(e) => setData('note', e.target.value)}
@@ -263,10 +264,10 @@ export default function RegisterKeys() {
                         <>
                             <div className="p-6 space-y-4">
                                 <div className="flex justify-between items-center mb-4">
-                                    <h3 className="text-lg font-semibold text-emerald-800">
+                                    <h3 className="text-lg font-semibold text-[var(--primary)]">
                                         Se han creado las claves
                                     </h3>
-                                    <button onClick={() => setModalKeysGenerateOpen(false)} className="text-emerald-400 hover:text-emerald-600">
+                                    <button onClick={() => setModalKeysGenerateOpen(false)} className="text-[var(--secondary)] hover:text-[var(--primary)]">
                                         <FaTimes />
                                     </button>
                                 </div>
@@ -276,11 +277,11 @@ export default function RegisterKeys() {
                                         <>
                                             <label className="block text-sm font-medium mb-1">Claves creadas:</label>
                                             
-                                            <table className="table-auto border-collapse border border-emerald-300 w-full">
+                                            <table className="table-auto border-collapse border border-[var(--secondary)] w-full">
                                                 <thead>
                                                     <tr>
                                                     {Object.keys(dataImported[0]).map((key, i) => (
-                                                        <th key={i} className="border border-emerald-300 px-2 py-1 bg-emerald-200 text-emerald-700">
+                                                        <th key={i} className="border border-[var(--secondary)] px-2 py-1 bg-[var(--font)] text-[var(--primary)]">
                                                         {key}
                                                         </th>
                                                     ))}
@@ -290,7 +291,7 @@ export default function RegisterKeys() {
                                                     {dataImported.map((row, i) => (
                                                     <tr key={i}>
                                                         {Object.values(row).map((value, j) => (
-                                                        <td key={j} className="border border-emerald-300 px-2 py-1">
+                                                        <td key={j} className="border border-[var(--secondary)] px-2 py-1">
                                                             {value}
                                                         </td>
                                                         ))}
@@ -329,10 +330,10 @@ export default function RegisterKeys() {
                         <>
                             <div className="p-6 space-y-4">
                                 <div className="flex justify-between items-center mb-4">
-                                    <h3 className="text-lg font-semibold text-emerald-800">
+                                    <h3 className="text-lg font-semibold text-[var(--primary)]">
                                         Crear lote de claves de registro
                                     </h3>
-                                    <button onClick={() => setModalLoteKeysOpen(false)} className="text-emerald-400 hover:text-emerald-600">
+                                    <button onClick={() => setModalLoteKeysOpen(false)} className="text-[var(--secondary)] hover:text-[var(--primary)]">
                                         <FaTimes />
                                     </button>
                                 </div>
@@ -367,13 +368,13 @@ export default function RegisterKeys() {
                                         <>
                                             <label className="block text-sm font-medium mb-1">Datos importados:</label>
 
-                                            <table className="table-auto border-collapse border border-emerald-300 w-full">
+                                            <table className="table-auto border-collapse border border-[var(--secondary)] w-full">
                                                 <thead>
                                                     <tr>
-                                                        <th className="border border-emerald-300 px-2 py-1 bg-emerald-700">
+                                                        <th className="border border-[var(--secondary)] px-2 py-1 bg-[var(--primary)]">
                                                         </th>
                                                     {Object.keys(dataCsv[0]).map((key, i) => (
-                                                        <th key={i} className="border border-emerald-300 px-2 py-1 bg-emerald-700 text-white">
+                                                        <th key={i} className="border border-[var(--secondary)] px-2 py-1 bg-[var(--primary)] text-[var(--textReverse)]">
                                                         {key}
                                                         </th>
                                                     ))}
@@ -382,9 +383,9 @@ export default function RegisterKeys() {
                                                 <tbody>
                                                     {dataCsv.map((row, i) => (
                                                     <tr key={i}>
-                                                        <td className="border border-emerald-300 px-2 py-1 text-center">{i+1}</td>    
+                                                        <td className="border border-[var(--secondary)] px-2 py-1 text-center">{i+1}</td>    
                                                         {Object.values(row).map((value, j) => (
-                                                        <td key={j} className="border border-emerald-300 px-2 py-1">
+                                                        <td key={j} className="border border-[var(--secondary)] px-2 py-1">
                                                             {value}
                                                         </td>
                                                         ))}

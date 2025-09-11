@@ -22,7 +22,7 @@ export default function Resources() {
     return (
         <AuthenticatedLayout
             header={
-                <h2 className="text-xl font-semibold leading-tight text-emerald-800">
+                <h2 className="text-xl font-semibold leading-tight text-[var(--primary)]">
                     Recursos
                 </h2>
             }

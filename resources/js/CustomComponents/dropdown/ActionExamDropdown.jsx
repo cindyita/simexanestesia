@@ -52,9 +52,9 @@ const ActionExamDropdown = ({ item, onView, onEdit, onDelete, onCustomAction, pa
         ref={buttonRef}
         type="button"
         onClick={toggleDropdown}
-        className="inline-flex justify-center w-5 h-6 text-sm font-medium text-emerald-800 rounded-lg hover:bg-emerald-100"
+        className="inline-flex justify-center w-5 h-6 text-sm font-medium text-[var(--primary)] rounded-lg hover:bg-[var(--font)]"
       >
-        <FaEllipsisV className="w-3 h-4 self-center text-emerald-600" />
+        <FaEllipsisV className="w-3 h-4 self-center text-[var(--primary)]" />
           </button>
 
       {isOpen &&
@@ -67,7 +67,7 @@ const ActionExamDropdown = ({ item, onView, onEdit, onDelete, onCustomAction, pa
             />
             {/* Dropdown */}
             <div
-              className="absolute z-50 mt-2 w-48 rounded-md shadow-lg bg-[var(--fontWhite)] ring-1 ring-emerald-300 focus:outline-none"
+              className="absolute z-50 mt-2 w-48 rounded-md shadow-lg bg-[var(--fontWhite)] ring-1 ring-[var(--secondary)] focus:outline-none"
               style={{
                 top: position.top,
                 left: position.left,
@@ -77,32 +77,32 @@ const ActionExamDropdown = ({ item, onView, onEdit, onDelete, onCustomAction, pa
               <div className="py-1">
                 <button
                   onClick={(e) => handleAction("view", e)}
-                  className="group flex items-center px-4 py-2 text-sm text-emerald-700 hover:bg-emerald-100 hover:text-emerald-900 w-full text-left"
+                  className="group flex items-center px-4 py-2 text-sm text-[var(--primary)] hover:bg-[var(--font)] hover:text-[var(--primary)] w-full text-left"
                 >
-                  <FaEye className="mr-3 h-4 w-4 text-emerald-400 group-hover:text-emerald-500" />
+                  <FaEye className="mr-3 h-4 w-4 text-[var(--secondary)] group-hover:text-[var(--secondary)]" />
                   Ver detalles
                 </button>
                         
                 <button
                   onClick={(e) => handleAction("edit", e)}
-                  className="group flex items-center px-4 py-2 text-sm text-emerald-700 hover:bg-emerald-100 hover:text-emerald-900 w-full text-left"
+                  className="group flex items-center px-4 py-2 text-sm text-[var(--primary)] hover:bg-[var(--font)] hover:text-[var(--primary)] w-full text-left"
                 >
-                  <FaList className="mr-3 h-4 w-4 text-emerald-400 group-hover:text-emerald-500" />
+                  <FaList className="mr-3 h-4 w-4 text-[var(--secondary)] group-hover:text-[var(--secondary)]" />
                   Ver intentos
                 </button>
                 {( pageLevel > 1 ? 
                 (<button
                     onClick={(e) => handleAction("edit", e)}
-                    className="group flex items-center px-4 py-2 text-sm text-emerald-700 hover:bg-emerald-100 hover:text-emerald-900 w-full text-left"
+                    className="group flex items-center px-4 py-2 text-sm text-[var(--primary)] hover:bg-[var(--font)] hover:text-[var(--primary)] w-full text-left"
                 >
-                    <FaEdit className="mr-3 h-4 w-4 text-emerald-400 group-hover:text-emerald-500" />
+                    <FaEdit className="mr-3 h-4 w-4 text-[var(--secondary)] group-hover:text-[var(--secondary)]" />
                     Editar
                 </button>) : ""
                 )}    
 
                 {( pageLevel > 2 ? 
                   (<>
-                    <hr className="border-emerald-200" />
+                    <hr className="border-[var(--font)]" />
                     <button
                       onClick={(e) => handleAction("delete", e)}
                       className="group flex items-center px-4 py-2 text-sm text-red-700 hover:bg-red-100 hover:text-red-900 w-full text-left"

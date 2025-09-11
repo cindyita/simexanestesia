@@ -1,16 +1,18 @@
-import React, { useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { FaFileUpload } from "react-icons/fa";
 
-export default function FileDropInput({
+export default function ImageDropInput({
   onChange,
-  accept = ".csv",
+  accept = ".jpg,.png,.svg",
   className = "",
-  label = "Arrastra tu archivo aquí o haz clic para seleccionar"
+  label = "Arrastra tu imagen aquí o haz clic para seleccionar",
+  previewSize = 150
 }) {
   const inputRef = useRef(null);
   const [dragActive, setDragActive] = useState(false);
   const [fileName, setFileName] = useState("");
   const [error, setError] = useState("");
+  const [preview, setPreview] = useState(null);
 
   const handleClick = () => {
     inputRef.current?.click();
@@ -19,14 +21,9 @@ export default function FileDropInput({
   const isFileAccepted = (file) => {
     if (!file) return false;
     const acceptedTypes = accept.split(",").map((a) => a.trim().toLowerCase());
-
-    // Revisar por extensión
     const fileExtension = "." + file.name.split(".").pop().toLowerCase();
     if (acceptedTypes.includes(fileExtension)) return true;
-
-    // Revisar por tipo MIME
     if (acceptedTypes.includes(file.type.toLowerCase())) return true;
-
     return false;
   };
 
@@ -34,38 +31,31 @@ export default function FileDropInput({
     if (files?.[0]) {
       const file = files[0];
 
-      if (!isFileAccepted(file)) {
-        setError(`El archivo "${file.name}" no es un tipo válido. Solo se aceptan: ${accept}`);
-        setFileName("");
+      const acceptedTypes = accept.split(",").map(a => a.trim().toLowerCase());
+      const ext = "." + file.name.split(".").pop().toLowerCase();
+      if (!acceptedTypes.includes(ext) && !acceptedTypes.includes(file.type.toLowerCase())) {
+        setError(`Archivo inválido. Solo se acepta: ${accept}`);
+        setFileName(""); 
+        setPreview(null);
+        if (onChange) onChange(null, null);
         return;
       }
 
       setError("");
       setFileName(file.name);
 
-      if (onChange) {
-        const event = { target: { files } };
-        onChange(event);
-      }
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setPreview(e.target.result);
+        if (onChange) onChange(file, e.target.result);
+      };
+      reader.readAsDataURL(file);
     }
   };
 
-  const handleChange = (e) => {
-    handleFiles(e.target.files);
-  };
-
-  const handleDragOver = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setDragActive(true);
-  };
-
-  const handleDragLeave = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setDragActive(false);
-  };
-
+  const handleChange = (e) => handleFiles(e.target.files);
+  const handleDragOver = (e) => { e.preventDefault(); e.stopPropagation(); setDragActive(true); };
+  const handleDragLeave = (e) => { e.preventDefault(); e.stopPropagation(); setDragActive(false); };
   const handleDrop = (e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -82,7 +72,7 @@ export default function FileDropInput({
         ref={inputRef}
         type="file"
         accept={accept}
-        onChange={handleChange}
+        onChange={(e) => handleFiles(e.target.files)}
         className="hidden"
       />
 
@@ -103,8 +93,17 @@ export default function FileDropInput({
 
         {fileName && !error && (
           <p className="mt-2 text-xs text-gray-500">
-            Archivo seleccionado: <span className="font-semibold">{fileName}</span>
+            Imagen seleccionada: <span className="font-semibold">{fileName}</span>
           </p>
+        )}
+
+        {preview && (
+          <img
+            src={preview}
+            alt="preview"
+            className="mt-4"
+            style={{ width: previewSize, height: previewSize,maxWidth:180 }}
+          />
         )}
 
         {error && (

@@ -46,17 +46,17 @@ const FileManager = ({files,subjects, currentPage=1, totalPages=1, onPageChange=
       case 'png':
       case 'gif':
       case 'bmp':
-        return <FaFileImage {...iconProps} className="w-8 h-8 text-emerald-500" />;
+        return <FaFileImage {...iconProps} className="w-8 h-8 text-[var(--secondary)]" />;
       case 'mp3':
       case 'wav':
       case 'ogg':
-        return <FaFileAudio {...iconProps} className="w-8 h-8 text-emerald-500" />;
+        return <FaFileAudio {...iconProps} className="w-8 h-8 text-[var(--secondary)]" />;
       case 'mp4':
       case 'avi':
       case 'mov':
-        return <FaFileVideo {...iconProps} className="w-8 h-8 text-emerald-500" />;
+        return <FaFileVideo {...iconProps} className="w-8 h-8 text-[var(--secondary)]" />;
       default:
-        return <FaFileAlt {...iconProps} className="w-8 h-8 text-emerald-500" />;
+        return <FaFileAlt {...iconProps} className="w-8 h-8 text-[var(--secondary)]" />;
     }
   };
 
@@ -82,7 +82,7 @@ const FileManager = ({files,subjects, currentPage=1, totalPages=1, onPageChange=
         {/* Header */}
         <div className="mb-6">
           <div className="flex justify-between gap-2">
-            <h3 className="text-lg font-semibold text-emerald-800 mb-4">Recursos escolares</h3>
+            <h3 className="text-lg font-semibold text-[var(--primary)] mb-4">Recursos escolares</h3>
             <div>
               {(
                 isAdmin ? (
@@ -99,18 +99,18 @@ const FileManager = ({files,subjects, currentPage=1, totalPages=1, onPageChange=
           </div>
           
           {/* Controles */}
-          <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between bg-white p-4 rounded-lg shadow">
+          <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between bg-[var(--fontBox)] p-4 rounded-lg shadow">
             {/* Filtros */}
             <div className="flex flex-wrap gap-3 items-center">
               <div className="flex items-center gap-2">
-                <FaFilter className="text-emerald-500" />
-                <span className="text-sm font-medium text-emerald-700">Filtros:</span>
+                <FaFilter className="text-[var(--secondary)]" />
+                <span className="text-sm font-medium text-[var(--primary)]">Filtros:</span>
               </div>
               
               <select 
                 value={filterSubject}
                 onChange={(e) => setFilterSubject(e.target.value)}
-                className="px-3 py-2 pr-8 border border-emerald-300 rounded-md text-sm focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                className="px-3 py-2 pr-8 border border-[var(--secondary)] rounded-md text-sm focus:ring-2 focus:ring-[var(--secondary)] focus:border-transparent"
               >
                 <option value="">Todas las materias</option>
                 {subjectsList.map(subject => (
@@ -121,7 +121,7 @@ const FileManager = ({files,subjects, currentPage=1, totalPages=1, onPageChange=
               <select 
                 value={filterFileType}
                 onChange={(e) => setFilterFileType(e.target.value)}
-                className="px-3 py-2 pr-8 border border-emerald-300 rounded-md text-sm focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                className="px-3 py-2 pr-8 border border-[var(--secondary)] rounded-md text-sm focus:ring-2 focus:ring-[var(--secondary)] focus:border-transparent"
               >
                 <option value="">Todos los tipos</option>
                 {fileTypes.map(type => (
@@ -141,13 +141,13 @@ const FileManager = ({files,subjects, currentPage=1, totalPages=1, onPageChange=
             </div>
 
             {/* Selector de vista */}
-            <div className="flex bg-emerald-100 rounded-lg p-1">
+            <div className="flex bg-[var(--font)] rounded-lg p-1">
               <button
                 onClick={() => setViewType('grid')}
                 className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm transition-colors ${
                   viewType === 'grid' 
-                    ? 'bg-white text-emerald-600 shadow-sm' 
-                    : 'text-emerald-600 hover:text-emerald-800'
+                    ? 'bg-[var(--fontBox)] text-[var(--primary)] shadow-sm' 
+                    : 'text-[var(--primary)] hover:text-[var(--primary)]'
                 }`}
               >
                 <FaTh className="w-4 h-4" />
@@ -157,8 +157,8 @@ const FileManager = ({files,subjects, currentPage=1, totalPages=1, onPageChange=
                 onClick={() => setViewType('list')}
                 className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm transition-colors ${
                   viewType === 'list' 
-                    ? 'bg-white text-emerald-600 shadow-sm' 
-                    : 'text-emerald-600 hover:text-emerald-800'
+                    ? 'bg-[var(--fontBox)] text-[var(--primary)] shadow-sm' 
+                    : 'text-[var(--primary)] hover:text-[var(--primary)]'
                 }`}
               >
                 <FaList className="w-4 h-4" />
@@ -177,7 +177,7 @@ const FileManager = ({files,subjects, currentPage=1, totalPages=1, onPageChange=
         {viewType === 'grid' && (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
             {filteredFiles.map(file => (
-              <div key={file.id} className="bg-white rounded-lg shadow hover:shadow-lg hover:border-emerald-500 transition-shadow p-4 cursor-pointer border border-gray-200">
+              <div key={file.id} className="bg-[var(--fontBox)] rounded-lg shadow hover:shadow-lg hover:border-[var(--secondary)] transition-shadow p-4 cursor-pointer border border-gray-200">
                 <div className="flex flex-col items-center text-center">
                   <div className="mb-3">
                     {getFileIcon(file.file_type)}
@@ -195,7 +195,7 @@ const FileManager = ({files,subjects, currentPage=1, totalPages=1, onPageChange=
                       <span className="font-medium">{FormatDate(file.created_at)}</span>
                     </div>
                     <div className="mt-2 pt-2 border-t border-gray-100 flex justify-between">
-                        <span className="inline-block bg-emerald-100  text-emerald-800 px-2 py-1 rounded-lg text-xs font-medium">
+                        <span className="inline-block bg-[var(--font)]  text-[var(--primary)] px-2 py-1 rounded-lg text-xs font-medium">
                             {file.subject}
                         </span>
                         <span>
@@ -213,31 +213,31 @@ const FileManager = ({files,subjects, currentPage=1, totalPages=1, onPageChange=
 
         {/* Vista de Lista */}
         {viewType === 'list' && (
-          <div className="bg-white rounded-lg shadow overflow-hidden border border-emerald-300">
+          <div className="bg-[var(--fontBox)] rounded-lg shadow overflow-hidden border border-[var(--secondary)]">
             <div className="overflow-x-auto">
               <table className="w-full">
-                <thead className="bg-emerald-700 border-b border-emerald-300">
+                <thead className="bg-[var(--primary)] border-b border-[var(--secondary)]">
                   <tr>
-                    <th className="text-left py-3 px-4 font-semibold text-white">Archivo</th>
-                    <th className="text-left py-3 px-4 font-semibold text-white">Tamaño</th>
-                    <th className="text-left py-3 px-4 font-semibold text-white">Fecha</th>
-                    <th className="text-left py-3 px-4 font-semibold text-white">Materia</th>
-                    <th className="text-left py-3 px-4 font-semibold text-white">Acciones</th>
+                    <th className="text-left py-3 px-4 font-semibold text-[var(--textReverse)]">Archivo</th>
+                    <th className="text-left py-3 px-4 font-semibold text-[var(--textReverse)]">Tamaño</th>
+                    <th className="text-left py-3 px-4 font-semibold text-[var(--textReverse)]">Fecha</th>
+                    <th className="text-left py-3 px-4 font-semibold text-[var(--textReverse)]">Materia</th>
+                    <th className="text-left py-3 px-4 font-semibold text-[var(--textReverse)]">Acciones</th>
                   </tr>
                 </thead>
                 <tbody>
                   {filteredFiles.map((file, index) => (
-                    <tr key={file.id} className={`border-b border-emerald-300 hover:bg-emerald-100 cursor-pointer transition-colors ${index % 2 === 0 ? 'bg-white' : 'bg-emerald-50'}`}>
+                    <tr key={file.id} className={`border-b border-[var(--secondary)] hover:bg-[var(--font)] cursor-pointer transition-colors ${index % 2 === 0 ? 'bg-[var(--fontBox)]' : 'bg-gray-100'}`}>
                       <td className="py-3 px-4">
                         <div className="flex items-center gap-3">
                           {getFileIcon(file.file_type)}
-                          <span className="font-medium text-emerald-800">{file.name}</span>
+                          <span className="font-medium text-[var(--primary)]">{file.name}</span>
                         </div>
                       </td>
-                      <td className="py-3 px-4 text-emerald-600">{file.file_size}</td>
-                      <td className="py-3 px-4 text-emerald-600">{FormatDate(file.created_at)}</td>
+                      <td className="py-3 px-4 text-[var(--primary)]">{file.file_size}</td>
+                      <td className="py-3 px-4 text-[var(--primary)]">{FormatDate(file.created_at)}</td>
                       <td className="py-3 px-4">
-                        <span className="inline-block bg-emerald-100 text-emerald-800 px-2 py-1 rounded-full text-xs font-medium">
+                        <span className="inline-block bg-[var(--font)] text-[var(--primary)] px-2 py-1 rounded-full text-xs font-medium">
                           {file.subject}
                         </span>
                       </td>
@@ -256,7 +256,7 @@ const FileManager = ({files,subjects, currentPage=1, totalPages=1, onPageChange=
 
         {/* Mensaje cuando no hay archivos */}
         {filteredFiles.length === 0 && (
-          <div className="text-center py-12 bg-white rounded-lg shadow">
+          <div className="text-center py-12 bg-[var(--fontBox)] rounded-lg shadow">
             <div className="text-gray-400 text-6xl mb-4">📁</div>
             <h3 className="text-lg font-medium text-gray-700 mb-2">No se encontraron recursos</h3>
             <p className="text-gray-500">Intenta cambiar los filtros para ver más resultados</p>
@@ -272,7 +272,7 @@ const FileManager = ({files,subjects, currentPage=1, totalPages=1, onPageChange=
               {[...Array(totalPages)].map((_, index) => (
                   <button
                       key={index}
-                      className={`px-3 py-1 rounded-lg text-sm ${currentPage === index + 1 ? 'bg-[var(--primary)] text-white' : ''}`}
+                      className={`px-3 py-1 rounded-lg text-sm ${currentPage === index + 1 ? 'bg-[var(--primary)] text-[var(--textReverse)]' : ''}`}
                       onClick={() => onPageChange(index + 1)}
                   >
                       {index + 1}

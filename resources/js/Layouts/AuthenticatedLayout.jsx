@@ -14,6 +14,7 @@ import { FaUserShield } from "react-icons/fa6";
 import { FaBook } from "react-icons/fa";
 import { GoPasskeyFill } from "react-icons/go";
 import { FaUserCog } from "react-icons/fa";
+import { FaGear } from "react-icons/fa6";
 // import { IoMdNotifications } from "react-icons/io";
 // import IconButton from '@/Components/IconButton';
 
@@ -35,6 +36,7 @@ export default function AuthenticatedLayout({ header, children }) {
             document.documentElement.style.setProperty('--font', company.font_color);
             document.documentElement.style.setProperty('--fontBox', company.box_color);
             document.documentElement.style.setProperty('--text', company.text_color);
+            document.documentElement.style.setProperty('--textReverse', company.text_color_reverse);
         }
     }, [company]);
 
@@ -48,21 +50,46 @@ export default function AuthenticatedLayout({ header, children }) {
         FaUserShield,
         FaBook,
         GoPasskeyFill,
-        FaUserCog
+        FaUserCog,
+        FaGear
     };
 
     const handleSubMenu1 = (idParent) => {
-        setOpenSubMenu1(!openSubMenu1);
+        if (menuSelected1 === idParent) {
+            setOpenSubMenu1(!openSubMenu1);
+            setMenuSelected1(0);
+        } else {
+            setMenuSelected1(idParent);
+            setOpenSubMenu1(true);
+        }
         setOpenSubMenu2(false);
-        const idParentSelected = openSubMenu1 ? 0 : idParent;
-        setMenuSelected1(idParentSelected);
-    }
+        setMenuSelected2(0);
+    };
 
     const handleSubMenu2 = (idParent) => {
-        setOpenSubMenu2(!openSubMenu2);
-        const idParentSelected = openSubMenu2 ? 0 : idParent;
-        setMenuSelected2(idParentSelected);
-    }
+        if (menuSelected2 === idParent) {
+            setOpenSubMenu2(!openSubMenu2);
+            setMenuSelected2(0);
+        } else {
+            setMenuSelected2(idParent);
+            setOpenSubMenu2(true);
+        }
+    };
+
+    useEffect(() => {
+        const handleClickOutside = (e) => {
+            if (e.target.closest("main")) {
+                setOpenSubMenu1(false);
+                setOpenSubMenu2(false);
+                setMenuSelected1(0);
+                setMenuSelected2(0);
+            }
+        };
+        document.addEventListener("click", handleClickOutside);
+        return () => {
+            document.removeEventListener("click", handleClickOutside);
+        };
+    }, []);
 
     return (
         <>
@@ -106,7 +133,7 @@ export default function AuthenticatedLayout({ header, children }) {
                     <div className="logo-content logo-desktop hidden lg:flex lg:justify-center lg:w-full">
                         <div className="logo">
                             <Link href="/">
-                                <AppLogo className="block w-auto fill-current text-emerald-800" />
+                                <AppLogo className="block w-auto fill-current text-[var(--primary)]" />
                             </Link>
                         </div>
                     </div>
@@ -166,7 +193,7 @@ export default function AuthenticatedLayout({ header, children }) {
                 </aside>
 
                 <main className="overflow-y-auto">
-                    <div className="main-content">
+                    <div className="main-content pb-6">
                         <header>
                             <div className="flex gap-2">
                                 <li className="lg:hidden">

@@ -166,7 +166,7 @@ export default function Register() {
                 <div className="mt-2 flex flex-col gap-4 items-center justify-end">
                     <Link
                         href={route('login')}
-                        className="text-sm text-emerald-600 underline hover:text-emerald-900"
+                        className="text-sm text-[var(--primary)] underline hover:text-[var(--primary)]"
                     >
                         Ya tengo cuenta
                     </Link>

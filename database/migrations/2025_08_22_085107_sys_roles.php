@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('name');
             $table->unsignedTinyInteger('mode_admin')->default(0);
             $table->unsignedBigInteger('id_company')->index();
+            $table->timestamps();
         });
     }
 

@@ -60,7 +60,7 @@ const ExamManager = ({exams, currentPage=1,totalPages=1, onPageChange={},pageLev
   // Función para obtener el color según el score
   const getScoreColor = (score) => {
     if (score >= 90) return 'text-green-600';
-    if (score >= 80) return 'text-teal-600';
+    if (score >= 80) return 'text-blue-600';
     if (score >= 70) return 'text-yellow-600';
     return 'text-red-600';
   };
@@ -136,7 +136,7 @@ const ExamManager = ({exams, currentPage=1,totalPages=1, onPageChange={},pageLev
         {/* Header */}
         <div className="mb-6">
           <div className="flex justify-between gap-1 items-center pb-2">
-            <h3 className="text-xl font-semibold text-emerald-800 mb-4">Exámenes</h3>
+            <h3 className="text-xl font-semibold text-[var(--primary)] mb-4">Exámenes</h3>
             {(
               isAdmin ? (
                 <>
@@ -147,18 +147,18 @@ const ExamManager = ({exams, currentPage=1,totalPages=1, onPageChange={},pageLev
           </div>
           
           {/* Controles */}
-          <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between bg-white p-4 rounded-lg shadow">
+          <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between bg-[var(--fontBox)] p-4 rounded-lg shadow">
             {/* Filtros */}
             <div className="flex flex-wrap gap-3 items-center">
               <div className="flex items-center gap-2">
-                <FaFilter className="text-emerald-500" />
-                <span className="text-sm font-medium text-emerald-700">Filtros:</span>
+                <FaFilter className="text-[var(--secondary)]" />
+                <span className="text-sm font-medium text-[var(--primary)]">Filtros:</span>
               </div>
               
               <select 
                 value={filterSubject}
                 onChange={(e) => setFilterSubject(e.target.value)}
-                className="px-3 py-2 pr-8 border border-emerald-300 rounded-md text-sm focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                className="px-3 py-2 pr-8 border border-[var(--secondary)] rounded-md text-sm focus:ring-2 focus:ring-[var(--secondary)] focus:border-transparent"
               >
                 <option value="">Todas las materias</option>
                 {subjects.map(subject => (
@@ -169,7 +169,7 @@ const ExamManager = ({exams, currentPage=1,totalPages=1, onPageChange={},pageLev
               <select 
                 value={filterStatus}
                 onChange={(e) => setFilterStatus(e.target.value)}
-                className="px-3 py-2 pr-8 border border-emerald-300 rounded-md text-sm focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                className="px-3 py-2 pr-8 border border-[var(--secondary)] rounded-md text-sm focus:ring-2 focus:ring-[var(--secondary)] focus:border-transparent"
               >
                 <option value="">Todos</option>
                 <option value="pending">No realizados</option>
@@ -188,13 +188,13 @@ const ExamManager = ({exams, currentPage=1,totalPages=1, onPageChange={},pageLev
             </div>
 
             {/* Selector de vista */}
-            <div className="flex bg-emerald-100 rounded-lg p-1">
+            <div className="flex bg-[var(--font)] rounded-lg p-1">
               <button
                 onClick={() => setViewType('grid')}
                 className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm transition-colors ${
                   viewType === 'grid' 
-                    ? 'bg-white text-teal-600 shadow-sm' 
-                    : 'text-emerald-600 hover:text-emerald-800'
+                    ? 'bg-[var(--fontBox)] text-[var(--secondary)] shadow-sm' 
+                    : 'text-[var(--primary)] hover:text-[var(--primary)]'
                 }`}
               >
                 <FaTh className="w-4 h-4" />
@@ -204,8 +204,8 @@ const ExamManager = ({exams, currentPage=1,totalPages=1, onPageChange={},pageLev
                 onClick={() => setViewType('list')}
                 className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm transition-colors ${
                   viewType === 'list' 
-                    ? 'bg-white text-teal-600 shadow-sm' 
-                    : 'text-emerald-600 hover:text-emerald-800'
+                    ? 'bg-[var(--fontBox)] text-[var(--secondary)] shadow-sm' 
+                    : 'text-[var(--primary)] hover:text-[var(--primary)]'
                 }`}
               >
                 <FaList className="w-4 h-4" />
@@ -217,10 +217,10 @@ const ExamManager = ({exams, currentPage=1,totalPages=1, onPageChange={},pageLev
 
         {/* Estadísticas rápidas */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 hidden">
-          <div className="bg-white p-4 rounded-lg shadow">
+          <div className="bg-[var(--fontBox)] p-4 rounded-lg shadow">
             <div className="flex items-center gap-3">
               <div className="bg-teal-100 p-3 rounded-full">
-                <FaQuestionCircle className="w-6 h-6 text-teal-600" />
+                <FaQuestionCircle className="w-6 h-6 text-[var(--secondary)]" />
               </div>
               <div>
                 <p className="text-2xl font-bold text-gray-800">{filteredExams.length}</p>
@@ -228,7 +228,7 @@ const ExamManager = ({exams, currentPage=1,totalPages=1, onPageChange={},pageLev
               </div>
             </div>
           </div>
-          <div className="bg-white p-4 rounded-lg shadow">
+          <div className="bg-[var(--fontBox)] p-4 rounded-lg shadow">
             <div className="flex items-center gap-3">
               <div className="bg-green-100 p-3 rounded-full">
                 <FaCheckCircle className="w-6 h-6 text-green-600" />
@@ -241,7 +241,7 @@ const ExamManager = ({exams, currentPage=1,totalPages=1, onPageChange={},pageLev
               </div>
             </div>
           </div>
-          <div className="bg-white p-4 rounded-lg shadow">
+          <div className="bg-[var(--fontBox)] p-4 rounded-lg shadow">
             <div className="flex items-center gap-3">
               <div className="bg-yellow-100 p-3 rounded-full">
                 <FaClock className="w-6 h-6 text-gray-600" />
@@ -260,11 +260,11 @@ const ExamManager = ({exams, currentPage=1,totalPages=1, onPageChange={},pageLev
         {viewType === 'grid' && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredExams.map(exam => (
-              <div key={exam.id} className="bg-white rounded-lg shadow hover:shadow-lg hover:border-emerald-500 transition-shadow p-2 border border-gray-200 flex flex-col">
+              <div key={exam.id} className="bg-[var(--fontBox)] rounded-lg shadow hover:shadow-lg hover:border-[var(--secondary)] transition-shadow p-2 border border-gray-200 flex flex-col">
                 {/* Header de la tarjeta */}
                 <div className="p-4 border-b border-gray-100">
                   <div className="flex items-start justify-between mb-2 gap-2">
-                    <h3 className="font-semibold text-emerald-800 text-lg leading-tight">
+                    <h3 className="font-semibold text-[var(--primary)] text-lg leading-tight">
                       {exam.name}
                     </h3>
                     <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${getDifficultyColor(exam.difficulty)}`}>
@@ -272,14 +272,14 @@ const ExamManager = ({exams, currentPage=1,totalPages=1, onPageChange={},pageLev
                     </span>
                   </div>
                   <div className="flex justify-between gap-2">
-                    <span className="inline-block bg-teal-100 text-emerald-800 px-2 py-1 rounded-full text-xs font-medium mb-2">
+                    <span className="inline-block border border-[var(--secondary)] text-[var(--secondary)] px-2 py-1 rounded-full text-xs font-medium mb-2">
                       {exam.subject}
                     </span>
                     <span>
                         <ActionExamDropdown pageLevel={pageLevel} />
                     </span>
                   </div>
-                  <p title={exam.description} className="text-gray-600 text-sm line-clamp-2">
+                  <p title={exam.description} className="text-gray-500 text-sm line-clamp-2">
                     {exam.description}
                   </p>
                 </div>
@@ -287,19 +287,19 @@ const ExamManager = ({exams, currentPage=1,totalPages=1, onPageChange={},pageLev
                 {/* Detalles del examen */}
                 <div className="p-4 flex flex-col h-full">
                   <div className="grid grid-cols-2 gap-4 text-sm mb-4">
-                    <div className="flex items-center gap-2 text-emerald-600">
+                    <div className="flex items-center gap-2 text-[var(--primary)]">
                       <FaClock className="w-4 h-4" />
                       <span>{exam.timeLimit} min</span>
                     </div>
-                    <div className="flex items-center gap-2 text-emerald-600">
+                    <div className="flex items-center gap-2 text-[var(--primary)]">
                       <FaQuestionCircle className="w-4 h-4" />
                       <span>{exam.questionCount} preguntas</span>
                     </div>
-                    <div className="flex items-center gap-2 text-emerald-600">
+                    <div className="flex items-center gap-2 text-[var(--primary)]">
                       {getExamTypeIcon(exam.exam_type)}
                       <span>{getExamType(exam.exam_type)}</span>
                     </div>
-                    <div className="flex items-center gap-2 text-emerald-600">
+                    <div className="flex items-center gap-2 text-[var(--primary)]">
                       {exam.shuffle_questions ? <FaRandom className="w-4 h-4" /> : <FaList className="w-4 h-4" />}
                       <span>{exam.shuffle_questions ? "Aleatorias" : "Fijas"}</span>
                     </div>
@@ -307,14 +307,14 @@ const ExamManager = ({exams, currentPage=1,totalPages=1, onPageChange={},pageLev
 
                   {/* Estado del examen */}
                   {exam.lastAttempt ? (
-                    <div className="border border-emerald-300 p-3 rounded-lg mb-4 flex-1 h-full">
+                    <div className="border border-[var(--secondary)] p-3 rounded-lg mb-4 flex-1 h-full">
                       <div className="flex items-center justify-between mb-2">
-                        <span className="text-sm font-medium text-emerald-700">Último intento:</span>
+                        <span className="text-sm font-medium text-[var(--primary)]">Último intento:</span>
                         <span className={`font-bold text-lg ${getScoreColor(exam.lastAttempt.score)}`}>
                           {exam.lastAttempt.score}%
                         </span>
                       </div>
-                      <div className="w-full text-xs text-emerald-600 flex gap-2 flex-wrap items-center md:items-start md:flex-col">
+                      <div className="w-full text-xs text-[var(--primary)] flex gap-2 flex-wrap items-center md:items-start md:flex-col">
                         <div className="w-full flex justify-between">
                           <span>Fecha:</span>
                           <span>{FormatDate(exam.lastAttempt.completedAt,true)}</span>
@@ -330,8 +330,8 @@ const ExamManager = ({exams, currentPage=1,totalPages=1, onPageChange={},pageLev
                       </div>
                     </div>
                   ) : (
-                    <div className="bg-emerald-100 p-2 rounded-lg mb-4 text-center flex-1">
-                      <span className="text-emerald-700 h-full text-sm font-medium flex items-center justify-center">
+                    <div className="bg-gray-100 p-2 rounded-lg mb-4 text-center flex-1">
+                      <span className="text-gray-400 h-full text-sm font-medium flex items-center justify-center">
                         Sin intentos
                       </span>
                     </div>
@@ -344,7 +344,7 @@ const ExamManager = ({exams, currentPage=1,totalPages=1, onPageChange={},pageLev
                         <div className="flex gap-2 justify-between w-full">
                           <TertiaryButton
                             onClick={() => viewAnswersExam(exam.id, exam.name)}
-                            className="flex-1 flex items-center justify-center gap-2 py-3 text-white bg-emerald-400"
+                            className="flex-1 flex items-center justify-center gap-2 py-3"
                           >
                             <MdOutlineRateReview className="w-4 h-4" />
                             Ver respuestas
@@ -380,47 +380,47 @@ const ExamManager = ({exams, currentPage=1,totalPages=1, onPageChange={},pageLev
 
         {/* Vista de Lista */}
         {viewType === 'list' && (
-          <div className="bg-white rounded-lg shadow overflow-hidden border border-emerald-300">
+          <div className="bg-[var(--fontBox)] rounded-lg shadow overflow-hidden border border-[var(--secondary)]">
             <div className="overflow-x-auto">
               <table className="w-full">
-                <thead className="bg-emerald-700 border-b border-emerald-300">
+                <thead className="bg-[var(--primary)] border-b border-[var(--secondary)]">
                   <tr>
-                    <th className="text-left py-3 px-4 font-semibold text-white">Examen</th>
-                    <th className="text-left py-3 px-4 font-semibold text-white">Descripción</th>
-                    <th className="text-left py-3 px-4 font-semibold text-white">Detalles</th>
-                    <th className="text-left py-3 px-4 font-semibold text-white">Estado</th>
-                    <th className="text-left py-3 px-4 font-semibold text-white">Realizar</th>
-                    <th className="text-left py-3 px-2 font-semibold text-white"></th>
+                    <th className="text-left py-3 px-4 font-semibold text-[var(--textReverse)]">Examen</th>
+                    <th className="text-left py-3 px-4 font-semibold text-[var(--textReverse)]">Descripción</th>
+                    <th className="text-left py-3 px-4 font-semibold text-[var(--textReverse)]">Detalles</th>
+                    <th className="text-left py-3 px-4 font-semibold text-[var(--textReverse)]">Estado</th>
+                    <th className="text-left py-3 px-4 font-semibold text-[var(--textReverse)]">Realizar</th>
+                    <th className="text-left py-3 px-2 font-semibold text-[var(--textReverse)]"></th>
                   </tr>
                 </thead>
                 <tbody>
                   {filteredExams.map((exam, index) => (
-                    <tr key={exam.id} className={`border-b border-emerald-100 hover:bg-emerald-100 transition-colors ${index % 2 === 0 ? 'bg-white' : 'bg-emerald-50'}`}>
+                    <tr key={exam.id} className={`border-b border-[var(--font)] hover:bg-[var(--font)] transition-colors ${index % 2 === 0 ? 'bg-[var(--fontBox)]' : 'bg-gray-100'}`}>
                       <td className="py-4 px-4">
                         <div>
-                          <h4 className="font-semibold text-emerald-800">{exam.name}</h4>
+                          <h4 className="font-semibold text-[var(--primary)]">{exam.name}</h4>
                           <div className="flex items-start md:items-center gap-2 mt-1 flex-col md:flex-row">
-                            <span className="inline-block bg-emerald-100 text-emerald-800 px-2 py-1 rounded-lg md:rounded-full text-xs font-medium">
+                            <span className="inline-block bg-[var(--font)] text-[var(--primary)] px-2 py-1 rounded-lg md:rounded-full text-xs font-medium">
                               {exam.subject}
                             </span>
                             <span className={`inline-block px-2 py-1 rounded-lg md:rounded-full text-xs font-medium ${getDifficultyColor(exam.difficulty)}`}>
                               {getDifficulty(exam.difficulty)}
                             </span>
                           </div>
-                          {/* <p title={exam.description} className="text-emerald-600 text-sm mt-1 line-clamp-2 hidden md:flex">
+                          {/* <p title={exam.description} className="text-[var(--primary)] text-sm mt-1 line-clamp-2 hidden md:flex">
                             {exam.description}
                           </p> */}
                         </div>
                       </td>
                       <td className="py-4 px-4">
                         <div>
-                          <p title={exam.description} className="text-emerald-600 text-sm line-clamp-5">
+                          <p title={exam.description} className="text-[var(--primary)] text-sm line-clamp-5">
                             {exam.description}
                           </p>
                         </div>
                       </td>
                       <td className="py-4 px-4">
-                        <div className="text-sm text-emerald-600 space-y-1 flex gap-1 md:gap-3 items-center justify-start flex-wrap">
+                        <div className="text-sm text-[var(--primary)] space-y-1 flex gap-1 md:gap-3 items-center justify-start flex-wrap">
                           <div className="flex flex-col gap-1 justify-center">
                             <div className="flex items-center gap-2">
                               <FaClock className="min-w-3 h-3" />
@@ -449,7 +449,7 @@ const ExamManager = ({exams, currentPage=1,totalPages=1, onPageChange={},pageLev
                             <div className={`font-bold text-lg ${getScoreColor(exam.lastAttempt.score)}`}>
                               {exam.lastAttempt.score}%
                             </div>
-                            <div className="text-emerald-600 text-xs">
+                            <div className="text-[var(--primary)] text-xs">
                               <div className="flex items-center gap-1">
                                 <FaCalendarAlt className="min-w-3 h-3" />
                                 {FormatDate(exam.lastAttempt.completedAt,true)}
@@ -458,7 +458,7 @@ const ExamManager = ({exams, currentPage=1,totalPages=1, onPageChange={},pageLev
                             </div>
                           </div>
                         ) : (
-                          <span className="inline-block bg-emerald-100 text-emerald-800 px-2 py-1 rounded-lg md:rounded-full text-xs font-medium">
+                          <span className="inline-block bg-[var(--font)] text-[var(--primary)] px-2 py-1 rounded-lg md:rounded-full text-xs font-medium">
                             Sin intentos
                           </span>
                         )}
@@ -515,7 +515,7 @@ const ExamManager = ({exams, currentPage=1,totalPages=1, onPageChange={},pageLev
 
         {/* Sin datos */}
         {filteredExams.length === 0 && (
-          <div className="text-center py-12 bg-white rounded-lg shadow">
+          <div className="text-center py-12 bg-[var(--fontBox)] rounded-lg shadow">
             <div className="text-gray-400 text-6xl mb-4">📝</div>
             <h3 className="text-lg font-medium text-gray-700 mb-2">No se encontraron exámenes</h3>
             <p className="text-gray-500">Intenta cambiar los filtros para ver más resultados</p>
@@ -530,7 +530,7 @@ const ExamManager = ({exams, currentPage=1,totalPages=1, onPageChange={},pageLev
               {[...Array(totalPages)].map((_, index) => (
                   <button
                       key={index}
-                      className={`px-3 py-1 rounded-lg text-sm ${currentPage === index + 1 ? 'bg-[var(--primary)] text-white' : ''}`}
+                      className={`px-3 py-1 rounded-lg text-sm ${currentPage === index + 1 ? 'bg-[var(--primary)] text-[var(--textReverse)]' : ''}`}
                       onClick={() => onPageChange(index + 1)}
                   >
                       {index + 1}

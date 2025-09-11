@@ -62,11 +62,11 @@ class DashboardController extends Controller
 
         }
 
-        activity('alert '.$crudtype)
+        activity($crudtype.' alert')
             ->causedBy($request->user())
             ->withProperties($alert)
             ->event($request->user()->id_company)
-            ->log('Admin modificó el aviso');
+            ->log('Se actualizó el aviso en dashboard');
 
         return redirect()->back()->with('success', 'Se ha actualizado la alerta');
     }

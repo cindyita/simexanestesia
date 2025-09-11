@@ -3,7 +3,7 @@ import Modal from "@/CustomComponents/modal/Modal";
 import { FaKey, FaTimes, FaLock } from "react-icons/fa";
 import PrimaryButton from "../button/PrimaryButton";
 
-export default function RolePermissionsModal({ show, onClose, roleName, data = [], onSave }) {
+export default function RolePermissionsModal({ show, onClose, idRol, roleName, data = [], onSave }) {
 
   const [loading, setLoading] = useState(true);
   const [permissions, setPermissions] = useState([]);
@@ -13,7 +13,7 @@ export default function RolePermissionsModal({ show, onClose, roleName, data = [
       setPermissions(data.map(item => ({
         id: item.id,
         name: item.name,
-        level: item.level ?? 0
+        level: +item.level ?? 0
       })));
     }
     setLoading(false);
@@ -28,7 +28,7 @@ export default function RolePermissionsModal({ show, onClose, roleName, data = [
   };
 
   const handleSave = () => {
-    onSave && onSave(permissions);
+    onSave && onSave(permissions,idRol);
     onClose();
   };
 
@@ -47,18 +47,18 @@ export default function RolePermissionsModal({ show, onClose, roleName, data = [
       <div className="p-6">
         {/* Header */}
         <div className="flex justify-between items-center mb-4">
-          <h3 className="text-lg font-semibold text-emerald-800">
+          <h3 className="text-lg font-semibold text-[var(--primary)]">
             Permisos del rol: {roleName}
           </h3>
-          <button onClick={onClose} className="text-emerald-400 hover:text-emerald-600">
+          <button onClick={onClose} className="text-[var(--secondary)] hover:text-[var(--primary)]">
             <FaTimes />
           </button>
         </div>
 
         {/* Table */}
         <div className="overflow-x-auto">
-          <table className="w-full border border-emerald-200 rounded-lg">
-            <thead className="bg-emerald-700 text-white">
+          <table className="w-full border border-[var(--font)] rounded-lg">
+            <thead className="bg-[var(--primary)] text-[var(--textReverse)]">
               <tr>
                 <th className="py-2 px-4 text-left">Pantalla</th>
                 <th className="py-2 px-4 text-center">Permiso</th>
@@ -66,13 +66,13 @@ export default function RolePermissionsModal({ show, onClose, roleName, data = [
             </thead>
             <tbody>
               {permissions.length > 0 && permissions.map(screen => (
-                <tr key={screen.id} className="border-b border-emerald-200 hover:bg-emerald-50">
-                  <td className="py-2 px-4 font-medium text-emerald-800">{screen.name}</td>
+                <tr key={screen.id} className="border-b border-[var(--font)] hover:bg-emerald-50">
+                  <td className="py-2 px-4 font-medium text-[var(--primary)]">{screen.name}</td>
                   <td className="py-2 px-4 text-center flex gap-2 items-center justify-center">
                     <select
                       value={screen.level ?? 0}
                       onChange={(e) => handleLevelChange(screen.id, parseInt(e.target.value))}
-                      className="border border-emerald-300 focus:border-emerald-500 rounded-md px-2 py-1 pr-7 sm:pr-8 text-sm"
+                      className="border border-[var(--secondary)] focus:border-[var(--secondary)] rounded-md px-2 py-1 pr-7 sm:pr-8 text-sm"
                     >
                       <option value={0}>Sin permiso</option>
                       <option value={1}>Nivel 1 (Visualización)</option>
@@ -93,7 +93,7 @@ export default function RolePermissionsModal({ show, onClose, roleName, data = [
         }
 
         <div className="mt-6 flex justify-end">
-          <PrimaryButton onClick={handleSave}>
+          <PrimaryButton type="button" onClick={handleSave}>
             Asignar permisos
           </PrimaryButton>
         </div>

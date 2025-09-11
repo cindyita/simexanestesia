@@ -27,7 +27,7 @@ export default function UpdateProfileInformation({
     return (
         <section className={className}>
             <header>
-                <h2 className="text-lg font-medium text-emerald-900">
+                <h2 className="text-lg font-medium text-[var(--primary)]">
                     Mi cuenta de usuario
                 </h2>
             </header>
@@ -67,13 +67,13 @@ export default function UpdateProfileInformation({
 
                 {mustVerifyEmail && user.email_verified_at === null && (
                     <div>
-                        <p className="mt-2 text-sm text-emerald-800">
+                        <p className="mt-2 text-sm text-[var(--primary)]">
                             Tu email no está verificado
                             <Link
                                 href={route('verification.send')}
                                 method="post"
                                 as="button"
-                                className="rounded-xl text-sm text-emerald-600 underline hover:text-emerald-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
+                                className="rounded-xl text-sm text-[var(--primary)] underline hover:text-[var(--primary)] focus:outline-none focus:ring-2 focus:ring-[var(--secondary)] focus:ring-offset-2"
                             >
                                 Haga clic aquí para volver a enviar el correo electrónico de verificación.
                             </Link>
@@ -97,7 +97,7 @@ export default function UpdateProfileInformation({
                         leave="transition ease-in-out"
                         leaveTo="opacity-0"
                     >
-                        <p className="text-sm text-emerald-600">
+                        <p className="text-sm text-[var(--primary)]">
                             Guardado
                         </p>
                     </Transition>

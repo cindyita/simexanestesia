@@ -23,6 +23,7 @@ import InputInputLabel from '@/CustomComponents/form/InputLabel';
 import InputLabel from '@/CustomComponents/form/InputLabel';
 import PrimaryButton from '@/CustomComponents/button/PrimaryButton';
 import SecondaryButton from '@/CustomComponents/button/SecondaryButton';
+import Textarea from '@/CustomComponents/form/Textarea';
 
 const CreateExam = () => {
   // Estado para la información del examen
@@ -222,20 +223,20 @@ const CreateExam = () => {
     return (
       <AuthenticatedLayout
                   header={
-                      <h2 className="text-xl font-semibold leading-tight text-emerald-800">
+                      <h2 className="text-xl font-semibold leading-tight text-[var(--primary)]">
                           Nuevo examen
                       </h2>
                   }
               >
             <Head title="Nuevo examen" />
 
-            <div className="p-3 sm:p-6 bg-white rounded-lg shadow">
+            <div className="p-3 sm:p-6 bg-[var(--fontBox)] rounded-lg shadow">
             {/* Header */}
             <div className="mb-6">
                 <div className="flex items-center gap-2 mb-4 justify-between">
-                        <h3 className="text-xl font-semibold text-emerald-800">Crear Nuevo Examen</h3> 
+                        <h3 className="text-xl font-semibold text-[var(--primary)]">Crear Nuevo Examen</h3> 
                     <Link href="/exams">   
-                        <MiniButton className="flex items-center gap-2 text-emerald-600">
+                        <MiniButton className="flex items-center gap-2 text-[var(--primary)]">
                             <FaArrowLeft />
                             Volver a Exámenes
                         </MiniButton>
@@ -245,15 +246,15 @@ const CreateExam = () => {
 
             {/* Pasos de navegación */}
             <div className="flex items-center mb-8">
-                <div className={`flex items-center ${activeStep >= 1 ? 'text-emerald-600' : 'text-emerald-300'}`}>
-                <div className={`min-w-8 min-h-8 rounded-full flex items-center justify-center text-white font-bold ${activeStep >= 1 ? 'bg-emerald-600' : 'bg-emerald-300'}`}>
+                <div className={`flex items-center ${activeStep >= 1 ? 'text-[var(--primary)]' : 'text-[var(--secondary)]'}`}>
+                <div className={`min-w-8 min-h-8 rounded-full flex items-center justify-center text-[var(--textReverse)] font-bold ${activeStep >= 1 ? 'bg-[var(--primary)]' : 'bg-[var(--secondary)]'}`}>
                     1
                 </div>
                 <span className="ml-2 font-medium">Información del Examen</span>
                 </div>
-                <div className={`w-16 h-1 mx-4 ${activeStep >= 2 ? 'bg-emerald-600' : 'bg-emerald-300'}`}></div>
-                <div className={`flex items-center ${activeStep >= 2 ? 'text-emerald-600' : 'text-emerald-300'}`}>
-                <div className={`min-w-8 min-h-8 rounded-full flex items-center justify-center text-white font-bold ${activeStep >= 2 ? 'bg-emerald-600' : 'bg-emerald-300'}`}>
+                <div className={`w-16 h-1 mx-4 ${activeStep >= 2 ? 'bg-[var(--primary)]' : 'bg-[var(--secondary)]'}`}></div>
+                <div className={`flex items-center ${activeStep >= 2 ? 'text-[var(--primary)]' : 'text-[var(--secondary)]'}`}>
+                <div className={`min-w-8 min-h-8 rounded-full flex items-center justify-center text-[var(--textReverse)] font-bold ${activeStep >= 2 ? 'bg-[var(--primary)]' : 'bg-[var(--secondary)]'}`}>
                     2
                 </div>
                 <span className="ml-2 font-medium">Preguntas</span>
@@ -262,7 +263,7 @@ const CreateExam = () => {
 
             {/* Paso 1: Información del Examen */}
             {activeStep === 1 && (
-                <div className="bg-white rounded-lg p-1 sm:p-6">
+                <div className="bg-[var(--fontBox)] rounded-lg p-1 sm:p-6">
                     <h2 className="text-xl font-semibold mb-6 flex items-center gap-2">
                         Información General
                     </h2>
@@ -270,7 +271,7 @@ const CreateExam = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         {/* Nombre del examen */}
                         <div className="md:col-span-2">
-                        <InputLabel className="block text-sm font-medium text-emerald-700 mb-2">
+                        <InputLabel className="block text-sm font-medium text-[var(--primary)] mb-2">
                             Nombre del Examen *
                         </InputLabel>
                         <TextInput
@@ -284,27 +285,27 @@ const CreateExam = () => {
 
                         {/* Descripción */}
                         <div className="md:col-span-2">
-                        <InputInputLabel className="block text-sm font-medium text-emerald-700 mb-2">
+                        <InputInputLabel className="block text-sm font-medium text-[var(--primary)] mb-2">
                             Descripción
                         </InputInputLabel>
-                        <textarea
+                        <Textarea
                             value={examData.description}
                             onChange={(e) => handleExamChange('description', e.target.value)}
                             rows={3}
-                            className="w-full px-3 py-2 border border-emerald-300 rounded-md focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                            className="w-full px-3 py-2 border border-[var(--secondary)] rounded-md focus:ring-2 focus:ring-[var(--secondary)] focus:border-transparent"
                             placeholder="Describe el contenido del examen"
                         />
                         </div>
 
                         {/* Materia */}
                         <div>
-                        <InputInputLabel className="block text-sm font-medium text-emerald-700 mb-2">
+                        <InputInputLabel className="block text-sm font-medium text-[var(--primary)] mb-2">
                             Materia asociada *
                         </InputInputLabel>
                         <select
                             value={examData.subject_id}
                             onChange={(e) => handleExamChange('subject_id', e.target.value)}
-                            className="w-full px-3 py-2 border border-emerald-300 rounded-md focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                            className="w-full px-3 py-2 border border-[var(--secondary)] rounded-md focus:ring-2 focus:ring-[var(--secondary)] focus:border-transparent"
                         >
                             <option value="">Seleccionar materia</option>
                             {subjects.map(subject => (
@@ -317,7 +318,7 @@ const CreateExam = () => {
 
                         {/* Tiempo límite */}
                         <div>
-                        <InputInputLabel className="block text-sm font-medium text-emerald-700 mb-2">
+                        <InputInputLabel className="block text-sm font-medium text-[var(--primary)] mb-2">
                             Tiempo Límite (minutos) (opcional)
                         </InputInputLabel>
                         <TextInput
@@ -325,19 +326,19 @@ const CreateExam = () => {
                             value={examData.time_limit}
                             onChange={(e) => handleExamChange('time_limit', parseInt(e.target.value))}
                             min="1"
-                            className="w-full px-3 py-2 border border-emerald-300 rounded-md focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                            className="w-full px-3 py-2 border border-[var(--secondary)] rounded-md focus:ring-2 focus:ring-[var(--secondary)] focus:border-transparent"
                         />
                         </div>
 
                         {/* Tipo de examen */}
                         <div>
-                        <InputLabel className="block text-sm font-medium text-emerald-700 mb-2">
+                        <InputLabel className="block text-sm font-medium text-[var(--primary)] mb-2">
                             Tipo de Examen
                         </InputLabel>
                         <select
                             value={examData.exam_type}
                             onChange={(e) => handleExamChange('exam_type', e.target.value)}
-                            className="w-full px-3 py-2 border border-emerald-300 rounded-md focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                            className="w-full px-3 py-2 border border-[var(--secondary)] rounded-md focus:ring-2 focus:ring-[var(--secondary)] focus:border-transparent"
                         >
                             <option value="multiple_choice">Opción Múltiple</option>
                             <option value="true_false">Verdadero/Falso</option>
@@ -348,13 +349,13 @@ const CreateExam = () => {
 
                         {/* Dificultad */}
                         <div>
-                        <InputLabel className="block text-sm font-medium text-emerald-700 mb-2">
+                        <InputLabel className="block text-sm font-medium text-[var(--primary)] mb-2">
                             Dificultad
                         </InputLabel>
                         <select
                             value={examData.difficulty}
                             onChange={(e) => handleExamChange('difficulty', e.target.value)}
-                            className="w-full px-3 py-2 border border-emerald-300 rounded-md focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                            className="w-full px-3 py-2 border border-[var(--secondary)] rounded-md focus:ring-2 focus:ring-[var(--secondary)] focus:border-transparent"
                         >
                             <option value="basic">Básico</option>
                             <option value="intermediate">Intermedio</option>
@@ -364,7 +365,7 @@ const CreateExam = () => {
 
                         {/* Puntuación mínima */}
                         <div>
-                        <InputLabel className="block text-sm font-medium text-emerald-700 mb-2">
+                        <InputLabel className="block text-sm font-medium text-[var(--primary)] mb-2">
                             Puntuación Mínima para Aprobar (%)
                         </InputLabel>
                         <TextInput
@@ -374,13 +375,13 @@ const CreateExam = () => {
                             min="0"
                             max="100"
                             step="0.1"
-                            className="w-full px-3 py-2 border border-emerald-300 rounded-md focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                            className="w-full px-3 py-2 border border-[var(--secondary)] rounded-md focus:ring-2 focus:ring-[var(--secondary)] focus:border-transparent"
                         />
                         </div>
 
                         {/* Intentos máximos */}
                         <div>
-                        <InputLabel className="block text-sm font-medium text-emerald-700 mb-2">
+                        <InputLabel className="block text-sm font-medium text-[var(--primary)] mb-2">
                             Intentos Máximos (Opcional)
                         </InputLabel>
                         <TextInput
@@ -388,52 +389,52 @@ const CreateExam = () => {
                             value={examData.max_attempts}
                             onChange={(e) => handleExamChange('max_attempts', parseInt(e.target.value))}
                             min="1"
-                            className="w-full px-3 py-2 border border-emerald-300 rounded-md focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                            className="w-full px-3 py-2 border border-[var(--secondary)] rounded-md focus:ring-2 focus:ring-[var(--secondary)] focus:border-transparent"
                         />
                         </div>
 
                         {/* Configuraciones adicionales */}
                         <div className="md:col-span-2">
-                            <h3 className="text-lg font-medium text-emerald-800 mb-4">Configuraciones</h3>
+                            <h3 className="text-lg font-medium text-[var(--primary)] mb-4">Configuraciones</h3>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div className="flex items-center gap-3">
                                     <button
                                         onClick={() => handleExamChange('shuffle_questions', !examData.shuffle_questions)}
-                                        className={`flex items-center ${examData.shuffle_questions ? 'text-emerald-600' : 'text-emerald-400'}`}
+                                        className={`flex items-center ${examData.shuffle_questions ? 'text-[var(--primary)]' : 'text-[var(--secondary)]'}`}
                                     >
                                         {examData.shuffle_questions ? <FaToggleOn size={24} /> : <FaToggleOff size={24} />}
                                     </button>
-                                    <span className="text-sm font-medium text-emerald-700">Randomizar preguntas</span>
+                                    <span className="text-sm font-medium text-[var(--primary)]">Randomizar preguntas</span>
                                 </div>
 
                                 <div className="flex items-center gap-3">
                                     <button
                                         onClick={() => handleExamChange('shuffle_options', !examData.shuffle_options)}
-                                        className={`flex items-center ${examData.shuffle_options ? 'text-emerald-600' : 'text-emerald-400'}`}
+                                        className={`flex items-center ${examData.shuffle_options ? 'text-[var(--primary)]' : 'text-[var(--secondary)]'}`}
                                     >
                                         {examData.shuffle_options ? <FaToggleOn size={24} /> : <FaToggleOff size={24} />}
                                     </button>
-                                    <span className="text-sm font-medium text-emerald-700">Randomizar opciones</span>
+                                    <span className="text-sm font-medium text-[var(--primary)]">Randomizar opciones</span>
                                 </div>
 
                                 <div className="flex items-center gap-3">
                                 <button
                                     onClick={() => handleExamChange('show_results', !examData.show_results)}
-                                    className={`flex items-center ${examData.show_results ? 'text-emerald-600' : 'text-emerald-400'}`}
+                                    className={`flex items-center ${examData.show_results ? 'text-[var(--primary)]' : 'text-[var(--secondary)]'}`}
                                 >
                                     {examData.show_results ? <FaToggleOn size={24} /> : <FaToggleOff size={24} />}
                                 </button>
-                                <span className="text-sm font-medium text-emerald-700">Mostrar resultados al final</span>
+                                <span className="text-sm font-medium text-[var(--primary)]">Mostrar resultados al final</span>
                                 </div>
 
                                 <div className="flex items-center gap-3">
                                 <button
                                     onClick={() => handleExamChange('is_active', !examData.is_active)}
-                                    className={`flex items-center ${examData.is_active ? 'text-emerald-600' : 'text-emerald-400'}`}
+                                    className={`flex items-center ${examData.is_active ? 'text-[var(--primary)]' : 'text-[var(--secondary)]'}`}
                                 >
                                     {examData.is_active ? <FaToggleOn size={24} /> : <FaToggleOff size={24} />}
                                 </button>
-                                <span className="text-sm font-medium text-emerald-700">Disponible</span>
+                                <span className="text-sm font-medium text-[var(--primary)]">Disponible</span>
                                 </div>
                             </div>
                         </div>
@@ -457,7 +458,7 @@ const CreateExam = () => {
             {activeStep === 2 && (
                 <div className="space-y-5">
                 {/* Header de preguntas */}
-                <div className="bg-white rounded-lg shadow p-6">
+                <div className="bg-[var(--fontBox)] rounded-lg shadow p-6">
                     <div className="flex items-center justify-between mb-4 flex-col md:flex-row gap-2">
                         <h3 className="text-lg font-semibold flex items-center gap-2">
                             Preguntas del Examen ({questions.length})
@@ -475,21 +476,21 @@ const CreateExam = () => {
                     {questions.length > 0 && (
                     <div className="space-y-3">
                         {questions.map((question, index) => (
-                        <div key={index} className="border border-emerald-200 rounded-lg p-4">
+                        <div key={index} className="border border-[var(--font)] rounded-lg p-4">
                             <div className="flex items-start justify-between">
                             <div className="flex-1">
                                 <div className="flex items-center gap-2 mb-2">
-                                <span className="bg-emerald-100 text-emerald-800 text-xs font-medium px-2 py-1 rounded">
+                                <span className="bg-[var(--font)] text-[var(--primary)] text-xs font-medium px-2 py-1 rounded">
                                     Pregunta {index + 1}
                                 </span>
-                                <span className="bg-emerald-100 text-emerald-800 text-xs font-medium px-2 py-1 rounded">
+                                <span className="bg-[var(--font)] text-[var(--primary)] text-xs font-medium px-2 py-1 rounded">
                                     {question.question_type === 'multiple_choice' ? 'Opción Múltiple' : 
                                     question.question_type === 'true_false' ? 'Verdadero/Falso' : 'Desarrollo'}
                                 </span>
                                 </div>
-                                <p className="text-emerald-800 font-medium mb-2">{question.question}</p>
+                                <p className="text-[var(--primary)] font-medium mb-2">{question.question}</p>
                                 {question.question_type !== 'essay' && (
-                                <div className="text-sm text-emerald-600">
+                                <div className="text-sm text-[var(--primary)]">
                                     <strong>Opciones:</strong> {question.options.filter(opt => opt.trim()).join(', ')}
                                     <br />
                                     <strong>Respuesta correcta:</strong> {question.correct_answers.map(i => question.options[i]).join(', ')}
@@ -499,7 +500,7 @@ const CreateExam = () => {
                             <div className="flex items-center gap-1 ml-1">
                                 <button
                                 onClick={() => editQuestion(index)}
-                                className="p-1 text-emerald-600 hover:bg-emerald-100 rounded-lg transition-colors"
+                                className="p-1 text-[var(--primary)] hover:bg-[var(--font)] rounded-lg transition-colors"
                                 >
                                 <FaEdit />
                                 </button>
@@ -519,7 +520,7 @@ const CreateExam = () => {
 
                 {/* Formulario de pregunta */}
                 {showQuestionForm && (
-                    <div className="bg-white rounded-lg shadow p-6">
+                    <div className="bg-[var(--fontBox)] rounded-lg shadow p-6">
                     <h3 className="text-lg font-semibold mb-4">
                         {editingQuestionIndex >= 0 ? 'Editar Pregunta' : 'Nueva Pregunta'}
                     </h3>
@@ -527,13 +528,13 @@ const CreateExam = () => {
                     <div className="space-y-4">
                         {/* Tipo de pregunta */}
                         <div>
-                        <InputLabel className="block text-sm font-medium text-emerald-700 mb-2">
+                        <InputLabel className="block text-sm font-medium text-[var(--primary)] mb-2">
                             Tipo de Pregunta
                         </InputLabel>
                         <select
                             value={currentQuestion.question_type}
                             onChange={(e) => handleQuestionTypeChange(e.target.value)}
-                            className="w-full px-3 py-2 border border-emerald-300 rounded-md focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                            className="w-full px-3 py-2 border border-[var(--secondary)] rounded-md focus:ring-2 focus:ring-[var(--secondary)] focus:border-transparent"
                         >
                             <option value="multiple_choice">Opción Múltiple</option>
                             <option value="true_false">Verdadero/Falso</option>
@@ -543,14 +544,14 @@ const CreateExam = () => {
 
                         {/* Pregunta */}
                         <div>
-                        <InputLabel className="block text-sm font-medium text-emerald-700 mb-2">
+                        <InputLabel className="block text-sm font-medium text-[var(--primary)] mb-2">
                             Pregunta *
                         </InputLabel>
-                        <textarea
+                        <Textarea
                             value={currentQuestion.question}
                             onChange={(e) => handleQuestionChange('question', e.target.value)}
                             rows={3}
-                            className="w-full px-3 py-2 border border-emerald-300 rounded-md focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                            className="w-full px-3 py-2 border border-[var(--secondary)] rounded-md focus:ring-2 focus:ring-[var(--secondary)] focus:border-transparent"
                             placeholder="Escribe la pregunta aquí..."
                         />
                         </div>
@@ -558,7 +559,7 @@ const CreateExam = () => {
                         {/* Opciones de respuesta (para múltiple opción y verdadero/falso) */}
                         {currentQuestion.question_type !== 'essay' && (
                         <div>
-                            <InputLabel className="block text-sm font-medium text-emerald-700 mb-2">
+                            <InputLabel className="block text-sm font-medium text-[var(--primary)] mb-2">
                             Opciones de Respuesta *
                             </InputLabel>
                             <div className="space-y-2">
@@ -568,8 +569,8 @@ const CreateExam = () => {
                                     onClick={() => handleCorrectAnswerToggle(index)}
                                     className={`flex items-center justify-center w-8 h-8 rounded-full border-2 transition-colors ${
                                     currentQuestion.correct_answers.includes(index)
-                                        ? 'bg-emerald-500 border-emerald-500 text-white'
-                                        : 'border-emerald-300 hover:border-emerald-500'
+                                        ? 'bg-[var(--secondary)] border-[var(--secondary)] text-[var(--textReverse)]'
+                                        : 'border-[var(--secondary)] hover:border-[var(--secondary)]'
                                     }`}
                                 >
                                     {currentQuestion.correct_answers.includes(index) && <FaCheck size={12} />}
@@ -578,14 +579,14 @@ const CreateExam = () => {
                                     type="text"
                                     value={option}
                                     onChange={(e) => handleOptionChange(index, e.target.value)}
-                                    className="flex-1 px-3 py-2 border border-emerald-300 rounded-md focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                                    className="flex-1 px-3 py-2 border border-[var(--secondary)] rounded-md focus:ring-2 focus:ring-[var(--secondary)] focus:border-transparent"
                                     placeholder={`Opción ${String.fromCharCode(65 + index)}`}
                                     disabled={currentQuestion.question_type === 'true_false'}
                                 />
                                 </div>
                             ))}
                             </div>
-                            <p className="text-xs text-emerald-600 mt-2">
+                            <p className="text-xs text-[var(--primary)] mt-2">
                             Click en el círculo para marcar la(s) respuesta(s) correcta(s)
                             </p>
                         </div>
@@ -593,14 +594,14 @@ const CreateExam = () => {
 
                         {/* Explicación */}
                         <div>
-                        <InputLabel className="block text-sm font-medium text-emerald-700 mb-2">
+                        <InputLabel className="block text-sm font-medium text-[var(--primary)] mb-2">
                             Explicación (opcional)
                         </InputLabel>
-                        <textarea
+                        <Textarea
                             value={currentQuestion.explanation}
                             onChange={(e) => handleQuestionChange('explanation', e.target.value)}
                             rows={2}
-                            className="w-full px-3 py-2 border border-emerald-300 rounded-md focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                            className="w-full px-3 py-2 border border-[var(--secondary)] rounded-md focus:ring-2 focus:ring-[var(--secondary)] focus:border-transparent"
                             placeholder="Explica por qué esta es la respuesta correcta..."
                         />
                         </div>
@@ -638,7 +639,7 @@ const CreateExam = () => {
                 )}
 
                 {/* Botones de navegación y guardado */}
-                <div className="bg-white rounded-lg shadow p-6">
+                <div className="bg-[var(--fontBox)] rounded-lg shadow p-6">
                     <div className="flex justify-between gap-3">
                     <SecondaryButton
                         onClick={() => setActiveStep(1)}

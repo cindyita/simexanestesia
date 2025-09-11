@@ -26,6 +26,15 @@ return Application::configure(basePath: dirname(__DIR__))
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->respond(function (Response $response, Throwable $exception, Request $request) {
+
+             if ($exception instanceof PDOException) {
+            return Inertia::render('ErrorPage', [
+                        'status' => 503
+                    ])
+                    ->toResponse($request)
+                    ->setStatusCode(503);
+            }
+
             if (in_array($response->getStatusCode(), [403, 404, 500, 503])) {
                 return Inertia::render('ErrorPage', [
                         'status' => $response->getStatusCode()

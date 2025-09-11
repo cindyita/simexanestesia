@@ -35,7 +35,7 @@ export default function DownloadCsvExample({
   return (
     <a
       onClick={handleDownload}
-      className="text-emerald-400 cursor-pointer text-decoration-underline"
+      className="text-[var(--secondary)] cursor-pointer text-decoration-underline"
     >
       [Descargar CSV de ejemplo]
     </a>

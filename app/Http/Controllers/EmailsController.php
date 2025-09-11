@@ -19,6 +19,11 @@ class EmailsController extends Controller {
             Mail::to($item['email'])->send(new RegisterKeyMail($item['clave']));
         }
 
+        activity('send emails')
+            ->causedBy($request->user())
+            ->event($request->user()->id_company)
+            ->log('Envío de claves de registro por email');
+
         return back()->with('success', 'Claves enviadas correctamente');
         // return response()->json($request->all());
     }

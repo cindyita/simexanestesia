@@ -79,7 +79,7 @@ class RegisteredUserController extends Controller
 
         event(new Registered($user));
 
-        activity('auth create')
+        activity('create user')
             ->causedBy($user)
             ->withProperties(['Nueva cuenta: '=>$user->only(['id','name','email'])])
             ->log('Se registró un usuario');
@@ -127,7 +127,7 @@ class RegisteredUserController extends Controller
 
         event(new Registered($user));
 
-        activity('auth create')
+        activity('create user')
             ->causedBy($request->user())
             ->withProperties(['Nueva cuenta: '=>$user])
             ->log('Usuario creó una cuenta');

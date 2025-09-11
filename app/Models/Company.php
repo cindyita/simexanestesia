@@ -18,6 +18,7 @@ class Company extends Model
         'font_color',
         'box_color',
         'text_color',
+        'text_color_reverse',
         'style_type',
         'logo',
         'icon',
