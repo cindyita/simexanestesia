@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import Modal from "@/CustomComponents/modal/Modal";
 import { FaKey, FaTimes, FaLock } from "react-icons/fa";
 import PrimaryButton from "../button/PrimaryButton";
+import Select from "../form/Select";
 
 export default function RolePermissionsModal({ show, onClose, idRol, roleName, data = [], onSave }) {
 
@@ -66,10 +67,10 @@ export default function RolePermissionsModal({ show, onClose, idRol, roleName, d
             </thead>
             <tbody>
               {permissions.length > 0 && permissions.map(screen => (
-                <tr key={screen.id} className="border-b border-[var(--font)] hover:bg-emerald-50">
+                <tr key={screen.id} className="border-b border-[var(--font)] hover:bg-[var(--font)]">
                   <td className="py-2 px-4 font-medium text-[var(--primary)]">{screen.name}</td>
                   <td className="py-2 px-4 text-center flex gap-2 items-center justify-center">
-                    <select
+                    <Select
                       value={screen.level ?? 0}
                       onChange={(e) => handleLevelChange(screen.id, parseInt(e.target.value))}
                       className="border border-[var(--secondary)] focus:border-[var(--secondary)] rounded-md px-2 py-1 pr-7 sm:pr-8 text-sm"
@@ -78,7 +79,7 @@ export default function RolePermissionsModal({ show, onClose, idRol, roleName, d
                       <option value={1}>Nivel 1 (Visualización)</option>
                       <option value={2}>Nivel 2 (Edición)</option>
                       <option value={3}>Nivel 3 (Eliminación)</option>
-                    </select>
+                    </Select>
                     {getIcon(screen.level ?? 0)}
                   </td>
                 </tr>

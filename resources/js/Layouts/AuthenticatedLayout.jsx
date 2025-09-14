@@ -1,6 +1,6 @@
 import AppLogo from '@/CustomComponents/logo/AppLogo';
 import Dropdown from '@/CustomComponents/dropdown/Dropdown';
-import { Link, usePage } from '@inertiajs/react';
+import { Link, usePage, Head } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
 
 import { MdDashboard } from "react-icons/md";
@@ -18,7 +18,7 @@ import { FaGear } from "react-icons/fa6";
 // import { IoMdNotifications } from "react-icons/io";
 // import IconButton from '@/Components/IconButton';
 
-export default function AuthenticatedLayout({ header, children }) {
+export default function AuthenticatedLayout({ header, title, children }) {
     const user = usePage().props.auth.user;
     const company = usePage().props.company;
     const menu = usePage().props.menu ?? { "1": { "id": 1, "name": "Dashboard", "icon": "MdDashboard", "url": "\/", "reg_order": 1, "level": 1, "has_permission": 1 } };
@@ -91,8 +91,12 @@ export default function AuthenticatedLayout({ header, children }) {
         };
     }, []);
 
+    const pageTitle = title ? `${title} - ${company?.name || "SIMEXANESTESIA"}` 
+                            : company?.name || "SIMEXANESTESIA";
+
     return (
         <>
+            <Head title={pageTitle} />
             <div className="content-layout">
                 
                 <aside className="menu">

@@ -26,6 +26,7 @@ return new class extends Migration
             $table->string('style_type')->default(1);
             $table->string('logo');
             $table->string('url');
+            $table->tinyInteger('use_uniquekeys')->default(0);
             $table->string('register_key');
             $table->unsignedBigInteger('id_rol_register')->index();
             $table->timestamps();

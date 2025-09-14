@@ -26,14 +26,14 @@ export default function RoleSettingsModal({ show, onClose, data = [], onSave }) 
             </div>
               <form onSubmit={handleSave} className="space-y-4">
                     <div>
-                        <select
+                        <Select
                             name="id_rol_register"
                             value={rolRegister}
                             className="mt-1 block w-full border border-gray-300 rounded-md p-2"
                       >
                             <option value="1">Administrador</option>
                             <option value="5">Usuario</option>
-                        </select>
+                        </Select>
                     </div>
 
                     <div className="mt-6 flex justify-end">

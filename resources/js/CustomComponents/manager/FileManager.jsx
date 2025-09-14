@@ -19,6 +19,7 @@ import PrimaryButton from '../button/PrimaryButton';
 import UploadFileModal from '../modal/UploadFileModal';
 
 import { FormatDate } from '@/Functions/FormatDate';
+import Select from '../form/Select';
 
 const FileManager = ({files,subjects, currentPage=1, totalPages=1, onPageChange={},pageLevel=1, isAdmin=0}) => {
   const [viewType, setViewType] = useState('grid');
@@ -107,7 +108,7 @@ const FileManager = ({files,subjects, currentPage=1, totalPages=1, onPageChange=
                 <span className="text-sm font-medium text-[var(--primary)]">Filtros:</span>
               </div>
               
-              <select 
+              <Select
                 value={filterSubject}
                 onChange={(e) => setFilterSubject(e.target.value)}
                 className="px-3 py-2 pr-8 border border-[var(--secondary)] rounded-md text-sm focus:ring-2 focus:ring-[var(--secondary)] focus:border-transparent"
@@ -116,9 +117,9 @@ const FileManager = ({files,subjects, currentPage=1, totalPages=1, onPageChange=
                 {subjectsList.map(subject => (
                   <option key={subject} value={subject}>{subject}</option>
                 ))}
-              </select>
+              </Select>
               
-              <select 
+              <Select 
                 value={filterFileType}
                 onChange={(e) => setFilterFileType(e.target.value)}
                 className="px-3 py-2 pr-8 border border-[var(--secondary)] rounded-md text-sm focus:ring-2 focus:ring-[var(--secondary)] focus:border-transparent"
@@ -127,7 +128,7 @@ const FileManager = ({files,subjects, currentPage=1, totalPages=1, onPageChange=
                 {fileTypes.map(type => (
                   <option key={type} value={type}>{type.toUpperCase()}</option>
                 ))}
-              </select>
+              </Select>
               
               {(filterSubject || filterFileType) && (
                 <button

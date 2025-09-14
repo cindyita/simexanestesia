@@ -1,8 +1,9 @@
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { FaFileUpload } from "react-icons/fa";
 
 export default function ImageDropInput({
   onChange,
+  reset = 0,
   accept = ".jpg,.png,.svg",
   className = "",
   label = "Arrastra tu imagen aquí o haz clic para seleccionar",
@@ -17,6 +18,14 @@ export default function ImageDropInput({
   const handleClick = () => {
     inputRef.current?.click();
   };
+
+  useEffect(() => {
+    if (reset > 0) {
+      setPreview(null);
+      setFileName("");
+      if (onChange) onChange(null, null);
+    }
+  }, [reset]);
 
   const isFileAccepted = (file) => {
     if (!file) return false;
@@ -79,7 +88,7 @@ export default function ImageDropInput({
       <div
         className={`flex flex-col items-center justify-center rounded-xl border-2 border-dashed p-6 text-center cursor-pointer transition ${
           dragActive
-            ? "border-[var(--secondary)] bg-emerald-50"
+            ? "border-[var(--secondary)] bg-[var(--font)]"
             : "border-gray-300 hover:border-[var(--secondary)] hover:bg-gray-50"
         } ${className}`}
         onClick={handleClick}

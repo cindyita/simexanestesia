@@ -29,13 +29,8 @@ export default function Users() {
 
     return (
         <AuthenticatedLayout
-            header={
-                <h2 className="text-xl font-semibold leading-tight text-[var(--primary)]">
-                    Usuarios
-                </h2>
-            }
+            title="Usuarios"
         >
-            <Head title="Usuarios" />
 
             <div className="users">
                 <div>

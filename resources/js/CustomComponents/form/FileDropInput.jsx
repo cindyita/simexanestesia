@@ -89,7 +89,7 @@ export default function FileDropInput({
       <div
         className={`flex flex-col items-center justify-center rounded-xl border-2 border-dashed p-6 text-center cursor-pointer transition ${
           dragActive
-            ? "border-[var(--secondary)] bg-emerald-50"
+            ? "border-[var(--secondary)] bg-[var(--font)]"
             : "border-gray-300 hover:border-[var(--secondary)] hover:bg-gray-50"
         } ${className}`}
         onClick={handleClick}
