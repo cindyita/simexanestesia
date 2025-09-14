@@ -37,13 +37,8 @@ export default function History() {
 
     return (
         <AuthenticatedLayout
-            header={
-                <h2 className="text-xl font-semibold leading-tight text-[var(--primary)]">
-                    {isAdmin ? 'Historial de intentos de alumnos' : 'Mi Historial de Intentos'}
-                </h2>
-            }
+            title="Historial"
         >
-            <Head title="Historial" />
             <div className="logs">
                 <div>
                     <div className="bg-[var(--fontBox)] rounded-lg shadow">

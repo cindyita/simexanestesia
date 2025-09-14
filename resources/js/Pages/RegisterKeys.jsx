@@ -12,13 +12,16 @@ import { FaTimes } from "react-icons/fa";
 import DownloadCsvExample from '@/Functions/DownloadCsvExample';
 import { copyToClipboard } from '@/Functions/CopyToClipboard';
 import Textarea from '@/CustomComponents/form/Textarea';
+import Select from '@/CustomComponents/form/Select';
 
 export default function RegisterKeys() {
-    // if (!usePage().props.menu[10]) return;
     const [modalKeysOpen, setModalKeysOpen] = useState(false);
     const [modalLoteKeysOpen, setModalLoteKeysOpen] = useState(false);
     const [modalKeysGenerateOpen, setModalKeysGenerateOpen] = useState(false);
-    
+
+    const use_uniquekeys = +usePage().props.company.use_uniquekeys;
+    const [adUseUniqueKeys, setAdUseUniqueKeys] = useState(use_uniquekeys ? false : true);
+
     const keys = usePage().props.data;
     const roles = usePage().props.roles;
     const show = usePage().props.show ?? 'noused';
@@ -146,16 +149,26 @@ export default function RegisterKeys() {
     }
     
     return (
-        <AuthenticatedLayout
-            header={
-                <h2 className="text-xl font-semibold leading-tight text-[var(--primary)]">
-                    Claves de registro
-                </h2>
-            }
-        >
-            <Head title="Claves de registro" />
+        <AuthenticatedLayout title="Claves de registro">
 
             <div className="registerkeys">
+                {   adUseUniqueKeys && 
+                    <div>
+                        <div className="p-5 bg-red-500 rounded-lg mb-2 text-white font-bold">
+                            <div className="flex justify-between items-center mb-1">
+                                <h3 className="text-lg font-semibold">
+                                    ADVERTENCIA
+                                </h3>
+                                <button onClick={() => {setAdUseUniqueKeys(false)}}>
+                                    <FaTimes />
+                                </button>
+                            </div>
+                            <div>Las claves de registro únicas están DESACTIVADAS, por lo tanto la configuración de esta pantalla se aplicará únicamente hasta que se active esa función, puede cambiarla desde "ajustes &gt; User claves de registro individuales". Mientras tanto se usará la clave de registro universal.</div>
+                        </div>
+
+                    </div>
+                }
+                
                 <div>
                     <div className="bg-[var(--fontBox)] rounded-lg shadow">
                         <div className="flex gap-3 flex-col md:flex-row md:justify-between px-6 md:px-10 pt-6">
@@ -165,7 +178,7 @@ export default function RegisterKeys() {
                                 </h3>
                             </div>
                             <div className="flex gap-2 flex-col md:flex-row">
-                                <select
+                                <Select
                                     name="view_keys"
                                     className="px-3 py-2 pr-8 border border-[var(--secondary)] rounded-md text-sm focus:ring-2 focus:ring-[var(--secondary)] focus:border-transparent"
                                     onChange={(e) => handleChangeShowKeys(e.target.value)}
@@ -177,7 +190,7 @@ export default function RegisterKeys() {
                                     <option value="all">
                                         Todas las claves
                                     </option>
-                                </select>
+                                </Select>
                                 <PrimaryButton className="whitespace-nowrap" onClick={() => setModalLoteKeysOpen(true)}>Crear lote de claves</PrimaryButton>
                                 <PrimaryButton className="whitespace-nowrap" onClick={() => setModalKeysOpen(true)}>Nueva clave</PrimaryButton>
                             </div>
@@ -221,7 +234,7 @@ export default function RegisterKeys() {
                         </div>
                         <div>
                             <label className="block text-sm font-medium">Rol de usuario al registro</label>
-                            <select
+                            <Select
                                 name="id_rol"
                                 value={data.id_rol}
                                 onChange={(e) => setData('id_rol', e.target.value)}
@@ -232,7 +245,7 @@ export default function RegisterKeys() {
                                         {el.name}
                                     </option>
                                 ))}
-                            </select>
+                            </Select>
                         </div>
                         <div>
                             <label className="block text-sm font-medium">Email (Opcional)</label>
@@ -349,7 +362,7 @@ export default function RegisterKeys() {
 
                                 <div>
                                     <label className="block text-sm font-medium">Rol de usuario al registro</label>
-                                    <select
+                                    <Select
                                         name="id_rol"
                                         value={data.id_rol}
                                         onChange={(e) => setData('id_rol', e.target.value)}
@@ -360,7 +373,7 @@ export default function RegisterKeys() {
                                                 {el.name}
                                             </option>
                                         ))}
-                                    </select>
+                                    </Select>
                                 </div>
                                 
                                 <div key={file ? file.name : 'empty'} className="overflow-x-auto max-w-[80vh] md:max-w-full">

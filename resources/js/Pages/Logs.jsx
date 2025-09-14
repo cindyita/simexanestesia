@@ -62,13 +62,8 @@ export default function Logs() {
 
     return (
         <AuthenticatedLayout
-            header={
-                <h2 className="text-xl font-semibold leading-tight text-[var(--primary)]">
-                    Auditoría
-                </h2>
-            }
+            title="Auditoría"
         >
-            <Head title="Auditoría" />
 
             <div className="logs">
                 <div>

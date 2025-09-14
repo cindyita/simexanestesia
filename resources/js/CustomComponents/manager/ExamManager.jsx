@@ -24,6 +24,7 @@ import { Link } from '@inertiajs/react';
 import ActionExamDropdown from '../dropdown/ActionExamDropdown';
 import TertiaryButton from '../button/TertiaryButton';
 import { FormatDate } from '@/Functions/FormatDate';
+import Select from '../form/Select';
 
 const ExamManager = ({exams, currentPage=1,totalPages=1, onPageChange={},pageLevel=1,isAdmin=false}) => {
   const [viewType, setViewType] = useState('grid'); // 'grid' o 'list'
@@ -155,26 +156,24 @@ const ExamManager = ({exams, currentPage=1,totalPages=1, onPageChange={},pageLev
                 <span className="text-sm font-medium text-[var(--primary)]">Filtros:</span>
               </div>
               
-              <select 
+              <Select 
                 value={filterSubject}
                 onChange={(e) => setFilterSubject(e.target.value)}
-                className="px-3 py-2 pr-8 border border-[var(--secondary)] rounded-md text-sm focus:ring-2 focus:ring-[var(--secondary)] focus:border-transparent"
               >
                 <option value="">Todas las materias</option>
                 {subjects.map(subject => (
                   <option key={subject} value={subject}>{subject}</option>
                 ))}
-              </select>
+              </Select>
               
-              <select 
+              <Select  
                 value={filterStatus}
                 onChange={(e) => setFilterStatus(e.target.value)}
-                className="px-3 py-2 pr-8 border border-[var(--secondary)] rounded-md text-sm focus:ring-2 focus:ring-[var(--secondary)] focus:border-transparent"
               >
                 <option value="">Todos</option>
                 <option value="pending">No realizados</option>
                 <option value="completed">Completados</option>
-              </select>
+              </Select>
               
               {(filterSubject || filterStatus) && (
                 <button

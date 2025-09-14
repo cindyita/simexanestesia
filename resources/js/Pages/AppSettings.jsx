@@ -8,20 +8,25 @@ import React, { useState, useEffect } from 'react';
 import ImageDropInput from '@/CustomComponents/form/ImageDropInput';
 import Checkbox from '@/CustomComponents/form/Checkbox';
 import { IoIosHelpCircle } from "react-icons/io";
+import Select from '@/CustomComponents/form/Select';
 
 export default function AppSettings() {
     const data = usePage().props.data;
     const pageLevel = usePage().props.menu[14]['level'];
     const isAdmin = usePage().props.user['mode_admin'] ? true : false;
 
+    const roles = usePage().props.roles;
+
     const [logo, setLogo] = useState(null);
     const [previewLogo, setPreviewLogo] = useState(null);
 
     const [icon, setIcon] = useState(null);
     const [previewIcon, setPreviewIcon] = useState(null);
+    const [resetImages, setResetImages] = useState(0);
     
     // FORM
     const [formData, setFormData] = useState({
+        settings: true,
         name: data?.name || '',
         title: data?.title || '',
         description: data?.description || '',
@@ -38,10 +43,8 @@ export default function AppSettings() {
         style_type: data?.style_type || '1',
         use_uniquekeys: data?.use_uniquekeys || 0,
         register_key: data?.register_key || '',
-        id_rol_register: data?.id_rol_register || 5
+        id_rol_register: data?.id_rol_register || roles[0]
     });
-
-    const [useUniqueKeys, setUseUniqueKeys] = useState(formData.use_uniquekeys);
 
     const [isLoading, setIsLoading] = useState(false);
     const [message, setMessage] = useState({ type: '', text: '' });
@@ -61,9 +64,11 @@ export default function AppSettings() {
         setMessage({ type: '', text: '' });
 
         try {
-            router.put('/app-settings', formData, {
+            router.post('/appsettings', formData, {
+                forceFormData: true,
                 onSuccess: () => {
                     setMessage({ type: 'success', text: 'Configuración guardada exitosamente' });
+                    router.reload({ only: ['company'] });
                 },
                 onError: (errors) => {
                     setMessage({ type: 'error', text: 'Error al guardar la configuración' });
@@ -82,10 +87,11 @@ export default function AppSettings() {
     // RESET
     const handleReset = () => {
         setFormData({
-            name: data?.name || '',
-            title: data?.title || '',
-            description: data?.description || '',
-            url: data?.url || '',
+            settings: true,
+            name: data?.name || 'Simexanestesia',
+            title: data?.title || 'Simexanestesia',
+            description: data?.description || 'Tu web para examenes de la especialidad',
+            url: data?.url || 'simexanestesia.com',
             primary_color: data?.primary_color || '#0d7560',
             secondary_color: data?.secondary_color || '#0ab586',
             tertiary_color: data?.tertiary_color || '#82e0b8',
@@ -94,26 +100,48 @@ export default function AppSettings() {
             text_color: data?.text_color || '#0d7559',
             text_color_reverse: data?.text_color_reverse || '#ffffff',
             style_type: data?.style_type || '1',
-            register_key: data?.register_key || '',
-            id_rol_register: data?.id_rol_register || 5
+            use_uniquekeys: data?.use_uniquekeys || 0,
+            register_key: data?.register_key || 'simexanestesia',
+            id_rol_register: data?.id_rol_register || roles[0]
         });
+        setLogo(null);
+        setPreviewLogo(null);
+        setIcon(null);
+        setPreviewIcon(null);
+        setResetImages(prev => prev + 1);
         setMessage({ type: '', text: '' });
     };
 
     const handleCheckboxUniqueKeys = (e) => {
-        setUseUniqueKeys(e.target.checked ? 1 : 0);
+        setFormData(prev => ({
+            ...prev,
+            use_uniquekeys: e.target.checked ? 1 : 0
+        }));
         handleInputChange;
     };
 
+    const handleSetLogo = (selectedFile, previewUrl) => {
+        setLogo(selectedFile);
+        setPreviewLogo(previewUrl);
+        setFormData(prev => ({
+            ...prev,
+            logo: selectedFile
+        }));
+    }
+
+    const handleSetIcon = (selectedFile, previewUrl) => {
+        setIcon(selectedFile);
+        setPreviewIcon(previewUrl);
+        setFormData(prev => ({
+            ...prev,
+            icon: selectedFile
+        }));
+    }
+
     return (
         <AuthenticatedLayout
-            header={
-                <h2 className="text-xl font-semibold leading-tight text-[var(--primary)]">
-                    Ajustes de app
-                </h2>
-            }
+            title="Ajustes de app"
         >
-            <Head title="Ajustes de app" />
             
             <div className="py-6">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
@@ -154,6 +182,21 @@ export default function AppSettings() {
                                             />
                                         </div>
 
+                                        {/* <div>
+                                            <label htmlFor="url" className="block text-sm font-medium">
+                                                URL
+                                            </label>
+                                            <TextInput
+                                                type="url"
+                                                id="url"
+                                                name="url"
+                                                value={formData.url}
+                                                onChange={handleInputChange}
+                                                className="w-full"
+                                                disabled
+                                            />
+                                        </div> */}
+
                                         <div>
                                             <label htmlFor="title" className="block text-sm font-medium">
                                                 Título
@@ -178,22 +221,6 @@ export default function AppSettings() {
                                                 value={formData.description}
                                                 onChange={handleInputChange}
                                                 rows="3"
-                                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[var(--secondary)] focus:ring-[var(--secondary)]"
-                                            />
-                                        </div>
-
-                                        <div>
-                                            <label htmlFor="url" className="block text-sm font-medium">
-                                                URL
-                                            </label>
-                                            <TextInput
-                                                type="url"
-                                                id="url"
-                                                name="url"
-                                                value={formData.url}
-                                                onChange={handleInputChange}
-                                                className="w-full"
-                                                disabled
                                             />
                                         </div>
 
@@ -201,7 +228,7 @@ export default function AppSettings() {
                                             <Checkbox
                                                 id="use_unique_registerkeys"
                                                 name="use_unique_registerkeys"
-                                                checked={useUniqueKeys}
+                                                checked={formData.use_uniquekeys}
                                                 value={formData.use_uniquekeys}
                                                 onChange={handleCheckboxUniqueKeys}
                                             />
@@ -221,9 +248,28 @@ export default function AppSettings() {
                                                 value={formData.register_key}
                                                 onChange={handleInputChange}
                                                 className="w-full"
-                                                disabled={useUniqueKeys}
+                                                disabled={formData.use_uniquekeys}
                                             />
                                         </div>
+
+                                        <div>
+                                            <label className="block text-sm font-medium">Rol de usuario al registro universal</label>
+                                            <Select
+                                                id="id_rol_register"
+                                                name="id_rol_register"
+                                                className="w-full"
+                                                disabled={formData.use_uniquekeys}
+                                                value={formData.id_rol_register}
+                                                onChange={handleInputChange}
+                                            >
+                                                {roles && roles.map(el => (
+                                                    <option key={el.id} value={el.id}>
+                                                        {el.name}
+                                                    </option>
+                                                ))}
+                                            </Select>
+                                        </div>
+
                                     </div>
 
                                     {/* COLORS */}
@@ -244,7 +290,7 @@ export default function AppSettings() {
                                                         name="primary_color"
                                                         value={formData.primary_color}
                                                         onChange={handleInputChange}
-                                                        className="h-10 w-16 rounded-sm cursor-pointer"
+                                                        className="h-10 w-16 rounded-none cursor-pointer"
                                                     />
                                                     <TextInput
                                                         type="text"
@@ -266,7 +312,7 @@ export default function AppSettings() {
                                                         name="secondary_color"
                                                         value={formData.secondary_color}
                                                         onChange={handleInputChange}
-                                                        className="h-10 w-16 rounded-sm cursor-pointer"
+                                                        className="h-10 w-16 rounded-none cursor-pointer"
                                                     />
                                                     <TextInput
                                                         type="text"
@@ -288,7 +334,7 @@ export default function AppSettings() {
                                                         name="tertiary_color"
                                                         value={formData.tertiary_color}
                                                         onChange={handleInputChange}
-                                                        className="h-10 w-16 rounded-sm cursor-pointer"
+                                                        className="h-10 w-16 rounded-none cursor-pointer"
                                                     />
                                                     <TextInput
                                                         type="text"
@@ -310,7 +356,7 @@ export default function AppSettings() {
                                                         name="font_color"
                                                         value={formData.font_color}
                                                         onChange={handleInputChange}
-                                                        className="h-10 w-16 rounded-sm cursor-pointer"
+                                                        className="h-10 w-16 rounded-none cursor-pointer"
                                                     />
                                                     <TextInput
                                                         type="text"
@@ -332,7 +378,7 @@ export default function AppSettings() {
                                                         name="box_color"
                                                         value={formData.box_color}
                                                         onChange={handleInputChange}
-                                                        className="h-10 w-16 rounded-sm cursor-pointer"
+                                                        className="h-10 w-16 rounded-none cursor-pointer"
                                                     />
                                                     <TextInput
                                                         type="text"
@@ -354,7 +400,7 @@ export default function AppSettings() {
                                                         name="text_color"
                                                         value={formData.text_color}
                                                         onChange={handleInputChange}
-                                                        className="h-10 w-16 rounded-sm cursor-pointer"
+                                                        className="h-10 w-16 rounded-none cursor-pointer"
                                                     />
                                                     <TextInput
                                                         type="text"
@@ -376,7 +422,7 @@ export default function AppSettings() {
                                                         name="text_color_reverse"
                                                         value={formData.text_color_reverse}
                                                         onChange={handleInputChange}
-                                                        className="h-10 w-16 rounded-sm cursor-pointer"
+                                                        className="h-10 w-16 rounded-none cursor-pointer"
                                                     />
                                                     <TextInput
                                                         type="text"
@@ -395,11 +441,11 @@ export default function AppSettings() {
                                             Imagen de logo
                                         </h4>
                                         <ImageDropInput
-                                            accept=".jpg,.png"
+                                            accept=".jpg,.png,.svg,.ico,.jpeg"
                                             previewSize={'auto'}
+                                            reset={resetImages}
                                             onChange={(selectedFile, previewUrl) => {
-                                                setLogo(selectedFile);
-                                                setPreviewLogo(previewUrl);
+                                                handleSetLogo(selectedFile, previewUrl);
                                             }}
                                         />
                                     </div>
@@ -410,11 +456,11 @@ export default function AppSettings() {
                                             Imagen de ícono
                                         </h4>
                                         <ImageDropInput
-                                            accept=".jpg,.png"
+                                            accept=".jpg,.png,.svg,.ico,.jpeg"
                                             previewSize={'auto'}
+                                            reset={resetImages}
                                             onChange={(selectedFile, previewUrl) => {
-                                                setIcon(selectedFile);
-                                                setPreviewIcon(previewUrl);
+                                                handleSetIcon(selectedFile, previewUrl);
                                             }}
                                         />
                                     </div>
@@ -440,9 +486,7 @@ export default function AppSettings() {
                         </div>
 
                         {/* PREVIEW */}
-                        <div 
-                            className="overflow-hidden shadow rounded-lg bg-[var(--fontBox)]"
-                        >
+                        <div className="overflow-hidden shadow rounded-lg bg-[var(--fontBox)]">
                             <div className="p-6">
                                 <h3 className="text-lg font-medium mb-6">
                                     Vista previa
@@ -499,7 +543,7 @@ export default function AppSettings() {
                                                         ></div>
                                                         <div 
                                                             className="h-3 flex-1 rounded"
-                                                            style={{ backgroundColor: formData.text_color_reverse, opacity: 0.8 }}
+                                                            style={{ backgroundColor: formData.text_color_reverse }}
                                                         ></div>
                                                     </div>
                                                 ))}

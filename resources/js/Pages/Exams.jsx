@@ -20,14 +20,8 @@ export default function Exams() {
 
     return (
         <AuthenticatedLayout
-            header={
-                <h2 className="text-xl font-semibold leading-tight text-[var(--primary)]">
-                    Examenes
-                </h2>
-            }
+            title="Examenes"
         >
-            <Head title="Examenes" />
-
             <div className="exams">
                 <ExamManager
                     exams={exams}

@@ -24,6 +24,7 @@ import InputLabel from '@/CustomComponents/form/InputLabel';
 import PrimaryButton from '@/CustomComponents/button/PrimaryButton';
 import SecondaryButton from '@/CustomComponents/button/SecondaryButton';
 import Textarea from '@/CustomComponents/form/Textarea';
+import Select from '@/CustomComponents/form/Select';
 
 const CreateExam = () => {
   // Estado para la información del examen
@@ -222,14 +223,8 @@ const CreateExam = () => {
 
     return (
       <AuthenticatedLayout
-                  header={
-                      <h2 className="text-xl font-semibold leading-tight text-[var(--primary)]">
-                          Nuevo examen
-                      </h2>
-                  }
+                  title="Nuevo examen"
               >
-            <Head title="Nuevo examen" />
-
             <div className="p-3 sm:p-6 bg-[var(--fontBox)] rounded-lg shadow">
             {/* Header */}
             <div className="mb-6">
@@ -302,7 +297,7 @@ const CreateExam = () => {
                         <InputInputLabel className="block text-sm font-medium text-[var(--primary)] mb-2">
                             Materia asociada *
                         </InputInputLabel>
-                        <select
+                        <Select
                             value={examData.subject_id}
                             onChange={(e) => handleExamChange('subject_id', e.target.value)}
                             className="w-full px-3 py-2 border border-[var(--secondary)] rounded-md focus:ring-2 focus:ring-[var(--secondary)] focus:border-transparent"
@@ -313,7 +308,7 @@ const CreateExam = () => {
                                 {subject.name} ({subject.code})
                             </option>
                             ))}
-                        </select>
+                        </Select>
                         </div>
 
                         {/* Tiempo límite */}
@@ -335,7 +330,7 @@ const CreateExam = () => {
                         <InputLabel className="block text-sm font-medium text-[var(--primary)] mb-2">
                             Tipo de Examen
                         </InputLabel>
-                        <select
+                        <Select
                             value={examData.exam_type}
                             onChange={(e) => handleExamChange('exam_type', e.target.value)}
                             className="w-full px-3 py-2 border border-[var(--secondary)] rounded-md focus:ring-2 focus:ring-[var(--secondary)] focus:border-transparent"
@@ -344,7 +339,7 @@ const CreateExam = () => {
                             <option value="true_false">Verdadero/Falso</option>
                             <option value="essay">Desarrollo</option>
                             <option value="mixed">Mixto</option>
-                        </select>
+                        </Select>
                         </div>
 
                         {/* Dificultad */}
@@ -352,7 +347,7 @@ const CreateExam = () => {
                         <InputLabel className="block text-sm font-medium text-[var(--primary)] mb-2">
                             Dificultad
                         </InputLabel>
-                        <select
+                        <Select
                             value={examData.difficulty}
                             onChange={(e) => handleExamChange('difficulty', e.target.value)}
                             className="w-full px-3 py-2 border border-[var(--secondary)] rounded-md focus:ring-2 focus:ring-[var(--secondary)] focus:border-transparent"
@@ -360,7 +355,7 @@ const CreateExam = () => {
                             <option value="basic">Básico</option>
                             <option value="intermediate">Intermedio</option>
                             <option value="advanced">Avanzado</option>
-                        </select>
+                        </Select>
                         </div>
 
                         {/* Puntuación mínima */}
@@ -531,7 +526,7 @@ const CreateExam = () => {
                         <InputLabel className="block text-sm font-medium text-[var(--primary)] mb-2">
                             Tipo de Pregunta
                         </InputLabel>
-                        <select
+                        <Select
                             value={currentQuestion.question_type}
                             onChange={(e) => handleQuestionTypeChange(e.target.value)}
                             className="w-full px-3 py-2 border border-[var(--secondary)] rounded-md focus:ring-2 focus:ring-[var(--secondary)] focus:border-transparent"
@@ -539,7 +534,7 @@ const CreateExam = () => {
                             <option value="multiple_choice">Opción Múltiple</option>
                             <option value="true_false">Verdadero/Falso</option>
                             <option value="essay">Desarrollo</option>
-                        </select>
+                        </Select>
                         </div>
 
                         {/* Pregunta */}

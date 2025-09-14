@@ -16,9 +16,11 @@ import Modal from '@/CustomComponents/modal/Modal';
 import PrimaryButton from '@/CustomComponents/button/PrimaryButton';
 import SecondaryButton from '@/CustomComponents/button/SecondaryButton';
 import Textarea from '@/CustomComponents/form/Textarea';
+import Select from '@/CustomComponents/form/Select';
 
 export default function Dashboard() {
 
+    const company = usePage().props.company;
     const alertsProp = usePage().props.alerts;
     const isAdmin = usePage().props.user['mode_admin'] ? true : false;
 
@@ -96,13 +98,8 @@ export default function Dashboard() {
 
     return (
         <AuthenticatedLayout
-            header={
-                <h2 className="text-xl font-semibold leading-tight text-[var(--primary)]">
-                    Dashboard
-                </h2>
-            }
+            title="Dashboard"
         >
-            <Head title="Dashboard" />
 
             <div className="py-1 w-full">
                 
@@ -275,7 +272,7 @@ export default function Dashboard() {
                                     <XAxis dataKey="name" />
                                     <YAxis />
                                     <Tooltip />
-                                    <Line type="monotone" dataKey="aciertos" stroke="MediumAquaMarine" strokeWidth={3} />
+                                    <Line type="monotone" dataKey="aciertos" stroke={company.primary_color} strokeWidth={3} />
                                 </LineChart>
                             </ResponsiveContainer>
                         </CardContent>
@@ -293,7 +290,7 @@ export default function Dashboard() {
                             <XAxis dataKey="name" />
                             <YAxis />
                             <Tooltip />
-                            <Bar dataKey="intentos" fill="MediumAquaMarine" radius={[6, 6, 0, 0]} />
+                            <Bar dataKey="intentos" fill={company.primary_color} radius={[6, 6, 0, 0]} />
                             </BarChart>
                         </ResponsiveContainer>
                         </CardContent>
@@ -338,7 +335,7 @@ export default function Dashboard() {
                         </div>
                         <div>
                             <label className="block text-sm font-medium">Tipo</label>
-                            <select
+                            <Select
                                 name="type"
                                 value={data.type}
                                 onChange={(e) => setData('type', e.target.value)}
@@ -348,7 +345,7 @@ export default function Dashboard() {
                                 <option value="info">Información (Blanco)</option>
                                 <option value="precaution">Precaución (Amarillo)</option>
                                 <option value="danger">Peligro (Rojo)</option>
-                            </select>
+                            </Select>
                         </div>
 
                         <div className="flex gap-2 mt-4 justify-between">

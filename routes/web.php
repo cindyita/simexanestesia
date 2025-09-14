@@ -27,11 +27,11 @@ const idMenu = [
     'settings' => 14
 ];
 
-// RUTAS --------------------------
+// ROUTES --------------------------
 Route::get('/', [DashboardController::class,'get'])->middleware(['auth', 'verified'])->name('dashboard');
 
 //---------------------------------
-// IDIOMA -------------------------
+// LANGUAGE -------------------------
 Route::get('lang/{locale}', function ($locale) {
     if (in_array($locale, ['en', 'es'])) {
         Session::put('locale', $locale);
@@ -73,14 +73,16 @@ Route::middleware('auth')->group(function () {
     // POST IN PAGES
     Route::post('/registerkeys', [AccountController::class, 'getRegisterKeys'])->middleware(['menu.permission:'.idMenu['registerkeys']])->name('registerkeys');
 
+    Route::post('/appsettings', [SettingsController::class, 'getAppSettings'])->middleware(['menu.permission:'.idMenu['settings']])->name('appsettings');
+
     Route::post('/getRolPermission', [RolesController::class, 'getRolPermission'])->middleware(['menu.permission:'.idMenu['roles']])->name('getRolPermission');
 
     Route::post('/roles', [RolesController::class, 'getRoles'])->middleware(['menu.permission:'.idMenu['roles']])->name('roles');
 
-    //dashboard ----------------------
+    // DASHBOARD ----------------------
     Route::post('/alert', [DashboardController::class, 'alertUpdate'])->name('alert.update');
 
-    // Emails------------------------------
+    // EMAILS------------------------------
     Route::post('/registerkeys/send', [EmailsController::class, 'sendRegisterKeys'])->middleware(['menu.permission:'.idMenu['registerkeys']])->name('registerkeys.send');
 });
 

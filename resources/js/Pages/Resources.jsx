@@ -21,13 +21,8 @@ export default function Resources() {
 
     return (
         <AuthenticatedLayout
-            header={
-                <h2 className="text-xl font-semibold leading-tight text-[var(--primary)]">
-                    Recursos
-                </h2>
-            }
+            title="Recursos"
         >
-            <Head title="Recursos" />
 
             <div>
                 <FileManager

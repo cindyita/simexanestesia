@@ -84,13 +84,8 @@ export default function Roles() {
 
     return (
         <AuthenticatedLayout
-            header={
-                <h2 className="text-xl font-semibold leading-tight text-[var(--primary)]">
-                    Roles
-                </h2>
-            }
+            title="Roles"
         >
-            <Head title="Roles" />
 
             <div className="roles">
                 <div>

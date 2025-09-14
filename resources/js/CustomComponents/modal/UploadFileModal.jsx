@@ -1,6 +1,7 @@
 import { useState, useRef } from "react";
 import Modal from "@/CustomComponents/modal/Modal";
 import { FaUpload, FaTimes } from "react-icons/fa";
+import Select from '@/CustomComponents/form/Select';
 
 export default function UploadFileModal({ show, onClose, subjects, onUpload }) {
   const [selectedFile, setSelectedFile] = useState(null);
@@ -77,7 +78,7 @@ export default function UploadFileModal({ show, onClose, subjects, onUpload }) {
           {/* Selector de materia */}
           <div className="mb-4">
             <label className="block text-sm font-medium text-[var(--primary)] mb-1">Materia asociada</label>
-            <select
+            <Select
               className="w-full border border-[var(--secondary)] rounded-md px-3 py-2 focus:ring-2 focus:ring-[var(--secondary)] focus:border-transparent"
               value={selectedSubject}
               onChange={(e) => setSelectedSubject(e.target.value)}
@@ -86,7 +87,7 @@ export default function UploadFileModal({ show, onClose, subjects, onUpload }) {
               {subjects.map((subj) => (
                 <option key={subj.code} value={subj.name}>{subj.name}</option>
               ))}
-            </select>
+            </Select>
           </div>
 
           {/* Drag & Drop + File input */}

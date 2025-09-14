@@ -23,6 +23,7 @@ class Company extends Model
         'logo',
         'icon',
         'url',
+        'use_uniquekeys',
         'register_key',
         'id_rol_register',
         'created_at',
