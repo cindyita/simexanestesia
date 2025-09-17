@@ -2,7 +2,7 @@ import { usePage } from '@inertiajs/react';
 import AppFavicon from './AppFavicon';
 
 export default function AppLogo(props) {
-    const iconurl = usePage().props.company.icon;
+    const iconurl = usePage().props.company.icon ?? 'img/default/icon.png';
 
     return (
         <>

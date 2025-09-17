@@ -69,6 +69,14 @@ Route::middleware('auth')->group(function () {
 
     // GET IN PAGES
     Route::get('/getLog', [AccountController::class, 'getLog'])->middleware(['menu.permission:'.idMenu['logs']])->name('getLog');
+
+    Route::get('/getRol', [RolesController::class, 'getRol'])->middleware(['menu.permission:'.idMenu['roles']])->name('getRol');
+
+    Route::get('/getRegisterkey', [AccountController::class, 'getRegisterkey'])->middleware(['menu.permission:'.idMenu['registerkeys']])->name('getregisterkey');
+
+    Route::get('/getUser', [UsersController::class, 'getUser'])->middleware(['menu.permission:'.idMenu['users']])->name('getuser');
+
+    Route::get('/getHistory', [ExamsController::class, 'getHistoryOne'])->middleware(['menu.permission:'.idMenu['history']])->name('gethistoryone');
     
     // POST IN PAGES
     Route::post('/registerkeys', [AccountController::class, 'getRegisterKeys'])->middleware(['menu.permission:'.idMenu['registerkeys']])->name('registerkeys');
@@ -78,6 +86,14 @@ Route::middleware('auth')->group(function () {
     Route::post('/getRolPermission', [RolesController::class, 'getRolPermission'])->middleware(['menu.permission:'.idMenu['roles']])->name('getRolPermission');
 
     Route::post('/roles', [RolesController::class, 'getRoles'])->middleware(['menu.permission:'.idMenu['roles']])->name('roles');
+
+    Route::post('/users', [UsersController::class, 'getUsers'])->middleware(['menu.permission:'.idMenu['users']])->name('users');
+
+    Route::post('/history', [ExamsController::class, 'getHistory'])->middleware(['menu.permission:'.idMenu['history']])->name('history');
+
+    // Route::post('/roles/update', [RolesController::class, 'updateRol'])->middleware(['menu.permission:'.idMenu['roles']])->name('updateroles');
+
+    Route::post('/logs', [AccountController::class, 'getLogs'])->middleware(['menu.permission:'.idMenu['logs']])->name('logs');
 
     // DASHBOARD ----------------------
     Route::post('/alert', [DashboardController::class, 'alertUpdate'])->name('alert.update');

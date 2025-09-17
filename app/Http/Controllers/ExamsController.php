@@ -67,6 +67,15 @@ class ExamsController extends Controller
 
     public function getHistory(Request $request): Response {
         $perPage = $request->input('per_page', 15);
+
+        // ROW DELETE --------------------------------------
+        $id_delete = $request->input('id_delete');
+
+        if($id_delete){
+            $delete = History::where('id', $id_delete)->delete();
+        }
+        //--------------------------------------------------
+
         $isAdmin = session('user')['mode_admin'] ? true : false;
         $idUser = session('user')['id'];
         $history = History::select(
@@ -83,7 +92,7 @@ class ExamsController extends Controller
             ->paginate($perPage)
             ->through(function($item) {
                 $data = $item->toArray();
-                $data['score'] = $item->score.'%';
+                $data['score'] = number_format($item->score,0).'%';
                 $data['time_used'] = $item->time_used.'min';
                 return $data;
             });
@@ -92,6 +101,29 @@ class ExamsController extends Controller
             'data' => $history
         ]);
     }
+
+    public function getHistoryOne(Request $request) {
+        $id = $request->query('id');
+
+        $history = History::select(
+                'reg_history.*',
+                'reg_exams.name as exam_name',
+                'sys_users.name as student_name',
+            )
+            ->join('reg_exams', 'reg_history.id_exam', '=', 'reg_exams.id')
+            ->join('sys_users', 'reg_history.id_user', '=', 'sys_users.id')
+            ->where("reg_history.id", $id)
+            ->orderBy('reg_history.id', 'desc')
+            ->first();
+
+        $data = $history->toArray();
+        $data['passed'] = $history->passed == 0 ? "No" : "Si";
+        $data['score'] = $history->score."%";
+        $data['time_used'] = $history->time_used."min";
+
+        return response()->json([$data]);
+    }
+
 
 }
 

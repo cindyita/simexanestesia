@@ -84,6 +84,14 @@ class AccountController extends Controller
     public function getLogs(Request $request) {
         $isAdmin = session('user')['mode_admin'] ? true : false;
         $idUser = session('user')['id'];
+
+        // ROW DELETE --------------------------------------
+        $id_delete = $request->input('id_delete');
+
+        if($id_delete){
+            Activity::where('id', $id_delete)->delete();
+        }
+
         $perPage = $request->input('per_page', 15);
         $logs = Activity::select('activity_log.*','sys_users.name')
         ->leftJoin('sys_users', 'sys_users.id', '=', 'activity_log.causer_id')
@@ -120,6 +128,7 @@ class AccountController extends Controller
 
         $idCompany = session('user')['id_company'];
 
+        //-----------------------------------------------------
         $import = $request->input('imported',null);
         $id_rol = $request->input('id_rol',null);
         $email = $request->input('email',null);
@@ -150,11 +159,11 @@ class AccountController extends Controller
                     ->event($request->user()->id_company)
                     ->log('Se crearon claves de registro por importación');
             }
-        }else if($type == 'unique' && $email){
+        }else if($type == 'unique'){
             $lastId++;
             $import = [[]];
             $clave = UniqueKey::getUniqueKey($email, $lastId);
-            $import[0]['email'] = $email;
+            $import[0]['email'] = $email ?? null;
             $import[0]['note'] = $note ?? null;
             $import[0]['clave'] = $clave ?? null;
             $registerKeyCreate = RegisterKeys::create([
@@ -166,13 +175,20 @@ class AccountController extends Controller
                 'created_by' => session('user')['id'],
                 'created_at' => now(),
             ]);
-            if ($registerKeyCreate > 0) {
+            if ($registerKeyCreate && $registerKeyCreate->id) {
                 activity('create registerKey')
                     ->causedBy($request->user())
                     ->event($request->user()->id_company)
                     ->log('Se creó una clave de registro');
             }
         }
+        // ROW DELETE ---------------------------------------------------
+        $id_delete = $request->input('id_delete');
+
+        if($id_delete){
+            $delete = RegisterKeys::where('id', $id_delete)->delete();
+        }
+        //---------------------------------------------------------------
 
         $roles = Roles::where('id_company', $idCompany)->orderBy('id', 'desc')->get();
 
@@ -209,6 +225,33 @@ class AccountController extends Controller
             'type' => $type ?? 0,
             'show' => $show
         ]);
+    }
+
+    public function getRegisterkey(Request $request) {
+        $id = $request->query('id');
+
+        $query = DB::table('reg_registerkeys as k')
+        ->leftJoin('sys_roles as r', 'r.id', '=', 'k.id_rol')
+        ->leftJoin('sys_users as u', 'u.id', '=', 'k.used_by')
+        ->leftJoin('sys_users as ua', 'ua.id', '=', 'k.created_by')
+        ->select(
+            'k.id',
+            'k.key',
+            'k.note',
+            'k.email',
+            'k.id_company',
+            'k.id_rol',
+            'k.created_by',
+            'ua.name as created_by_name',
+            'k.created_at',
+            'k.used_by as used_by_id',
+            'u.name as used_by_name',
+            'k.used_at',
+            'r.name as rol'
+        )
+        ->where('k.id', $id)->get();
+
+        return response()->json($query);
     }
 
     public static function closeAllRolSession($idRol) {

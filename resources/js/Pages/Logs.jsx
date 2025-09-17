@@ -3,6 +3,7 @@ import axios from 'axios';
 import { router, Head, usePage } from "@inertiajs/react";
 import { useState } from 'react';
 import TableComp from '@/CustomComponents/table/TableComp';
+import { useFetchDetails } from '@/hooks/useFetchDetails';
 
 export default function Logs() {
     if (!usePage().props.menu[12]) return;
@@ -19,8 +20,18 @@ export default function Logs() {
         router.get('logs', { page }, {});
     };
 
-    const handleActionView = async (id) => {
+    const handleDelete = (id) => {
+        router.visit('/logs', {
+            method: 'post',
+            data: {
+                id_delete: id
+            },
+        });
+    }
 
+    const { fetchDetails, loading, error } = useFetchDetails();
+    
+    const handleDetails = async (id) => {
         const headerMap = {
             id: "id",
             log_name: "Tipo de log",
@@ -32,25 +43,8 @@ export default function Logs() {
             properties: "Detalles"
         };
 
-        try {
-            const response = await axios.get('/getLog', {
-                params: { id: id }
-            });
-            const formattedData = response.data.map(item => {
-                let newItem = {};
-                for (const key in headerMap) {
-                    if (item.hasOwnProperty(key)) {
-                        newItem[headerMap[key]] = item[key];
-                    }
-                }
-                return newItem;
-            });
-
-            return formattedData;
-        } catch (error) {
-            console.error("Error:", error);
-        }
-    }
+        return await fetchDetails("/getLog", { id }, headerMap);
+    };
 
     const columns = {
         'id': 'id',
@@ -82,7 +76,9 @@ export default function Logs() {
                                 totalPages={data.last_page}
                                 onPageChange={handlePageChange}
                                 pageLevel={pageLevel}
-                                handleActionDetails={handleActionView}
+                                handleActionDetails={handleDetails}
+                                handleActionDelete={handleDelete}
+                                handleActionUpdate={null}
                             />
                         </div>
                     </div>
