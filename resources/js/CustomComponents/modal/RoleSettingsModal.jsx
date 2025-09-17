@@ -1,6 +1,7 @@
 import Modal from "@/CustomComponents/modal/Modal";
 import PrimaryButton from "../button/PrimaryButton";
 import { FaTimes } from "react-icons/fa";
+import Select from "@/CustomComponents/form/Select";
 
 export default function RoleSettingsModal({ show, onClose, data = [], onSave }) {
 

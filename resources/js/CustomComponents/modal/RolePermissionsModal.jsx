@@ -29,6 +29,7 @@ export default function RolePermissionsModal({ show, onClose, idRol, roleName, d
   };
 
   const handleSave = () => {
+    if(idRol === 1) return;
     onSave && onSave(permissions,idRol);
     onClose();
   };
@@ -73,7 +74,7 @@ export default function RolePermissionsModal({ show, onClose, idRol, roleName, d
                     <Select
                       value={screen.level ?? 0}
                       onChange={(e) => handleLevelChange(screen.id, parseInt(e.target.value))}
-                      className="border border-[var(--secondary)] focus:border-[var(--secondary)] rounded-md px-2 py-1 pr-7 sm:pr-8 text-sm"
+                      className="border border-[var(--secondary)] focus:border-[var(--secondary)] rounded-md px-2 py-1 pr-7 sm:pr-8 text-sm" disabled={idRol === 1}
                     >
                       <option value={0}>Sin permiso</option>
                       <option value={1}>Nivel 1 (Visualización)</option>

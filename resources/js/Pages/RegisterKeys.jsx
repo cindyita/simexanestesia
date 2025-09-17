@@ -13,6 +13,8 @@ import DownloadCsvExample from '@/Functions/DownloadCsvExample';
 import { copyToClipboard } from '@/Functions/CopyToClipboard';
 import Textarea from '@/CustomComponents/form/Textarea';
 import Select from '@/CustomComponents/form/Select';
+import { useFetchDetails } from '@/hooks/useFetchDetails';
+import { toast } from 'sonner';
 
 export default function RegisterKeys() {
     const [modalKeysOpen, setModalKeysOpen] = useState(false);
@@ -128,6 +130,7 @@ export default function RegisterKeys() {
             .join("\n");
 
         copyToClipboard(texto);
+        setTimeout(() => { toast.success("Copiado al portapapeles"); }, 150);
     };
 
     const handleChangeShowKeys = (value) => {
@@ -147,6 +150,41 @@ export default function RegisterKeys() {
     if (show && show === 'all') {
         columns.used_by = 'Usado por';
     }
+
+    //--------------------------------------
+    const handleDelete = async (id) => {
+        return new Promise((resolve, reject) => {
+            router.visit('/registerkeys', {
+                method: 'post',
+                data: {
+                    id_delete: id
+                },
+                onSuccess: () => resolve(id),
+                onError: (errors) => reject(errors),
+            });
+        });
+    }
+
+    const { fetchDetails } = useFetchDetails();
+    const handleDetails = async (id, useHeaders = true) => {
+        if (useHeaders) {
+            const headerMap = {
+                id: "id",
+                key: "Clave",
+                note: "Notas",
+                email: "Email",
+                role: "Rol asignado",
+                created_by_name: "Creado por",
+                created_at: "Fecha de creación",
+                updated_at: "Última actualización",
+                used_by_name: "Usado por",
+                used_at: "Fecha de uso"
+            };
+            return await fetchDetails("/getRegisterkey", { id }, headerMap);
+        } else {
+            return await fetchDetails("/getRegisterKey", { id });
+        }
+    };
     
     return (
         <AuthenticatedLayout title="Claves de registro">
@@ -209,6 +247,8 @@ export default function RegisterKeys() {
                                 totalPages={keys.last_page}
                                 onPageChange={handlePageChange}
                                 pageLevel={pageLevel}
+                                handleActionDelete={handleDelete}
+                                handleActionDetails={handleDetails}
                             />
                         </div>
                     </div>
@@ -317,12 +357,14 @@ export default function RegisterKeys() {
                                 </div>
 
                                 <div className="flex gap-2 mt-4 justify-between">
-                                    <PrimaryButton
-                                        type="button"
-                                        onClick={handleSendEmails} 
-                                    >
-                                        Enviar por correo
-                                    </PrimaryButton>
+                                    <span>{dataImported.length > 0 && dataImported.some(row => row.email) && (
+                                        <PrimaryButton
+                                            type="button"
+                                            onClick={handleSendEmails} 
+                                        >
+                                            Enviar por correo
+                                        </PrimaryButton>
+                                    )}</span>
                                     <PrimaryButton onClick={handleCopy}>
                                         Copiar al portapapeles
                                     </PrimaryButton>

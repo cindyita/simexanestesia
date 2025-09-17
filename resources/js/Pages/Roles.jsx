@@ -8,9 +8,13 @@ import PrimaryButton from '@/CustomComponents/button/PrimaryButton';
 import RolePermissionsModal from '@/CustomComponents/modal/RolePermissionsModal';
 import RoleSettingsModal from '@/CustomComponents/modal/RoleSettingsModal';
 
-import { FaKey } from "react-icons/fa";
-import { FaGear } from "react-icons/fa6";
-import IconButton from '@/CustomComponents/button/IconButton';
+import { FaKey, FaTimes } from "react-icons/fa";
+
+import { useFetchDetails } from "@/hooks/useFetchDetails";
+import { useFormValidation } from '@/hooks/useFormValidation';
+
+import FormModal from '@/CustomComponents/modal/FormModal';
+import { toast } from 'sonner';
 
 export default function Roles() {
     if (!usePage().props.menu[8]) return;
@@ -24,12 +28,14 @@ export default function Roles() {
     const [permissions, setPermissions] = useState([]);
     const [idRol, setIdRol] = useState([]);
     const [roleName, setRoleName] = useState([]);
+    const [modalNewOpen, setModalNewOpen] = useState(false);
 
-    const roles = data.data.map(role => ({
-        ...role,
-        mode_admin: role.mode_admin === 1 ? 'Sí' : 'No'
-    }));
-
+    const [roles, setRoles] = useState(
+        data.data.map(role => ({
+            ...role,
+            mode_admin: role.mode_admin === 1 ? 'Sí' : 'No'
+        }))
+    );
 
     const handlePageChange = (page) => {
         setCurrentPage(page);
@@ -73,14 +79,90 @@ export default function Roles() {
         });
     }
 
-    const handleDelete = (id) => {
-        router.visit('/roles', {
-            method: 'post',
-            data: {
-                id_delete: id
-            },
+    // HANDLE ACTIONS ----------------------------
+    const handleDelete = async (id) => {
+        if (id == 1) {
+            return Promise.reject(["El superadmin no se puede eliminar"]);
+        }
+
+        return new Promise((resolve, reject) => {
+            router.visit('/roles', {
+                method: 'post',
+                data: {
+                    id_delete: id
+                },
+                onSuccess: () => resolve(id),
+                onError: (errors) => reject(errors),
+            });
         });
     }
+
+    const { fetchDetails } = useFetchDetails();
+
+    const handleDetails = async (id, useHeaders = true) => {
+        if (useHeaders) {
+            const headerMap = {
+                id: "id",
+                name: "Nombre",
+                mode_admin: "Modo administrador",
+                created_at: "Fecha de creación",
+                updated_at: "Última actualización"
+            };
+            return await fetchDetails("/getRol", { id }, headerMap);
+        } else {
+            return await fetchDetails("/getRol", { id });
+        }
+    };
+
+    const handleActionFields = {
+        id: { label: "id", type: "number", editable: false,show: false },
+        name: { label: "Nombre", type: "text", editable: true, show: true , required: true},
+        mode_admin: { label: "Modo administrador", type: "select", options: ["Si", "No"], editable: true, show: true, required: true }
+    };
+    const { validateForm } = useFormValidation(handleActionFields);
+
+    const handleUpdate = async (form) => {
+
+        const errors = validateForm(form);
+
+        if (form.id === 1) {
+            return Promise.reject(["El superadmin no se puede modificar"]);
+        }
+
+        if (Object.keys(errors).length > 0) {
+            console.error(errors);
+            return Promise.reject(errors);
+        }
+
+        return new Promise((resolve, reject) => {
+            router.visit('/roles', {
+                method: 'post',
+                data: { update: form },
+                onSuccess: () => resolve(form),
+                onError: (errors) => reject(errors),
+            });
+        });
+
+    };
+
+    const handleCreate = async (form) => {
+
+        const errors = validateForm(form);
+
+        if (Object.keys(errors).length > 0) {
+            console.error(errors);
+            return Promise.reject(errors);
+        }
+
+        return new Promise((resolve, reject) => {
+            router.visit('/roles', {
+                method: 'post',
+                data: { create: form },
+                onSuccess: () => resolve(form),
+                onError: (errors) => reject(errors),
+            });
+        });
+    };
 
     return (
         <AuthenticatedLayout
@@ -97,8 +179,7 @@ export default function Roles() {
                                 </h3>
                             </div>
                             <div className="flex items-center gap-2">
-                                {/* <IconButton onClick={() => setModalSettingsOpen(true)}><FaGear className="w-4 h-4 mx-1" /></IconButton> */}
-                                <PrimaryButton>Nuevo rol</PrimaryButton>
+                                <PrimaryButton onClick={() => setModalNewOpen(true)}>Nuevo rol</PrimaryButton>
                             </div>
                         </div>
                         <div className="px-3 md:px-6 pb-6 text-[var(--primary)]">
@@ -114,12 +195,16 @@ export default function Roles() {
                                 onPageChange={handlePageChange}
                                 pageLevel={pageLevel}
                                 handleActionDelete={handleDelete}
+                                handleActionDetails={handleDetails}
+                                handleActionUpdate={handleUpdate}
+                                handleActionUpdateFields={handleActionFields}
                             ></TableComp>
                         </div>
                     </div>
                 </div>
             </div>
 
+            {/* MODAL */}
             <RolePermissionsModal
                 show={modalKeyOpen}
                 onClose={() => setModalKeyOpen(false)}
@@ -129,6 +214,18 @@ export default function Roles() {
                 onSave={handleSavePermissions}
             />
             <RoleSettingsModal show={modalSettingsOpen} onClose={() => setModalSettingsOpen(false)} />
+
+            {/* NEW ROW MODAL */}
+            <FormModal
+                open={modalNewOpen}
+                setOpen={setModalNewOpen}
+                title="Nuevo rol"
+                btn="Crear rol"
+                fields={handleActionFields}
+                initialData={{}}
+                onSubmit={handleCreate}
+                success="Se ha creado el rol"
+            />
 
         </AuthenticatedLayout>
     );

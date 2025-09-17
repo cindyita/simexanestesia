@@ -1,4 +1,4 @@
-import { useState, useRef, useMemo } from 'react';
+import { useState, useRef, useMemo, Fragment } from 'react';
 
 import { CompactTable } from "@table-library/react-table-library/compact";
 
@@ -21,9 +21,15 @@ import { FormatDate } from '@/Functions/FormatDate';
 import Modal from '@/CustomComponents/modal/Modal';
 import Checkbox from '@/CustomComponents/form/Checkbox';
 import ConfirmDeleteModal from '../modal/ConfirmDeleteModal';
+import Textarea from '../form/Textarea';
+import PrimaryButton from '../button/PrimaryButton';
+import Select from '../form/Select';
+
+import { toast } from 'sonner'
+import FormModal from '../modal/FormModal';
 
 // Children = custom settings
-function TableComp({ children,id_table, table_name, columns, columnsHidden = [], dataRaw, downloadBtns, actionBtns, settingsBtns = true, useFormatDate = true, showTime = false, customActions=[], currentPage=1,totalPages=1, onPageChange={}, pageLevel=1, handleActionDelete = {}, handleActionDetails = {}, handleActionUpdate = {} }) {
+function TableComp({ children,id_table, table_name, columns, columnsHidden = [], dataRaw, downloadBtns, actionBtns, settingsBtns = true, useFormatDate = true, showTime = false, customActions=[], currentPage=1,totalPages=1, onPageChange={}, pageLevel=1, handleActionDelete = null, handleActionDetails = null, handleActionUpdate = null, handleActionUpdateFields = null }) {
 
     //--------------------------------------------
     //--------------------------------------------
@@ -62,15 +68,22 @@ function TableComp({ children,id_table, table_name, columns, columnsHidden = [],
 
     const [modalSettingsOpen, setModalSettingsOpen] = useState(false);
 
+
     const allKeys = Object.keys(data.nodes[0] || {});
     const [visibleColumns, setVisibleColumns] = useState(() => {
         return allKeys.filter((col) => !columnsHidden.includes(col));
     });
 
-    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [modalDeleteOpen, setModalDeleteOpen] = useState(false);
     const [deleteId, setDeleteId] = useState(0);
+
     const [modalDetailsOpen, setModalDetailsOpen] = useState(false);
     const [viewDetails, setViewDetails] = useState([]);
+
+    const [modalEditOpen, setModalEditOpen] = useState(false);
+    const [viewDetailsEdit, setViewDetailsEdit] = useState([]);
+
+    const [formEdit, setFormEdit] = useState({});
 
     //--------------------------------------------
     // HANDLES
@@ -85,32 +98,55 @@ function TableComp({ children,id_table, table_name, columns, columnsHidden = [],
     };
 
     const actionHandlers = {
-        onView: async (item) => {
-            const details = await handleActionDetails(item.id);
-            const formattedDetails = details.map(row => {
-                const newRow = {};
-                for (const [key, value] of Object.entries(row)) {
-                    if (typeof value === "string" && value.match(/^\d{4}-\d{2}-\d{2}(T|\s)/)) {
-                        newRow[key] = FormatDate(value, true);
-                    } else if (typeof value === "object" && value !== null) {
-                        newRow[key] = JSON.stringify(value, null, 2);
-                    } else {
-                        newRow[key] = value;
+        onView: handleActionDetails
+            ? async (item) => {
+                const details = await handleActionDetails(item.id);
+                const formattedDetails = details.map(row => {
+                    const newRow = {};
+                    for (const [key, value] of Object.entries(row)) {
+                        if (typeof value === "string" && value.match(/^\d{4}-\d{2}-\d{2}(T|\s)/)) {
+                            newRow[key] = FormatDate(value, true);
+                        } else if (typeof value === "object" && value !== null) {
+                            newRow[key] = JSON.stringify(value, null, 2);
+                        } else {
+                            newRow[key] = value;
+                        }
                     }
-                }
-                return newRow;
-            });
-                        setViewDetails(formattedDetails);
-            setModalDetailsOpen(true);
-        },
-        onEdit: (item) => {
-            console.log('Editando:', item);
-        },
-        onDelete: (item) => {
-            setDeleteId(item.id);
-            setShowDeleteModal(true);
-        }
+                    return newRow;
+                });
+                setViewDetails(formattedDetails);
+                setModalDetailsOpen(true);
+            }
+            : null,
+
+        onEdit: handleActionUpdate
+            ? async (item) => {
+                const details = await handleActionDetails(item.id, false);
+                const row = details[0];
+
+                const editableDetails = Object.entries(handleActionUpdateFields).reduce(
+                    (acc, [key, field]) => {
+                        acc[key] = row[key] ?? "";
+                        return acc;
+                    },
+                    {}
+                );
+
+                setViewDetailsEdit(editableDetails);
+                setFormEdit(editableDetails);
+                setModalEditOpen(true);
+            }
+            : null,
+
+        onDelete: handleActionDelete
+            ? async (item) => {
+                setDeleteId(item.id);
+                setModalDeleteOpen(true);
+            }
+            : null,
+
     };
+
 
     //--------------------------------------------
     // MAP COLUMNS AND SORT
@@ -457,6 +493,7 @@ function TableComp({ children,id_table, table_name, columns, columnsHidden = [],
             </div>
 
             { /* MODALS */}
+            {/* SETTINGS TABLE MODAL */}
             <Modal show={modalSettingsOpen} onClose={() => setModalSettingsOpen(false)}>
                 {columns &&
                     <>
@@ -512,18 +549,18 @@ function TableComp({ children,id_table, table_name, columns, columnsHidden = [],
                         {viewDetails.length > 0 && (
                             <div className="overflow-x-auto">
                                 <table className="table-auto border-collapse border border-[var(--secondary)] w-full">
-                                <tbody>
-                                    {Object.entries(viewDetails[0]).map(([key, value], i) => (
-                                    <tr key={i}>
-                                        <th className="border border-[var(--secondary)] px-2 py-1 bg-[var(--font)] text-[var(--primary)] text-left w-1/3">
-                                        {key}
-                                        </th>
-                                        <td className="border border-[var(--secondary)] px-2 py-1">
-                                        {String(value)}
-                                        </td>
-                                    </tr>
-                                    ))}
-                                </tbody>
+                                    <tbody>
+                                        {Object.entries(viewDetails[0]).map(([key, value], i) => (
+                                        <tr key={i}>
+                                            <th className="border border-[var(--secondary)] px-2 py-1 bg-[var(--font)] text-[var(--primary)] text-left w-1/3">
+                                            {key}
+                                            </th>
+                                            <td className="border border-[var(--secondary)] px-2 py-1">
+                                            {value === null || value === undefined ? "" : String(value)}
+                                            </td>
+                                        </tr>
+                                        ))}
+                                    </tbody>
                                 </table>
                             </div>
                         )}
@@ -533,13 +570,43 @@ function TableComp({ children,id_table, table_name, columns, columnsHidden = [],
 
             </Modal>
 
+            {/* EDIT MODAL */}
+            <FormModal
+                open={modalEditOpen}
+                setOpen={setModalEditOpen}
+                title="Editar registro"
+                fields={handleActionUpdateFields}
+                initialData={viewDetailsEdit || {}}
+                onSubmit={async (form) => {
+                    await handleActionUpdate(form);
+                    setModalEditOpen(false);
+                }}
+            />
+
             {/* DELETE MODAL */}
             <ConfirmDeleteModal
-                show={showDeleteModal}
-                onClose={() => setShowDeleteModal(false)}
-                onConfirm={handleActionDelete}
+                show={modalDeleteOpen}
+                onClose={() => setModalDeleteOpen(false)}
+                onConfirm={async (form) => {
+                    try {
+                        await handleActionDelete(form);
+                        setModalDeleteOpen(false);
+                        setTimeout(() => {
+                            toast.success("Se ha eliminado el registro");
+                        }, 150);
+                    } catch (err) {
+                        if (err && typeof err === "object") {
+                            setTimeout(() => { Object.values(err).forEach(msg => {
+                                toast.error(msg);
+                            }); }, 150);
+                        } else {
+                            setTimeout(() => { toast.error(err?.message || "Ocurrió un error"); }, 150);
+                        }
+                    }
+                }}
                 id={deleteId}
             />
+
             {/*-----------------------*/}
     
         </div>

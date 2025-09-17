@@ -22,7 +22,7 @@ export default function ConfirmDeleteModal({ show, onClose, onConfirm, id }) {
                     </h3>
                 </div>
                 <p className="mt-2 text-sm text-gray-600">
-                    Esta acción no se puede deshacer. Si hay elementos ligados, no se podrá eliminar.
+                    Esta acción no se puede deshacer. Se borrarán también todos los elementos ligados (Por ejemplo si borras un rol se borraran las claves relacionadas con ese rol).
                 </p>
 
                 <div className="mt-6 flex justify-center gap-4">

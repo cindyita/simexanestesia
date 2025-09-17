@@ -10,6 +10,7 @@ import { FaKey } from "react-icons/fa";
 export default function Register() {
 
     const key = usePage().props.key;
+    const defaultUrlKey = key ? true : false;
     const email = usePage().props.email;
 
     const { data, setData, post, processing, errors, reset } = useForm({
@@ -17,7 +18,8 @@ export default function Register() {
         email: (email ?? ''),
         password: '',
         password_confirmation: '',
-        register_key: (key ?? '')
+        register_key: (key ?? ''),
+        default_key: defaultUrlKey
     });
 
     const submit = (e) => {

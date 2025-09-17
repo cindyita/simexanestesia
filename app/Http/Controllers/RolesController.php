@@ -8,6 +8,7 @@ use App\Models\Permissions;
 use App\Models\Roles;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 use App\Models\ViewRolesPermissions;
 use App\Services\MenuService;
 use Inertia\Inertia;
@@ -17,10 +18,12 @@ class RolesController extends Controller
 {
 
     public function getRoles(Request $request): Response {
+        $idCompany = session('user')['id_company'];
+
         $permissions = $request->input('permissions');
         $idRol = $request->input('id_rol');
 
-        if ($permissions && $idRol) {
+        if ($permissions && $idRol && $idRol != 1) {
             $changed = false;
             $delete = 0;
             foreach ($permissions as $value) {
@@ -60,6 +63,32 @@ class RolesController extends Controller
             
         }
 
+        // ROW CREATE --------------------------------------
+        $create = $request->input('create');
+
+        if ($create) {
+
+            // $validator = Validator::make($create, [
+            //     'name' => 'required|string|max:255',
+            //     'mode_admin' => 'required|in:Si,No',
+            // ]);
+
+            $create['mode_admin'] = $create['mode_admin'] === 'Si' ? 1 : 0;
+            $create['id_company'] = $idCompany;
+            array_unshift($create, 'id');
+            $role = Roles::create($create);
+        }
+
+        // ROW UPDATE --------------------------------------
+        $update = $request->input('update');
+
+        if($update){
+             $role = Roles::find($update['id']);
+             $role->name = $update['name'];
+             $role->mode_admin = $update['mode_admin'] === "Si" ? 1 : 0;
+             $role->save();
+        }
+
         // ROW DELETE --------------------------------------
         $id_delete = $request->input('id_delete');
 
@@ -70,7 +99,7 @@ class RolesController extends Controller
         //--------------------------------------------------------
         $perPage = $request->input('per_page', 15);
         
-        $roles = ViewRolesPermissions::where('id_company',session('user')['id_company'])
+        $roles = ViewRolesPermissions::where('id_company',$idCompany)
         ->orderBy('id_rol', 'desc')
         ->paginate($perPage);
 
@@ -78,6 +107,18 @@ class RolesController extends Controller
             'data' => $roles
         ]);
     }
+
+    // public function updateRol(Request $request) {
+    //     $update = $request->input('update');
+
+    //     if($update){
+    //          $role = Roles::find($update['id']);
+    //          $role->name = $update['name'];
+    //          $role->mode_admin = $update['mode_admin'] === "Si" ? 1 : 0;
+    //          $role->save();
+    //          return response()->json($role);
+    //     }
+    // }
 
     public function getRolPermission(Request $request) {
         $idRol = $request->input('id');
@@ -100,6 +141,18 @@ class RolesController extends Controller
             'permissions' => $permissions
         ]);
     }
+
+    public function getRol(Request $request) {
+        $id = $request->query('id');
+
+        $rol = Roles::where('id', $id)->get()->map(function ($item) {
+            $item->mode_admin = $item->mode_admin == 1 ? 'Si' : 'No';
+            return $item;
+        });
+
+        return response()->json($rol);
+    }
+
 
 
 }

@@ -18,6 +18,8 @@ import { FaGear } from "react-icons/fa6";
 // import { IoMdNotifications } from "react-icons/io";
 // import IconButton from '@/Components/IconButton';
 
+import { Toaster } from 'sonner'
+
 export default function AuthenticatedLayout({ header, title, children }) {
     const user = usePage().props.auth.user;
     const company = usePage().props.company;
@@ -97,7 +99,19 @@ export default function AuthenticatedLayout({ header, title, children }) {
     return (
         <>
             <Head title={pageTitle} />
+            
             <div className="content-layout">
+                
+                <Toaster
+                    position="top-center"
+                    richColors
+                    closeButton={true}
+                    toastOptions={{
+                        classNames: {
+                            closeButton: 'toast-closebtn',
+                        },
+                    }}
+                />
                 
                 <aside className="menu">
                     

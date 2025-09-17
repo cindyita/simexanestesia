@@ -73,14 +73,17 @@ const ActionDropdown = ({ item, onView, onEdit, onDelete, customActions = [],pag
               style={{ top: position.top, left: position.left }}
             >
               <div className="py-1">
-                <button
-                  onClick={() => handleAction({ type: "view" })}
-                  className="group flex items-center px-4 py-2 text-sm text-[var(--primary)] hover:bg-[var(--font)] hover:text-[var(--primary)] w-full text-left"
-                >
-                  <FaEye className="mr-3 h-4 w-4 text-[var(--secondary)] group-hover:text-[var(--secondary)]" />
-                  Ver Detalles
-                </button>
-                {( pageLevel > 1 ? 
+                { onView &&
+                  <button
+                    onClick={() => handleAction({ type: "view" })}
+                    className="group flex items-center px-4 py-2 text-sm text-[var(--primary)] hover:bg-[var(--font)] hover:text-[var(--primary)] w-full text-left"
+                  >
+                    <FaEye className="mr-3 h-4 w-4 text-[var(--secondary)] group-hover:text-[var(--secondary)]" />
+                    Ver Detalles
+                  </button>
+                }
+                
+                {( onEdit && pageLevel > 1 ? 
                   (<button
                     onClick={() => handleAction({ type: "edit" })}
                     className="group flex items-center px-4 py-2 text-sm text-[var(--primary)] hover:bg-[var(--font)] hover:text-[var(--primary)] w-full text-left"
@@ -100,7 +103,7 @@ const ActionDropdown = ({ item, onView, onEdit, onDelete, customActions = [],pag
                     {action.label}
                   </button>
                 ))}
-                {(pageLevel > 2 ? 
+                {(onDelete && pageLevel > 2 ? 
                   (
                     <>
                       <hr className="border-[var(--font)]" />
