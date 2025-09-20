@@ -17,13 +17,12 @@ return new class extends Migration
             $table->foreignId('id_subject')->constrained('reg_subjects')->onDelete('cascade');
             $table->foreignId('uploaded_by')->constrained('sys_users')->onDelete('cascade');
             
-            // Información del archivo
-            $table->string('file_path'); // Ruta del archivo en storage
-            $table->string('file_type', 10); // Extensión: pdf, docx, png, mp3, etc.
-            $table->string('mime_type', 100); // MIME type completo
-            $table->bigInteger('file_size')->unsigned(); // Tamaño en bytes
+            // ----------------------------------------------------------------
+            $table->string('file_path');
+            $table->string('file_type', 10);
+            $table->string('mime_type', 100);
+            $table->bigInteger('file_size')->unsigned();
             
-            // Categorización
             $table->enum('resource_type', [
                 'document', 
                 'image', 
@@ -36,16 +35,15 @@ return new class extends Migration
             ])->default('document');
             
             // Metadata adicional
-            $table->json('metadata')->nullable(); // Información extra: dimensiones de imagen, duración de video, etc.
-            $table->integer('download_count')->default(0); // Contador de descargas
-            $table->integer('view_count')->default(0); // Contador de visualizaciones
+            $table->json('metadata')->nullable();
+            $table->integer('download_count')->default(0);
+            $table->integer('view_count')->default(0);
             
-            // Control de acceso
-            $table->enum('visibility', ['public', 'students', 'administrator', 'private'])->default('public');
+            // -----------------------------------------------
+            $table->string('visibility')->default('public');
             $table->boolean('is_active')->default(true);
-            
-            // Información adicional
-            $table->json('tags')->nullable(); // Etiquetas para búsqueda: ["beginner", "advanced", "tutorial"]
+    
+            $table->json('tags')->nullable();
 
             $table->unsignedBigInteger('id_company');
             

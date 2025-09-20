@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { FaEdit, FaTrash, FaEye, FaEllipsisV, FaLink, FaFileDownload } from "react-icons/fa";
+import { toast } from "sonner";
 
 const ActionFileDropdown = ({ item, onView, onEdit, onDelete, onCustomAction,pageLevel=1 }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -13,10 +14,19 @@ const ActionFileDropdown = ({ item, onView, onEdit, onDelete, onCustomAction,pag
       const rect = buttonRef.current.getBoundingClientRect();
       setPosition({
         top: rect.bottom + window.scrollY,
-        left: rect.right + window.scrollX - 192, // ancho ~ w-48
+        left: rect.right + window.scrollX - 192,
       });
     }
     setIsOpen(!isOpen);
+  };
+  const downloadFile = (url, filename = "archivo") => {
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", filename);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    setTimeout(() => { toast.success("Archivo descargado"); }, 150);
   };
 
   const handleAction = (action, e) => {
@@ -29,6 +39,10 @@ const ActionFileDropdown = ({ item, onView, onEdit, onDelete, onCustomAction,pag
         break;
       case "edit":
         if(pageLevel > 1) onEdit?.(item);
+        break;
+      case "download":
+        const path = "storage/"+item.file_path;
+        downloadFile(path, item.name);
         break;
       case "delete":
         if(pageLevel > 2) onDelete?.(item);
@@ -82,13 +96,13 @@ const ActionFileDropdown = ({ item, onView, onEdit, onDelete, onCustomAction,pag
                   Ver detalles
                         </button>
                         
-                <button
-                  onClick={(e) => handleAction("view", e)}
+                {/* <button
+                  onClick={(e) => handleAction("copy", e)}
                   className="group flex items-center px-4 py-2 text-sm text-[var(--primary)] hover:bg-[var(--font)] hover:text-[var(--primary)] w-full text-left"
                 >
                   <FaLink className="mr-3 h-4 w-4 text-[var(--secondary)] group-hover:text-[var(--secondary)]" />
                   Copiar url
-                </button>
+                </button> */}
                 {( pageLevel > 1 ? 
                 (<button
                   onClick={(e) => handleAction("edit", e)}
@@ -100,7 +114,7 @@ const ActionFileDropdown = ({ item, onView, onEdit, onDelete, onCustomAction,pag
                 )}
 
                 <button
-                  onClick={(e) => handleAction("edit", e)}
+                  onClick={(e) => handleAction("download", e)}
                   className="group flex items-center px-4 py-2 text-sm text-[var(--primary)] hover:bg-[var(--font)] hover:text-[var(--primary)] w-full text-left"
                 >
                   <FaFileDownload className="mr-3 h-4 w-4 text-[var(--secondary)] group-hover:text-[var(--secondary)]" />

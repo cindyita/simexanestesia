@@ -11,7 +11,7 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
-use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 class ResourcesController extends Controller
 {
@@ -58,6 +58,29 @@ class ResourcesController extends Controller
 
             }
         }
+        //----------------------------------------------------
+        // ROW DELETE ----------------------------------------
+        $id_delete = $request->input('id_delete');
+        $url_delete = $request->input('url_delete');
+
+        if($id_delete){
+            $delete = Resources::where('id', $id_delete)->delete();
+            if($delete) Storage::disk('public')->delete($url_delete);
+        }
+        //----------------------------------------------------
+        // UPDATE FILE ---------------------------------------
+        $update = $request->input('update',0);
+
+        if($update){
+            
+            $resourceUpdate = Resources::find($update['id']);
+            $resourceUpdate->name = $update['name'].".".$update['file_type'];
+            $resourceUpdate->description = $update['description'];
+            $resourceUpdate->id_subject = $update['id_subject']["id"] == 0 ? null : $update['id_subject']["id"];
+            $resourceUpdate->tags = null;
+            $resourceUpdate->save();
+        }
+
         //----------------------------------------------------
 
         $resources = Resources::with('subject')

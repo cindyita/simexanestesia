@@ -5,6 +5,7 @@ import Select from '@/CustomComponents/form/Select';
 import Textarea from "../form/Textarea";
 import { toast } from "sonner";
 import axios from "axios";
+import { router } from "@inertiajs/react";
 
 export default function UploadFileModal({ show, onClose, subjects, onUpload }) {
   const [selectedFile, setSelectedFile] = useState(null);
@@ -59,22 +60,27 @@ export default function UploadFileModal({ show, onClose, subjects, onUpload }) {
       formData.append("id_subject", selectedSubject);
       formData.append("description", description);
 
-      const response = await axios.post("/resources", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-        onUploadProgress: (event) => {
+      const response = router.visit('/resources', {
+        method: 'post',
+        data: formData,
+        forceFormData: true,
+        onProgress: (event) => {
           if (event.total) {
             const percent = Math.round((event.loaded * 100) / event.total);
             setProgress(percent);
           }
         },
+        onSuccess: () => {
+          setProgress(100);
+          console.log("Se subió el archivo:", selectedFile);
+          setTimeout(() => { toast.success("Se subió el archivo"); }, 100);
+        },
+        onError: (errors) => {
+          setTimeout(() => { toast.error(errors); }, 100);
+          console.error(errors);
+        },
       });
-
-      console.log(response.data);
-      console.log("Se subió el archivo:", selectedFile);
-      setTimeout(() => { toast.success("Se subió el archivo"); }, 100);
-
+      
       setUploading(false);
       setSelectedFile(null);
       setSelectedSubject("");
