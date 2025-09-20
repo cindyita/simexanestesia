@@ -74,13 +74,13 @@ const ActionFileDropdown = ({ item, onView, onEdit, onDelete, onCustomAction,pag
               }}
             >
               <div className="py-1">
-                {/* <button
+                <button
                   onClick={(e) => handleAction("view", e)}
                   className="group flex items-center px-4 py-2 text-sm text-[var(--primary)] hover:bg-[var(--font)] hover:text-[var(--primary)] w-full text-left"
                 >
                   <FaEye className="mr-3 h-4 w-4 text-[var(--secondary)] group-hover:text-[var(--secondary)]" />
-                  Ver archivo
-                        </button> */}
+                  Ver detalles
+                        </button>
                         
                 <button
                   onClick={(e) => handleAction("view", e)}

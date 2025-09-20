@@ -2,15 +2,19 @@ import { useState, useRef } from "react";
 import Modal from "@/CustomComponents/modal/Modal";
 import { FaUpload, FaTimes } from "react-icons/fa";
 import Select from '@/CustomComponents/form/Select';
+import Textarea from "../form/Textarea";
+import { toast } from "sonner";
+import axios from "axios";
 
 export default function UploadFileModal({ show, onClose, subjects, onUpload }) {
   const [selectedFile, setSelectedFile] = useState(null);
   const [selectedSubject, setSelectedSubject] = useState("");
+  const [description, setDescription] = useState("");
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
   const fileInputRef = useRef();
 
-  const MAX_SIZE_MB = 20; // Tamaño máximo
+  const MAX_SIZE_MB = 20;
   const ALLOWED_TYPES = ["pdf","doc","docx","xls","xlsx","ppt","pptx","jpg","jpeg","png","gif","mp3","mp4","txt"];
 
   const handleFileChange = (e) => {
@@ -21,12 +25,12 @@ export default function UploadFileModal({ show, onClose, subjects, onUpload }) {
     const fileSizeMB = file.size / (1024 * 1024);
 
     if (!ALLOWED_TYPES.includes(fileType)) {
-      alert("Tipo de archivo no permitido.");
+      setTimeout(() => { toast.error("Tipo de archivo no permitido."); }, 100);
       return;
     }
 
     if (fileSizeMB > MAX_SIZE_MB) {
-      alert(`El archivo supera el tamaño máximo de ${MAX_SIZE_MB} MB.`);
+      setTimeout(() => { toast.error(`El archivo supera el tamaño máximo de ${MAX_SIZE_MB} MB.`); }, 100);
       return;
     }
 
@@ -40,28 +44,49 @@ export default function UploadFileModal({ show, onClose, subjects, onUpload }) {
   };
 
   const handleUpload = async () => {
-    if (!selectedFile || !selectedSubject) {
-      alert("Selecciona un archivo y una materia.");
-      return;
-    }
+    // if (!selectedFile || !selectedSubject) {
+    //   alert("Selecciona un archivo y una materia.");
+    //   return;
+    // }
+    //-----------------------------------
+    try {
+      setUploading(true);
+      setProgress(0);
 
-    setUploading(true);
-    setProgress(0);
+      const formData = new FormData();
+      formData.append("upfile", 1);
+      formData.append("file", selectedFile);
+      formData.append("id_subject", selectedSubject);
+      formData.append("description", description);
 
-    // Simulación de carga (reemplaza con tu lógica real de subida)
-    const interval = setInterval(() => {
-      setProgress((p) => {
-        if (p >= 100) {
-          clearInterval(interval);
-          setUploading(false);
-          setSelectedFile(null);
-          setSelectedSubject("");
-          onUpload && onUpload(); // callback al subir
-          onClose();
-        }
-        return Math.min(p + 10, 100);
+      const response = await axios.post("/resources", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+        onUploadProgress: (event) => {
+          if (event.total) {
+            const percent = Math.round((event.loaded * 100) / event.total);
+            setProgress(percent);
+          }
+        },
       });
-    }, 200);
+
+      console.log(response.data);
+      console.log("Se subió el archivo:", selectedFile);
+      setTimeout(() => { toast.success("Se subió el archivo"); }, 100);
+
+      setUploading(false);
+      setSelectedFile(null);
+      setSelectedSubject("");
+      onUpload && onUpload();
+      onClose && onClose();
+    } catch (error) {
+      console.error("Error al subir el archivo:", error);
+      setTimeout(() => { toast.error("Error al subir el archivo"); }, 100);
+      setUploading(false);
+    }
+    //-----------------------------------
+
   };
 
   return (
@@ -85,7 +110,7 @@ export default function UploadFileModal({ show, onClose, subjects, onUpload }) {
             >
               <option value="">Selecciona una materia</option>
               {subjects.map((subj) => (
-                <option key={subj.code} value={subj.name}>{subj.name}</option>
+                <option key={subj.id} value={subj.id}>{subj.name}</option>
               ))}
             </Select>
           </div>
@@ -114,6 +139,17 @@ export default function UploadFileModal({ show, onClose, subjects, onUpload }) {
           <p className="text-xs text-[var(--secondary)] mb-4">
             Tipos permitidos: {ALLOWED_TYPES.join(", ")} | Tamaño máximo: {MAX_SIZE_MB} MB
           </p>
+
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-[var(--primary)] mb-1">Descripción</label>
+            <Textarea
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                rows={3}
+                className="w-full px-3 py-2 border border-[var(--secondary)] rounded-md focus:ring-2 focus:ring-[var(--secondary)] focus:border-transparent"
+                placeholder="Descripción del archivo (opcional)"
+            />
+          </div>
 
           {/* Barra de carga */}
           {uploading && (

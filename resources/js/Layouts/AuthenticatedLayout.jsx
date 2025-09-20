@@ -166,7 +166,7 @@ export default function AuthenticatedLayout({ header, title, children }) {
                                     const Icon = icons[item.icon];
                                     return (
                                         <li key={item.id} className={`${menuSelected2 == item.id ? 'selected' : ''}`}>
-                                            {item.url != null ? (
+                                            {item.url ? (
                                                 <Link href={item.url || '#'} className="flex gap-2 items-center">
                                                     <div>{Icon && <Icon />}</div>
                                                     <span>{item.name}</span>

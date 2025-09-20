@@ -55,7 +55,7 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/history', [ExamsController::class, 'getHistory'])->middleware(['menu.permission:'.idMenu['history']])->name('history');
 
-    Route::get('/resources', [ResourcesController::class, 'get'])->middleware(['menu.permission:'.idMenu['resources']])->name('resources');
+    Route::get('/resources', [ResourcesController::class, 'getResources'])->middleware(['menu.permission:'.idMenu['resources']])->name('resources');
 
     Route::get('/users', [UsersController::class, 'getUsers'])->middleware(['menu.permission:'.idMenu['users']])->name('users');
 
@@ -77,6 +77,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/getUser', [UsersController::class, 'getUser'])->middleware(['menu.permission:'.idMenu['users']])->name('getuser');
 
     Route::get('/getHistory', [ExamsController::class, 'getHistoryOne'])->middleware(['menu.permission:'.idMenu['history']])->name('gethistoryone');
+
+    Route::get('/getFile', [ResourcesController::class, 'getFile'])->middleware(['menu.permission:'.idMenu['resources']])->name('getfile');
     
     // POST IN PAGES
     Route::post('/registerkeys', [AccountController::class, 'getRegisterKeys'])->middleware(['menu.permission:'.idMenu['registerkeys']])->name('registerkeys');
@@ -94,6 +96,8 @@ Route::middleware('auth')->group(function () {
     // Route::post('/roles/update', [RolesController::class, 'updateRol'])->middleware(['menu.permission:'.idMenu['roles']])->name('updateroles');
 
     Route::post('/logs', [AccountController::class, 'getLogs'])->middleware(['menu.permission:'.idMenu['logs']])->name('logs');
+
+    Route::post('/resources', [ResourcesController::class, 'getResources'])->middleware(['menu.permission:'.idMenu['resources']])->name('resources');
 
     // DASHBOARD ----------------------
     Route::post('/alert', [DashboardController::class, 'alertUpdate'])->name('alert.update');

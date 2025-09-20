@@ -8,7 +8,7 @@
 
         <title inertia>{{ config('app.name', 'Laravel') }}</title>
 
-        {{-- <link rel="shortcut icon" href="/storage/img/logo-sime-icon-v2.png" type="image/x-icon"> --}}
+        <link rel="shortcut icon" href="/storage/img/default/icon.png" type="image/x-icon">
 
         <!--- NProgress Inertia --->
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" />

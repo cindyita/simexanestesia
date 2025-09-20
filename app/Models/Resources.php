@@ -15,6 +15,8 @@ class Resources extends Model
         'uploaded_by',
         'file_path',
         'file_type',
+        'mime_type',
+        'file_size',
         'resource_type',
         'metadata',
         'download_count',

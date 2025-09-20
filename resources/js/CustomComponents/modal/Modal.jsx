@@ -9,7 +9,9 @@ export default function Modal({
     children,
     show = false,
     maxWidth = '2xl',
+    maxHeight = 'default',
     closeable = true,
+    fullscreen = false,
     onClose = () => {},
 }) {
     const close = () => {
@@ -18,13 +20,30 @@ export default function Modal({
         }
     };
 
-    const maxWidthClass = {
-        sm: 'sm:max-w-sm',
-        md: 'sm:max-w-md',
-        lg: 'sm:max-w-lg',
-        xl: 'sm:max-w-xl',
-        '2xl': 'sm:max-w-2xl',
-    }[maxWidth];
+    const maxWidthClass = fullscreen
+        ? 'w-full'
+        : {
+            sm: 'sm:max-w-sm',
+            md: 'sm:max-w-md',
+            lg: 'sm:max-w-lg',
+            xl: 'sm:max-w-xl',
+            '2xl': 'sm:max-w-2xl',
+        } [maxWidth];
+
+    const maxHeightClass = fullscreen
+        ? 'h-full'
+        : {
+            sm: 'sm:max-h-sm',
+            md: 'sm:max-h-md',
+            lg: 'sm:max-h-lg',
+            xl: 'sm:max-h-xl',
+            '2xl': 'sm:max-h-2xl',
+            default: 'max-h-[80vh]',
+        } [maxHeight];
+
+    const panelClasses = fullscreen
+        ? `relative m-2 w-full h-[97vh] transform overflow-hidden rounded-[var(--radiusBox)] bg-[var(--fontBox)] shadow-xl transition-all `
+        : `relative mt-10 w-full transform overflow-hidden rounded-[var(--radiusBox)] bg-[var(--fontBox)] shadow-xl transition-all sm:mx-auto ${maxWidthClass} ${maxHeightClass}`;
 
     return (
         <Transition show={show} leave="duration-200">
@@ -53,10 +72,8 @@ export default function Modal({
                     leaveFrom="opacity-100 translate-y-0 sm:scale-100"
                     leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
                 >
-                    <DialogPanel
-                        className={`relative mt-10 max-h-[80vh] w-full transform overflow-hidden rounded-[var(--radiusBox)] bg-[var(--fontBox)] shadow-xl transition-all sm:mx-auto ${maxWidthClass}`}
-                    >
-                        <div className="overflow-y-auto max-h-[80vh] p-4">
+                    <DialogPanel className={panelClasses}>
+                        <div className={`overflow-y-auto ${fullscreen ? 'h-full' : maxHeightClass} p-4`}>
                             {children}
                         </div>
                     </DialogPanel>
