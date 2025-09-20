@@ -3,10 +3,10 @@ import SecondaryButton from "../button/SecondaryButton";
 import Modal from "./Modal";
 import { FaTimes } from "react-icons/fa";
 
-export default function ConfirmDeleteModal({ show, onClose, onConfirm, id }) {
+export default function ConfirmDeleteModal({ show, onClose, onConfirm, id, data = null, title = '', text = '' }) {
 
     const handleConfirm = () => {
-        onConfirm(id);
+        onConfirm(id,data);
         onClose();
     };
 
@@ -18,11 +18,15 @@ export default function ConfirmDeleteModal({ show, onClose, onConfirm, id }) {
                         <FaTimes />
                     </button>
                     <h3 className="text-lg font-semibold text-red-600">
-                        Confirma la eliminación del registro
+                        { title != "" ? title :
+                            <>Confirma la eliminación del registro</>
+                        }
                     </h3>
                 </div>
                 <p className="mt-2 text-sm text-gray-600">
-                    Esta acción no se puede deshacer. Se borrarán también todos los elementos ligados (Por ejemplo si borras un rol se borraran las claves relacionadas con ese rol).
+                    { text != "" ? text :
+                        <>Esta acción no se puede deshacer. Se borrarán también todos los elementos ligados (Por ejemplo si borras un rol se borraran las claves relacionadas con ese rol).</>
+                    }
                 </p>
 
                 <div className="mt-6 flex justify-center gap-4">

@@ -14,7 +14,7 @@ import {
     FaTimes
 } from 'react-icons/fa';
 import ActionFileDropdown from '../dropdown/ActionFileDropdown';
-import { Link } from '@inertiajs/react';
+import { Link, router } from '@inertiajs/react';
 import PrimaryButton from '../button/PrimaryButton';
 import UploadFileModal from '../modal/UploadFileModal';
 
@@ -22,6 +22,10 @@ import { FormatDate } from '@/Functions/FormatDate';
 import Select from '../form/Select';
 import { useFetchDetails } from '@/hooks/useFetchDetails';
 import Modal from '../modal/Modal';
+import { toast } from 'sonner';
+import ConfirmDeleteModal from '../modal/ConfirmDeleteModal';
+import FormModal from '../modal/FormModal';
+import { useFormValidation } from '@/hooks/useFormValidation';
 
 const FileManager = ({files,subjects, currentPage=1, totalPages=1, onPageChange={},pageLevel=1, isAdmin=0}) => {
   const [viewType, setViewType] = useState('grid');
@@ -32,6 +36,14 @@ const FileManager = ({files,subjects, currentPage=1, totalPages=1, onPageChange=
   const [viewDetails, setViewDetails] = useState([]);
   const [selectedViewFile, setSelectedViewFile] = useState(null);
   const [modalViewFileOpen, setModalViewFileOpen] = useState([]);
+
+  const [modalDeleteOpen, setModalDeleteOpen] = useState(false);
+  const [deleteId, setDeleteId] = useState(0);
+  const [deleteUrl, setDeleteUrl] = useState(null);
+  const [modalEditOpen, setModalEditOpen] = useState(false);
+
+  const [viewDetailsEdit, setViewDetailsEdit] = useState([]);
+  const [formEdit, setFormEdit] = useState({});
 
   const getFileIcon = (fileType, filePath) => {
     
@@ -136,23 +148,81 @@ const FileManager = ({files,subjects, currentPage=1, totalPages=1, onPageChange=
     setModalViewFileOpen(true);
   }
 
-  const handleActionDetails = async(id) => {
-    const headerMap = {
-        id: "id",
-        name: "Archivo",
-        description: "Descripción",
-        subject: "Materia asociada",
-        uploaded_by_name: "Subido por",
-        file_path: "Url",
-        file_type: "Tipo de archivo",
-        file_size: "Tamaño",
-        download_count: "Descargas",
-        view_count: "Vistas",
-        created_at: "Creado el",
-        updated_at: "Actualizado el"
-      };
+  let selectsubjects = [{ id: 0, name: "SELECCIONA" }, ...subjects];
 
-      return await fetchDetails("/getFile", { id }, headerMap);
+  const handleActionFields = {
+    id: { label: "id", type: "number", editable: false, show: false },
+    file_type: { label: "file_type", type: "text", editable: false, show: false },
+    name: { label: "Nombre", type: "text", editable: true, show: true, required: true, addEnd: ['.','file_type'] },
+    description: { label: "Descripción", type: "textarea", editable: true, show: true },
+    id_subject: { label: "Materia asociada", type: "select", options: selectsubjects, editable: true, show: true }
+  };
+
+  const handleActionUpdate = async (item) => {
+    const details = await handleActionDetails(item.id);
+      const row = details[0];
+
+      const [baseName, ...extParts] = row.name.split(".");
+
+      row['name'] = baseName;
+    
+      setViewDetailsEdit(row);
+      setFormEdit(row);
+      setModalEditOpen(true);
+  }
+
+  const handleActionDetails = async (id) => {
+    const headerMap = {
+      name: "Nombre",
+      description: "Descripción",
+      subject: "Materia asociada",
+      file_type: "Tipo de archivo",
+      download_count: "Descargas",
+      view_count: "Vistas",
+      uploaded_by: "Subido por",
+      created_at: "Fecha de subida",
+      updated_at: "Última actualización"
+    };
+    return await fetchDetails("/getFile", { id },headerMap);
+  }
+
+  const handleConfirmDelete = (item) => {
+      setDeleteId(item.id);
+      setDeleteUrl(item.file_path);
+      setModalDeleteOpen(true);
+  }
+  const handleDelete = async (id,url) => {
+      return new Promise((resolve, reject) => {
+          router.visit('/resources', {
+              method: 'post',
+              data: {
+                id_delete: id,
+                url_delete: url
+              },
+              onSuccess: () => resolve(id),
+              onError: (errors) => reject(errors),
+          });
+      });
+  }
+
+  const { validateForm } = useFormValidation(handleActionFields);
+
+  const handleActionUpdateSend = async (form) => {
+        const errors = validateForm(form);
+
+        if (Object.keys(errors).length > 0) {
+            console.error(errors);
+            return Promise.reject(errors);
+        }
+
+        return new Promise((resolve, reject) => {
+            router.visit('/resources', {
+                method: 'post',
+                data: { update: form },
+                onSuccess: () => resolve(form),
+                onError: (errors) => reject(errors),
+            });
+        });
   }
 
   return (
@@ -281,6 +351,8 @@ const FileManager = ({files,subjects, currentPage=1, totalPages=1, onPageChange=
                           item = {file}
                           pageLevel={pageLevel}
                           onView={handleDetails}
+                          onDelete={handleConfirmDelete}
+                          onEdit={handleActionUpdate}
                         />
                         </span>
                     </div>
@@ -327,7 +399,13 @@ const FileManager = ({files,subjects, currentPage=1, totalPages=1, onPageChange=
                       </td>
                       <td className="py-3 px-4">
                         <span>
-                            <ActionFileDropdown pageLevel={pageLevel} />
+                          <ActionFileDropdown
+                            item={file}
+                            pageLevel={pageLevel}
+                            onView={handleDetails}
+                            onDelete={handleConfirmDelete}
+                            onEdit={handleActionUpdate}
+                          />
                         </span>
                       </td>
                     </tr>
@@ -449,6 +527,9 @@ const FileManager = ({files,subjects, currentPage=1, totalPages=1, onPageChange=
                 <video
                   controls
                   className="w-full max-w-[100%] h-auto max-h-[84vh] rounded shadow-lg"
+                  onError={() => {
+                    toast.error("El video no se pudo reproducir. Puede estar corrupto o en un formato no soportado.");
+                  }}
                 >
                   <source src={`/storage/${selectedViewFile.file_path}`} type={`${selectedViewFile.mime_type}`} />
                   Tu navegador no soporta la reproducción de video.
@@ -469,8 +550,44 @@ const FileManager = ({files,subjects, currentPage=1, totalPages=1, onPageChange=
             </div>
           </div>
         </Modal>
-
       }
+      {/* DELETE MODAL */}
+      <ConfirmDeleteModal
+          show={modalDeleteOpen}
+          onClose={() => setModalDeleteOpen(false)}
+          onConfirm={async (id) => {
+              try {
+                  await handleDelete(id,deleteUrl);
+                  setModalDeleteOpen(false);
+                  setTimeout(() => {
+                      toast.success("Se ha eliminado el archivo");
+                  }, 150);
+              } catch (err) {
+                  if (err && typeof err === "object") {
+                      setTimeout(() => { Object.values(err).forEach(msg => {
+                          toast.error(msg);
+                      }); }, 150);
+                  } else {
+                      setTimeout(() => { toast.error(err?.message || "Ocurrió un error"); }, 150);
+                  }
+              }
+          }}
+        id={deleteId}
+        title="Confirma la eliminación del archivo"
+        text = "Esta acción no se puede deshacer."
+      />
+      {/* EDIT MODAL */}
+      <FormModal
+          open={modalEditOpen}
+          setOpen={setModalEditOpen}
+          title="Editar archivo"
+          fields={handleActionFields}
+          initialData={viewDetailsEdit || {}}
+          onSubmit={async (form) => {
+              await handleActionUpdateSend(form);
+              setModalEditOpen(false);
+          }}
+      />
 
     </div>
   );

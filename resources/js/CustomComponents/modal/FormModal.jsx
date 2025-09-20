@@ -59,7 +59,6 @@ export default function FormModal({
         }
     };
 
-
     const renderField = (key, field) => {
         const value = form[key] ?? "";
         if (field.show === false) return null;
@@ -69,7 +68,7 @@ export default function FormModal({
             case "number":
             case "date":
                 return (
-                    <div key={key} className="flex flex-col">
+                    <div key={key} className="flex flex-col relative">
                         <label className="font-medium">{field.label}</label>
                         <TextInput
                             type={field.type}
@@ -77,7 +76,18 @@ export default function FormModal({
                             onChange={e => handleChange(key, e.target.value)}
                             disabled={!field.editable}
                             autoComplete="newuser"
+                            className={field.addEnd ? `pr-10` : ``}
                         />
+                        {field.addEnd && (
+                            <span className="absolute inset-y-0 right-3 top-6 flex items-center text-gray-400 pointer-events-none">
+                                {field.addEnd.map((el, i) => (
+                                    <span key={i}>
+                                        {initialData[el] ?? el}
+                                    </span>
+                                ))}
+                            </span>
+                        )}
+
                     </div>
                 );
             case "password":
