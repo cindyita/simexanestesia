@@ -15,7 +15,9 @@ return new class extends Migration
             $table->id()->primary();
             $table->string('name');
             $table->string('icon');
-            $table->string('url');
+            $table->string('url')->nullable();
+            $table->integer('menu_level');
+            $table->integer('id_parent');
             $table->integer('reg_order')->default(1);
         });
     }

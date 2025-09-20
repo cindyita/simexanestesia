@@ -20,48 +20,70 @@ import UploadFileModal from '../modal/UploadFileModal';
 
 import { FormatDate } from '@/Functions/FormatDate';
 import Select from '../form/Select';
+import { useFetchDetails } from '@/hooks/useFetchDetails';
+import Modal from '../modal/Modal';
 
 const FileManager = ({files,subjects, currentPage=1, totalPages=1, onPageChange={},pageLevel=1, isAdmin=0}) => {
   const [viewType, setViewType] = useState('grid');
   const [filterSubject, setFilterSubject] = useState('');
   const [filterFileType, setFilterFileType] = useState('');
   const [modalUpFileOpen, setModalUpFileOpen] = useState(false);
+  const [modalDetailsOpen, setModalDetailsOpen] = useState(false);
+  const [viewDetails, setViewDetails] = useState([]);
+  const [selectedViewFile, setSelectedViewFile] = useState(null);
+  const [modalViewFileOpen, setModalViewFileOpen] = useState([]);
 
-  const getFileIcon = (fileType) => {
-    const iconProps = { className: "w-8 h-8" };
+  const getFileIcon = (fileType, filePath) => {
     
     switch (fileType.toLowerCase()) {
       case 'pdf':
-        return <FaFilePdf {...iconProps} className="w-8 h-8 text-red-500" />;
+        return <FaFilePdf className="w-16 h-16 p-2 text-red-500" />;
       case 'doc':
       case 'docx':
-        return <FaFileWord {...iconProps} className="w-8 h-8 text-blue-500" />;
+        return <FaFileWord className="w-16 h-16 p-2 text-blue-500" />;
       case 'xls':
       case 'xlsx':
-        return <FaFileExcel {...iconProps} className="w-8 h-8 text-green-500" />;
+        return <FaFileExcel className="w-16 h-16 p-2 text-green-500" />;
       case 'ppt':
       case 'pptx':
-        return <FaFilePowerpoint {...iconProps} className="w-8 h-8 text-orange-500" />;
-      case 'jpg':
-      case 'jpeg':
-      case 'png':
-      case 'gif':
-      case 'bmp':
-        return <FaFileImage {...iconProps} className="w-8 h-8 text-[var(--secondary)]" />;
+        return <FaFilePowerpoint className="w-16 h-16 p-2 text-orange-500" />;
+       case "jpg":
+        case "jpeg":
+        case "png":
+        case "svg":
+        case "gif":
+        case "bmp":
+          if (filePath) {
+            return (
+              <span className="w-16 h-16">
+                <img
+                  src={`/storage/${filePath}`}
+                  alt="preview"
+                  loading="lazy"
+                  className="w-16 h-16 object-contain rounded shadow"
+                />
+              </span>
+            );
+          }
+          return <FaFileImage className="w-16 h-16 p-2 text-[var(--secondary)]" />;
       case 'mp3':
       case 'wav':
       case 'ogg':
-        return <FaFileAudio {...iconProps} className="w-8 h-8 text-[var(--secondary)]" />;
+        return <FaFileAudio className="w-16 h-16 p-2 text-[var(--secondary)]" />;
       case 'mp4':
       case 'avi':
       case 'mov':
-        return <FaFileVideo {...iconProps} className="w-8 h-8 text-[var(--secondary)]" />;
+        return <FaFileVideo className="w-16 h-16 p-2 text-[var(--secondary)]" />;
       default:
-        return <FaFileAlt {...iconProps} className="w-8 h-8 text-[var(--secondary)]" />;
+        return <FaFileAlt className="w-16 h-16 p-2 text-[var(--secondary)]" />;
     }
   };
 
-  const subjectsList = [...new Set(files.map(file => file.subject))].sort();
+  const subjectsList = [...new Set(
+    files
+      .map(file => file.subject)
+      .filter(subject => subject && subject.trim() !== "")
+  )].sort();
   const fileTypes = [...new Set(files.map(file => file.file_type))].sort();
 
   const filteredFiles = useMemo(() => {
@@ -77,6 +99,62 @@ const FileManager = ({files,subjects, currentPage=1, totalPages=1, onPageChange=
     setFilterFileType('');
   };
 
+  const formatFileSize = (bytes,decimals = 0) => {
+    if (bytes === 0) return "0 Bytes";
+    const k = 1024;
+    const sizes = ["Bytes", "KB", "MB", "GB", "TB"];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(decimals)) + " " + sizes[i];
+  }
+
+  const { fetchDetails } = useFetchDetails();
+      
+  const handleDetails = async (item) => {
+    const details = await handleActionDetails(item.id);
+
+      const formattedDetails = details.map(row => {
+        const newRow = {};  
+          for (const [key, value] of Object.entries(row)) {
+              if (typeof value === "string" && value.match(/^\d{4}-\d{2}-\d{2}(T|\s)/)) {
+                  newRow[key] = FormatDate(value, true);
+              } else if (typeof value === "object" && value !== null) {
+                  newRow[key] = JSON.stringify(value, null, 2);
+              } else if (key == "Tamaño") {
+                  newRow[key] = formatFileSize(value,2);
+              }else{
+                  newRow[key] = value;
+              }
+          }
+          return newRow;
+      });
+      setViewDetails(formattedDetails);
+      setModalDetailsOpen(true);
+  };
+
+  const openFile = (file) => {
+    setSelectedViewFile(file);
+    setModalViewFileOpen(true);
+  }
+
+  const handleActionDetails = async(id) => {
+    const headerMap = {
+        id: "id",
+        name: "Archivo",
+        description: "Descripción",
+        subject: "Materia asociada",
+        uploaded_by_name: "Subido por",
+        file_path: "Url",
+        file_type: "Tipo de archivo",
+        file_size: "Tamaño",
+        download_count: "Descargas",
+        view_count: "Vistas",
+        created_at: "Creado el",
+        updated_at: "Actualizado el"
+      };
+
+      return await fetchDetails("/getFile", { id }, headerMap);
+  }
+
   return (
     <div className="px-3 md:px-6">
       <div>
@@ -91,7 +169,6 @@ const FileManager = ({files,subjects, currentPage=1, totalPages=1, onPageChange=
                     <PrimaryButton onClick={() => setModalUpFileOpen(true)}>
                       Subir recurso
                     </PrimaryButton>
-                    <UploadFileModal show={modalUpFileOpen} subjects={subjects} onClose={() => setModalUpFileOpen(false)}></UploadFileModal>
                   </>
                 ) : ""
               )}
@@ -176,32 +253,34 @@ const FileManager = ({files,subjects, currentPage=1, totalPages=1, onPageChange=
 
         {/* Vista de Cuadrícula */}
         {viewType === 'grid' && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-4">
             {filteredFiles.map(file => (
-              <div key={file.id} className="bg-[var(--fontBox)] rounded-lg shadow hover:shadow-lg hover:border-[var(--secondary)] transition-shadow p-4 cursor-pointer border border-gray-200">
+              <div key={file.id} className="bg-[var(--fontBox)] rounded-lg shadow hover:shadow-lg hover:border-[var(--secondary)] transition-shadow p-4 pb-3 cursor-pointer border border-gray-200 select-none" onDoubleClick={() => openFile(file)}>
                 <div className="flex flex-col items-center text-center">
                   <div className="mb-3">
-                    {getFileIcon(file.file_type)}
+                    {getFileIcon(file.file_type,file.file_path)}
                   </div>
-                  <h3 className="font-medium text-gray-800 text-sm mb-2 line-clamp-2 leading-tight min-h-9">
+                  <h3 className="px-1 font-medium text-gray-800 text-sm mb-1 line-clamp-1 leading-tight overflow-hidden text-ellipsis break-all" title={file.name}>
                     {file.name}
                   </h3>
-                  <div className="text-xs text-gray-500 space-y-1 w-full">
-                    <div className="flex justify-between">
-                      <span>Tamaño:</span>
-                      <span className="font-medium">{file.file_size}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Fecha:</span>
+                  <div className="text-xs text-gray-400 space-y-1 w-full">
+                    <div className="flex justify-between gap-1">
                       <span className="font-medium">{FormatDate(file.created_at)}</span>
+                      <span className="font-medium">{formatFileSize(file.file_size)}</span>
                     </div>
                     <div className="mt-2 pt-2 border-t border-gray-100 flex justify-between">
-                        <span className="inline-block bg-[var(--font)]  text-[var(--primary)] px-2 py-1 rounded-lg text-xs font-medium">
-                            {file.subject}
+                        <span>
+                          {file.subject &&
+                            <span className="inline-block bg-[var(--font)] text-[var(--primary)] px-2 py-1 rounded-lg text-xs font-medium max-w-40 lg:max-w-24 2xl:max-w-40 truncate overflow-hidden text-ellipsis break-all">
+                              {file.subject}
+                            </span>
+                          }
                         </span>
                         <span>
                         <ActionFileDropdown
+                          item = {file}
                           pageLevel={pageLevel}
+                          onView={handleDetails}
                         />
                         </span>
                     </div>
@@ -228,18 +307,22 @@ const FileManager = ({files,subjects, currentPage=1, totalPages=1, onPageChange=
                 </thead>
                 <tbody>
                   {filteredFiles.map((file, index) => (
-                    <tr key={file.id} className={`border-b border-[var(--secondary)] hover:bg-[var(--font)] cursor-pointer transition-colors ${index % 2 === 0 ? 'bg-[var(--fontBox)]' : 'bg-gray-100'}`}>
+                    <tr key={file.id} className={`border-b border-[var(--secondary)] hover:bg-[var(--font)] cursor-pointer transition-colors select-none bg-[var(--fontBox)]`} onDoubleClick={() => openFile(file)}>
                       <td className="py-3 px-4">
                         <div className="flex items-center gap-3">
-                          {getFileIcon(file.file_type)}
-                          <span className="font-medium text-[var(--primary)]">{file.name}</span>
+                          {getFileIcon(file.file_type, file.file_path)}
+                          <span className="font-medium text-[var(--primary)] overflow-hidden text-ellipsis break-all text-start">{file.name}</span>
                         </div>
                       </td>
-                      <td className="py-3 px-4 text-[var(--primary)]">{file.file_size}</td>
+                      <td className="py-3 px-4 text-[var(--primary)]">{formatFileSize(file.file_size)}</td>
                       <td className="py-3 px-4 text-[var(--primary)]">{FormatDate(file.created_at)}</td>
                       <td className="py-3 px-4">
-                        <span className="inline-block bg-[var(--font)] text-[var(--primary)] px-2 py-1 rounded-full text-xs font-medium">
-                          {file.subject}
+                        <span>
+                          {file.subject &&
+                            <span className="inline-block bg-[var(--font)] text-[var(--primary)] px-2 py-1 rounded-full text-xs font-medium overflow-hidden text-ellipsis break-all text-start">
+                              {file.subject}
+                            </span>
+                          }
                         </span>
                       </td>
                       <td className="py-3 px-4">
@@ -282,6 +365,112 @@ const FileManager = ({files,subjects, currentPage=1, totalPages=1, onPageChange=
           </div>
       </div>
       {/* ------------------------ */}
+
+      {(
+        isAdmin ? (
+          <>
+            <UploadFileModal
+              show={modalUpFileOpen}
+              subjects={subjects}
+              onClose={() => setModalUpFileOpen(false)}>
+            </UploadFileModal>
+          </>
+        ) : ""
+      )}
+
+      {/* DETAILS MODAL */}
+      <Modal show={modalDetailsOpen} onClose={() => setModalDetailsOpen(false)}>
+          <div className="p-6 space-y-4">
+              <div className="flex justify-between items-center mb-4">
+                  <h3 className="text-lg font-semibold text-[var(--primary)]">
+                      Detalles del archivo
+                  </h3>
+                  <button onClick={() => setModalDetailsOpen(false)} className="text-[var(--secondary)] hover:text-[var(--primary)]">
+                      <FaTimes />
+                  </button>
+              </div>
+      
+              <div>
+                  {/* Table */}
+                  {viewDetails.length > 0 && (
+                      <div className="overflow-x-auto">
+                          <table className="table-auto border-collapse border border-[var(--secondary)] w-full">
+                              <tbody>
+                                  {Object.entries(viewDetails[0]).map(([key, value], i) => (
+                                  <tr key={i}>
+                                      <th className="border border-[var(--secondary)] px-2 py-1 bg-[var(--font)] text-[var(--primary)] text-left w-1/3">
+                                      {key}
+                                      </th>
+                                      <td className="border border-[var(--secondary)] px-2 py-1">
+                                      {value === null || value === undefined ? "" : String(value)}
+                                      </td>
+                                  </tr>
+                                  ))}
+                              </tbody>
+                          </table>
+                      </div>
+                  )}
+
+              </div>
+          </div>
+      </Modal>
+
+      {/* VIEW FILE MODAL */}
+      { selectedViewFile &&
+        <Modal show={modalViewFileOpen} fullscreen={true} onClose={() => setModalViewFileOpen(false)}>
+          <div className="p-6 space-y-4">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-semibold text-[var(--primary)]">
+                {selectedViewFile.name}
+              </h3>
+              <button onClick={() => setModalViewFileOpen(false)} className="text-[var(--secondary)] hover:text-[var(--primary)]">
+                <FaTimes />
+              </button>
+            </div>
+
+            <div className="flex justify-center items-center">
+              {selectedViewFile.file_type.match(/(jpg|jpeg|png|gif|bmp|svg)/i) && (
+                <img
+                  src={`/storage/${selectedViewFile.file_path}`}
+                  alt={selectedViewFile.name}
+                  className="max-w-full max-h-[70vh] object-contain"
+                />
+              )}
+
+              {selectedViewFile.file_type === "pdf" && (
+                <iframe
+                  src={`/storage/${selectedViewFile.file_path}`}
+                  className="w-full h-[86vh]"
+                  title={selectedViewFile.name}
+                />
+              )}
+
+              {selectedViewFile.file_type.match(/(mp4|mov|avi)/i) && (
+                <video
+                  controls
+                  className="w-full max-w-[100%] h-auto max-h-[84vh] rounded shadow-lg"
+                >
+                  <source src={`/storage/${selectedViewFile.file_path}`} type={`${selectedViewFile.mime_type}`} />
+                  Tu navegador no soporta la reproducción de video.
+                </video>
+              )}
+
+              {selectedViewFile.file_type.match(/(mp3|wav|ogg)/i) && (
+                <audio controls className="w-full">
+                  <source src={`/storage/${selectedViewFile.file_path}`} type={`audio/${selectedViewFile.file_type}`} />
+                  Tu navegador no soporta la reproducción de audio.
+                </audio>
+              )}
+
+              {/* Para otros tipos de archivo */}
+              {!selectedViewFile.file_type.match(/(jpg|jpeg|png|gif|bmp|svg|pdf|mp4|mov|avi|mp3|wav|ogg)/i) && (
+                <p className="text-gray-500">No se puede previsualizar este tipo de archivo.</p>
+              )}
+            </div>
+          </div>
+        </Modal>
+
+      }
 
     </div>
   );

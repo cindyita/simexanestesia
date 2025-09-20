@@ -24,7 +24,8 @@ return new class extends Migration
             $table->string('text_color');
             $table->string('text_color_reverse');
             $table->string('style_type')->default(1);
-            $table->string('logo');
+            $table->text('logo');
+            $table->text('icon');
             $table->string('url');
             $table->tinyInteger('use_uniquekeys')->default(0);
             $table->string('register_key');
