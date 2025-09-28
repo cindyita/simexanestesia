@@ -109,6 +109,8 @@ Route::middleware('auth')->group(function () {
 
     Route::post('/newexam', [ExamsController::class, 'createExam'])->middleware(['menu.permission:'.idMenu['exams']])->name('editexam');
 
+    Route::post('/startExam', [ExamsController::class, 'startExam'])->middleware(['menu.permission:'.idMenu['exams']])->name('startexam');
+
     // DASHBOARD ----------------------
     Route::post('/alert', [DashboardController::class, 'alertUpdate'])->name('alert.update');
 

@@ -31,7 +31,8 @@ import axios from 'axios';
 import ConfirmDeleteModal from '../modal/ConfirmDeleteModal';
 import { toast } from 'sonner';
 
-const ExamManager = ({exams, currentPage=1,totalPages=1, onPageChange={},pageLevel=1,isAdmin=false}) => {
+const ExamManager = ({ exams, currentPage = 1, totalPages = 1, onPageChange = {}, pageLevel = 1, isAdmin = false }) => {
+  
   const [viewType, setViewType] = useState('grid');
   const [filterSubject, setFilterSubject] = useState('');
   const [filterStatus, setFilterStatus] = useState('');
@@ -99,8 +100,8 @@ const ExamManager = ({exams, currentPage=1,totalPages=1, onPageChange={},pageLev
     return exams.filter(exam => {
       const matchesSubject = !filterSubject || exam.subject === filterSubject;
       const matchesStatus = !filterStatus || 
-        (filterStatus === 'completed' && exam.lastAttempt) ||
-        (filterStatus === 'pending' && !exam.lastAttempt);
+        (filterStatus === 'completed' && exam.lastAttempt && exam.lastAttempt.completed) ||
+        (filterStatus === 'pending' && (!exam.lastAttempt || (exam.lastAttempt && !exam.lastAttempt.completed)));
       return matchesSubject && matchesStatus;
     });
   }, [filterSubject, filterStatus]);
@@ -110,19 +111,21 @@ const ExamManager = ({exams, currentPage=1,totalPages=1, onPageChange={},pageLev
     setFilterStatus('');
   };
 
-  const startExam = (examId, examName) => {
-    alert(`Iniciando examen: ${examName}`);
-    // iniciar el examen
+  const startExam = (id) => {
+    router.visit('/startExam', {
+            method: 'post',
+            data: {
+              id: id
+            }
+        });
   };
 
-  const retakeExam = (examId, examName) => {
-    alert(`Reiniciando examen: ${examName}`);
-    // repetir el examen
+  const retakeExam = (id) => {
+    alert(`Reiniciando examen`);
   };
 
-  const viewAnswersExam = (examId, examName) => {
-    alert(`Respuestas del examen: ${examName}`);
-    // ver respuestas del examen
+  const viewAnswersExam = (id) => {
+    handleViewQuestions(id);
   };
 
   const getExamType = (type) => {
@@ -191,8 +194,6 @@ const ExamManager = ({exams, currentPage=1,totalPages=1, onPageChange={},pageLev
     const questions = await axios.get('/getExamQuestions', { params: { id } });
     setViewQuestions(questions.data);
     setModalQuestionsOpen(true);
-    console.log(questions.data);
-    
   }
 
   const questionType = (type) => {
@@ -422,7 +423,7 @@ const ExamManager = ({exams, currentPage=1,totalPages=1, onPageChange={},pageLev
                   </div>
 
                   {/* Estado del examen */}
-                  {exam.lastAttempt ? (
+                  {exam.lastAttempt && exam.lastAttempt.completed ? (
                     <div className="border border-[var(--secondary)] p-3 rounded-lg mb-4 flex-1 h-full">
                       <div className="flex items-center justify-between mb-2">
                         <span className="text-sm font-medium text-[var(--primary)]">Último intento:</span>
@@ -446,42 +447,81 @@ const ExamManager = ({exams, currentPage=1,totalPages=1, onPageChange={},pageLev
                       </div>
                     </div>
                   ) : (
-                    <div className="bg-gray-100 p-2 rounded-lg mb-4 text-center flex-1">
-                      <span className="text-gray-400 h-full text-sm font-medium flex items-center justify-center">
-                        Sin intentos
-                      </span>
-                    </div>
-                  )}
+                      exam.lastAttempt && !exam.lastAttempt.completed ? (
+                        <>
+                          <div className="border border-[var(--secondary)] p-3 rounded-lg mb-4 flex-1 h-full">
+                            <div className="flex items-center justify-between mb-2">
+                              <span className="text-sm font-medium text-[var(--primary)]">Último intento:</span>
+                              <span className={`font-bold text-lg ${getScoreColor(exam.lastAttempt.score)}`}>
+                                En progreso
+                              </span>
+                            </div>
+                            <div className="w-full text-xs text-[var(--primary)] flex gap-2 flex-wrap items-center md:items-start md:flex-col">
+                              <div className="w-full flex justify-between">
+                                <span>Fecha inicio:</span>
+                                <span>{FormatDate(exam.lastAttempt.startedAt,true)}</span>
+                              </div>
+                              <div className="w-full flex justify-between">
+                                <span>Intentos:</span>
+                                <span>{exam.lastAttempt.attempts}</span>
+                              </div>
+                            </div>
+                          </div>
+                        </>
+                    ) : (
+                      <div className="bg-gray-100 p-2 rounded-lg mb-4 text-center flex-1">
+                        <span className="text-gray-400 h-full text-sm font-medium flex items-center justify-center">
+                          Sin intentos
+                        </span>
+                      </div>
+                    )
+                  )
+                  }
 
                   {/* Botones de acción */}
                   <div className="flex gap-2">
                     {exam.is_active === 1 ? (
-                      (exam.lastAttempt ? (
+                      (exam.lastAttempt && exam.lastAttempt.completed ? (
                         <div className="flex gap-2 justify-between w-full">
                           <TertiaryButton
-                            onClick={() => viewAnswersExam(exam.id, exam.name)}
+                            onClick={() => viewAnswersExam(exam.id)}
                             className="flex-1 flex items-center justify-center gap-2 py-3"
                           >
                             <MdOutlineRateReview className="w-4 h-4" />
                             Ver respuestas
                           </TertiaryButton>
                           <SecondaryButton
-                            onClick={() => retakeExam(exam.id, exam.name)}
+                            onClick={() => retakeExam(exam.id)}
                             className="flex-1 flex items-center justify-center gap-2 py-3"
                           >
                             <FaRedo className="w-4 h-4" />
                             Repetir Examen
                           </SecondaryButton>
                         </div>
-                      ) : (
-                        <PrimaryButton
-                          onClick={() => startExam(exam.id, exam.name)}
-                          className="flex-1 flex items-center justify-center gap-2 py-3"
-                        >
-                          <FaPlay className="w-4 h-4" />
-                          Comenzar Examen
-                        </PrimaryButton>
-                      ))
+                      ) :
+                        (
+                          exam.lastAttempt && !exam.lastAttempt.completed ? (
+                            <>
+                              <SecondaryButton
+                                onClick={() => startExam(exam.id)}
+                                className="flex-1 flex items-center justify-center gap-2 py-3"
+                              >
+                                <FaPlay className="w-4 h-4" />
+                                Continuar Examen
+                              </SecondaryButton>
+                            </>
+                          ):
+                            (
+                              <PrimaryButton
+                                onClick={() => startExam(exam.id)}
+                                className="flex-1 flex items-center justify-center gap-2 py-3"
+                              >
+                                <FaPlay className="w-4 h-4" />
+                                Comenzar Examen
+                              </PrimaryButton>
+                            )
+                        )
+                        )
                       ) : (
                         <span className="bg-gray-100 p-2 rounded-lg mb-4 text-center flex-1 text-gray-400">
                           No disponible
