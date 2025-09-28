@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Exams;
+use App\Models\ExamsQuestions;
 use App\Models\History;
+use App\Models\Subjects;
 use Illuminate\Support\Facades\Auth;
 use App\Models\ViewRolesPermissions;
 use Illuminate\Http\Request;
@@ -15,6 +17,15 @@ class ExamsController extends Controller
 {
     public function get(Request $request): Response {
         $userId = session('user')['id'];
+
+        // ROW DELETE --------------------------------------
+        $id_delete = $request->input('id_delete');
+
+        if($id_delete){
+            ExamsQuestions::where('id_exam', $id_delete)->delete();
+            Exams::where('id', $id_delete)->delete();
+        }
+        //-------------------------------------------------
 
         $perPage = $request->input('per_page', 15);
 
@@ -54,15 +65,209 @@ class ExamsController extends Controller
         ]);
     }
 
-    public function createExam(): Response {
+    public function getExam(Request $request) {
+        $id = $request->input('id');
+
+        $exam = Exams::select(
+            'reg_exams.*',
+            'reg_subjects.name as subject',
+            'sys_users.name as created_by_name',
+        )
+            ->join('reg_subjects', 'reg_exams.id_subject', '=', 'reg_subjects.id')
+            ->join('sys_users', 'reg_exams.created_by', '=', 'sys_users.id')
+            ->where('reg_exams.id', $id)->first();
+        
+        switch ($exam['exam_type']) {
+            case 'multiple_choice':
+                $exam['exam_type_show'] = "Opción múltiple";
+            break;
+            case 'true_false':
+                $exam['exam_type_show'] = "Verdadero/Falso";
+            break;
+            case 'essay':
+                $exam['exam_type_show'] = "Desarrollo";
+            break;
+            case 'mixed':
+                $exam['exam_type_show'] = "Mixto";
+            break;
+            default:
+                $exam['exam_type_show'] = $exam['exam_type'];
+            break;
+        }
+
+        switch ($exam['difficulty']) {
+            case 'basic':
+                $exam['difficulty_show'] = "Básica";
+            break;
+            case 'intermediate':
+                $exam['difficulty_show'] = "Intermedia";
+            break;
+            case 'advanced':
+                $exam['difficulty_show'] = "Avanzada";
+            break;
+            default:
+                $exam['difficulty_show'] = $exam['difficulty'];
+            break;
+        }
+
+        $exam['time_limit_show'] = $exam['time_limit'] . ' min';
+        $exam['passing_score_show'] = $exam['passing_score'] . '%';
+        $exam['is_active_show'] = $exam['is_active'] ? "Si" : "No";
+
+        $questions = ExamsQuestions::where('id_exam', $id)->orderBy('order')->get();
+
+        $exam['questions'] = $questions;
+
+        return response()->json([$exam]);
+    }
+
+    public function getExamQuestions(Request $request) {
+        $id = $request->input('id');
+
+        $questions = ExamsQuestions::where('id_exam', $id)->orderBy('order')->get();
+
+        return response()->json($questions);
+    }
+
+    public function createExam(Request $request): Response {
         $isAdmin = session('user')['mode_admin'] ? true : false;
-        if($isAdmin){
-            return Inertia::render('CreateExam');
-        }else{
+        $idCompany = session('user')['id_company'];
+        $edit = $request->input('edit');
+
+        if($isAdmin) {
+            $subjects = Subjects::select("id","name","code")
+            ->where("id_company",$idCompany)->get();
+
+            return Inertia::render('CreateExam',[
+                'subjects'=>$subjects,
+                'edit' => $edit
+            ]);
+        } else {
             Log::stack(['single'])->info('Error 403 para id: '.session('user')['id']);
             return Inertia::render('ErrorPage',[
             'status' => '403']);
         }    
+    }
+
+    public function saveExam(Request $request) {
+        $id = session('user')['id'];
+        $isAdmin = session('user')['mode_admin'] ? true : false;
+        $idCompany = session('user')['id_company'];
+
+        $examData = $request->input('exam');
+
+        if (!$isAdmin) {
+            Log::stack(['single'])->info('Error 403 para id: ' . session('user')['id']);
+            return Inertia::render('ErrorPage', [
+                'status' => '403'
+            ]);
+        }
+
+        $edit = $examData['edit'];
+
+        //---------------------
+        // UPDATE
+        if ($edit && !empty($examData['id'])) {
+            $exam = Exams::findOrFail($examData['id']);
+
+            $exam->update([
+                'name'              => $examData['name'],
+                'description'       => $examData['description'],
+                'id_subject'        => $examData['subject_id'],
+                'created_by'        => $id,
+                'time_limit'        => $examData['time_limit'],
+                'total_questions'   => $examData['total_questions'],
+                'exam_type'         => $examData['exam_type'],
+                'difficulty'        => $examData['difficulty'],
+                'passing_score'     => $examData['passing_score'],
+                'max_attempts'      => $examData['max_attempts'],
+                'shuffle_questions' => $examData['shuffle_questions'],
+                'shuffle_options'   => $examData['shuffle_options'],
+                'is_active'         => $examData['is_active'],
+                'show_results'      => $examData['show_results'],
+                'id_company'        => $idCompany
+            ]);
+
+            // Manejo de preguntas (update o create)
+            if (!empty($examData['questions'])) {
+                foreach ($examData['questions'] as $questionData) {
+                    if (!empty($questionData['id'])) {
+                        $question = ExamsQuestions::find($questionData['id']);
+                        if ($question) {
+                            $question->update([
+                                'question'        => $questionData['question'],
+                                'question_type'   => $questionData['question_type'],
+                                'options'         => json_encode($questionData['options']),
+                                'correct_answers' => json_encode($questionData['correct_answers']),
+                                'explanation'     => $questionData['explanation'],
+                                'order'           => $questionData['order'],
+                                'image_path'      => $questionData['image_path'] ?? null,
+                                'audio_path'      => $questionData['audio_path'] ?? null,
+                                'is_active'       => $questionData['is_active'] ?? true,
+                            ]);
+                        }
+                    } else {
+                        ExamsQuestions::create([
+                            'id_exam'         => $exam->id,
+                            'question'        => $questionData['question'],
+                            'question_type'   => $questionData['question_type'],
+                            'options'         => json_encode($questionData['options']),
+                            'correct_answers' => json_encode($questionData['correct_answers']),
+                            'explanation'     => $questionData['explanation'],
+                            'order'           => $questionData['order'],
+                            'image_path'      => $questionData['image_path'] ?? null,
+                            'audio_path'      => $questionData['audio_path'] ?? null,
+                            'is_active'       => $questionData['is_active'] ?? true,
+                        ]);
+                    }
+                }
+            }
+
+            return response()->json([
+                'message' => 'Examen actualizado correctamente',
+                'exam_id' => $exam->id
+            ], 200);
+        }
+
+        $exam = Exams::create([
+            'name'              => $examData['name'],
+            'description'       => $examData['description'],
+            'id_subject'        => $examData['subject_id'],
+            'created_by'        => $id,
+            'time_limit'        => $examData['time_limit'],
+            'total_questions'   => $examData['total_questions'],
+            'exam_type'         => $examData['exam_type'],
+            'difficulty'        => $examData['difficulty'],
+            'passing_score'     => $examData['passing_score'],
+            'max_attempts'      => $examData['max_attempts'],
+            'shuffle_questions' => $examData['shuffle_questions'],
+            'shuffle_options'   => $examData['shuffle_options'],
+            'is_active'         => $examData['is_active'],
+            'show_results'      => $examData['show_results'],
+            'id_company'        => $idCompany
+        ]);
+
+        if (!empty($examData['questions'])) {
+            foreach ($examData['questions'] as $questionData) {
+                ExamsQuestions::create([
+                    'id_exam'         => $exam->id,
+                    'question'        => $questionData['question'],
+                    'question_type'   => $questionData['question_type'],
+                    'options'         => json_encode($questionData['options']),
+                    'correct_answers' => json_encode($questionData['correct_answers']),
+                    'explanation'     => $questionData['explanation'],
+                    'order'           => $questionData['order'],
+                    'image_path'      => $questionData['image_path'] ?? null,
+                    'audio_path'      => $questionData['audio_path'] ?? null,
+                    'is_active'       => true,
+                ]);
+            }
+        }
+
+        return response()->json([
+            'exam_id' => $exam->id
+        ], 200);
+
     }
 
     public function getHistory(Request $request): Response {

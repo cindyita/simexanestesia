@@ -67,7 +67,7 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/appsettings', [SettingsController::class, 'getAppSettings'])->middleware(['menu.permission:'.idMenu['settings']])->name('appsettings');
 
-    // GET IN PAGES
+    // GET IN PAGES ------------------------
     Route::get('/getLog', [AccountController::class, 'getLog'])->middleware(['menu.permission:'.idMenu['logs']])->name('getLog');
 
     Route::get('/getRol', [RolesController::class, 'getRol'])->middleware(['menu.permission:'.idMenu['roles']])->name('getRol');
@@ -79,8 +79,12 @@ Route::middleware('auth')->group(function () {
     Route::get('/getHistory', [ExamsController::class, 'getHistoryOne'])->middleware(['menu.permission:'.idMenu['history']])->name('gethistoryone');
 
     Route::get('/getFile', [ResourcesController::class, 'getFile'])->middleware(['menu.permission:'.idMenu['resources']])->name('getfile');
+
+    Route::get('/getExam', [ExamsController::class, 'getExam'])->middleware(['menu.permission:'.idMenu['exams']])->name('getexam');
+
+    Route::get('/getExamQuestions', [ExamsController::class, 'getExamQuestions'])->middleware(['menu.permission:'.idMenu['exams']])->name('getexamquestions');
     
-    // POST IN PAGES
+    // POST IN PAGES ------------------------
     Route::post('/registerkeys', [AccountController::class, 'getRegisterKeys'])->middleware(['menu.permission:'.idMenu['registerkeys']])->name('registerkeys');
 
     Route::post('/appsettings', [SettingsController::class, 'getAppSettings'])->middleware(['menu.permission:'.idMenu['settings']])->name('appsettings');
@@ -98,6 +102,12 @@ Route::middleware('auth')->group(function () {
     Route::post('/logs', [AccountController::class, 'getLogs'])->middleware(['menu.permission:'.idMenu['logs']])->name('logs');
 
     Route::post('/resources', [ResourcesController::class, 'getResources'])->middleware(['menu.permission:'.idMenu['resources']])->name('resources');
+
+    Route::post('/saveExam', [ExamsController::class, 'saveExam'])->middleware(['menu.permission:'.idMenu['exams']])->name('saveexam');
+
+    Route::post('/exams', [ExamsController::class, 'get'])->middleware(['menu.permission:'.idMenu['exams']])->name('exams');
+
+    Route::post('/newexam', [ExamsController::class, 'createExam'])->middleware(['menu.permission:'.idMenu['exams']])->name('editexam');
 
     // DASHBOARD ----------------------
     Route::post('/alert', [DashboardController::class, 'alertUpdate'])->name('alert.update');

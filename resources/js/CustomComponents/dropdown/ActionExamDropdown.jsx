@@ -1,8 +1,9 @@
 import { useState, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { FaEdit, FaTrash, FaEye, FaEllipsisV, FaLink, FaFileDownload, FaList } from "react-icons/fa";
+import { FaCircleQuestion } from "react-icons/fa6";
 
-const ActionExamDropdown = ({ item, onView, onEdit, onDelete, onCustomAction, pageLevel=1 }) => {
+const ActionExamDropdown = ({ item, onView, onViewQuestions, onEdit, onDelete, onCustomAction, pageLevel=1 }) => {
   
   const [isOpen, setIsOpen] = useState(false);
   const [position, setPosition] = useState({ top: 0, left: 0 });
@@ -14,7 +15,7 @@ const ActionExamDropdown = ({ item, onView, onEdit, onDelete, onCustomAction, pa
       const rect = buttonRef.current.getBoundingClientRect();
       setPosition({
         top: rect.bottom + window.scrollY,
-        left: rect.right + window.scrollX - 192, // ancho ~ w-48
+        left: rect.right + window.scrollX - 192, // w-48
       });
     }
     setIsOpen(!isOpen);
@@ -27,6 +28,9 @@ const ActionExamDropdown = ({ item, onView, onEdit, onDelete, onCustomAction, pa
     switch (action) {
       case "view":
         onView?.(item);
+        break;
+      case "viewquestions":
+        onViewQuestions?.(item);
         break;
       case "edit":
         if(pageLevel > 1) onEdit?.(item);
@@ -81,6 +85,14 @@ const ActionExamDropdown = ({ item, onView, onEdit, onDelete, onCustomAction, pa
                 >
                   <FaEye className="mr-3 h-4 w-4 text-[var(--secondary)] group-hover:text-[var(--secondary)]" />
                   Ver detalles
+                </button>
+
+                <button
+                  onClick={(e) => handleAction("viewquestions", e)}
+                  className="group flex items-center px-4 py-2 text-sm text-[var(--primary)] hover:bg-[var(--font)] hover:text-[var(--primary)] w-full text-left"
+                >
+                  <FaCircleQuestion className="mr-3 h-4 w-4 text-[var(--secondary)] group-hover:text-[var(--secondary)]" />
+                  Ver preguntas
                 </button>
                         
                 <button

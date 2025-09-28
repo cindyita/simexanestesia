@@ -76,7 +76,7 @@ class ResourcesController extends Controller
             $resourceUpdate = Resources::find($update['id']);
             $resourceUpdate->name = $update['name'].".".$update['file_type'];
             $resourceUpdate->description = $update['description'];
-            $resourceUpdate->id_subject = $update['id_subject']["id"] == 0 ? null : $update['id_subject']["id"];
+            $resourceUpdate->id_subject = $update['id_subject'] == 0 ? null : $update['id_subject'];
             $resourceUpdate->tags = null;
             $resourceUpdate->save();
         }

@@ -20,18 +20,31 @@ import { MdOutlineRateReview } from "react-icons/md";
 import PrimaryButton from '../button/PrimaryButton';
 import SecondaryButton from '../button/SecondaryButton';
 
-import { Link } from '@inertiajs/react';
+import { Link, router } from '@inertiajs/react';
 import ActionExamDropdown from '../dropdown/ActionExamDropdown';
 import TertiaryButton from '../button/TertiaryButton';
 import { FormatDate } from '@/Functions/FormatDate';
 import Select from '../form/Select';
+import { useFetchDetails } from '@/hooks/useFetchDetails';
+import Modal from '../modal/Modal';
+import axios from 'axios';
+import ConfirmDeleteModal from '../modal/ConfirmDeleteModal';
+import { toast } from 'sonner';
 
 const ExamManager = ({exams, currentPage=1,totalPages=1, onPageChange={},pageLevel=1,isAdmin=false}) => {
-  const [viewType, setViewType] = useState('grid'); // 'grid' o 'list'
+  const [viewType, setViewType] = useState('grid');
   const [filterSubject, setFilterSubject] = useState('');
-  const [filterStatus, setFilterStatus] = useState(''); // 'completed', 'pending'
+  const [filterStatus, setFilterStatus] = useState('');
 
-  // Color por dificultad
+  const [modalDetailsOpen, setModalDetailsOpen] = useState(false);
+  const [viewDetails, setViewDetails] = useState([]);
+
+  const [modalQuestionsOpen, setModalQuestionsOpen] = useState(false);
+  const [viewQuestions, setViewQuestions] = useState([]);
+
+  const [modalDeleteOpen, setModalDeleteOpen] = useState(false);
+  const [deleteId, setDeleteId] = useState(0);
+
   const getDifficultyColor = (difficulty) => {
     switch (difficulty) {
       case 'basic':
@@ -58,7 +71,6 @@ const ExamManager = ({exams, currentPage=1,totalPages=1, onPageChange={},pageLev
     }
   }
 
-  // Función para obtener el color según el score
   const getScoreColor = (score) => {
     if (score >= 90) return 'text-green-600';
     if (score >= 80) return 'text-blue-600';
@@ -66,7 +78,6 @@ const ExamManager = ({exams, currentPage=1,totalPages=1, onPageChange={},pageLev
     return 'text-red-600';
   };
 
-  // Función para obtener el icono según el tipo de examen
   const getExamTypeIcon = (type,size = 4) => {
     switch (type) {
       case 'multiple_choice':
@@ -82,10 +93,8 @@ const ExamManager = ({exams, currentPage=1,totalPages=1, onPageChange={},pageLev
     }
   };
 
-  // Obtener listas únicas para los filtros
   const subjects = [...new Set(exams.map(exam => exam.subject))].sort();
 
-  // Filtrar exámenes
   const filteredExams = useMemo(() => {
     return exams.filter(exam => {
       const matchesSubject = !filterSubject || exam.subject === filterSubject;
@@ -131,6 +140,103 @@ const ExamManager = ({exams, currentPage=1,totalPages=1, onPageChange={},pageLev
     }
   }
 
+  const handleDetails = async (item) => {
+    const details = await handleActionDetails(item.id);
+
+      const formattedDetails = details.map(row => {
+        const newRow = {};  
+          for (const [key, value] of Object.entries(row)) {
+              if (typeof value === "string" && value.match(/^\d{4}-\d{2}-\d{2}(T|\s)/)) {
+                  newRow[key] = FormatDate(value, true);
+              } else if (typeof value === "object" && value !== null) {
+                  newRow[key] = JSON.stringify(value, null, 2);
+              } else if (key == "Tamaño") {
+                  newRow[key] = formatFileSize(value,2);
+              }else{
+                  newRow[key] = value;
+              }
+          }
+          return newRow;
+      });
+      setViewDetails(formattedDetails);
+      setModalDetailsOpen(true);
+  };
+
+  const { fetchDetails } = useFetchDetails();
+
+  const handleActionDetails = async (id) => {
+    
+    const headerMap = {
+      name: "Nombre",
+      description: "Descripción",
+      subject: "Materia asociada",
+      time_limit_show: "Tiempo límite",
+      total_questions: "Total de preguntas",
+      exam_type_show: "Tipo de examen",
+      difficulty_show: "Dificultad",
+      passing_score_show: "Calificación mínima",
+      max_attempts: "Máximo de intentos",
+      shuffle_questions: "Randomizar preguntas",
+      shuffle_options: "Randomizar opciones",
+      show_results: "Mostrar respuestas",
+      is_active_show: "Activo",
+      created_by_name: "Creado por",
+      created_at: "Fecha de creación",
+      updated_at: "Última actualización"
+    };
+    return await fetchDetails("/getExam", { id },headerMap);
+  }
+
+  const handleViewQuestions = async (id) => {
+    const questions = await axios.get('/getExamQuestions', { params: { id } });
+    setViewQuestions(questions.data);
+    setModalQuestionsOpen(true);
+    console.log(questions.data);
+    
+  }
+
+  const questionType = (type) => {
+    switch (type) {
+      case 'multiple_choice':
+          return "Opción múltiple";
+      case 'true_false':
+          return "Verdadero/Falso";
+      case 'essay':
+          return "Desarrollo";
+      case 'mixed':
+          return "Mixto";
+    }
+  }
+
+  const handleConfirmDelete = (item) => {
+    setDeleteId(item.id);
+    setModalDeleteOpen(true);
+  }
+
+  const handleDelete = async (id) => {
+    return new Promise((resolve, reject) => {
+        router.visit('/exams', {
+            method: 'post',
+            data: {
+              id_delete: id
+            },
+            onSuccess: () => resolve(id),
+            onError: (errors) => reject(errors),
+        });
+    });
+  }
+
+  const handleEdit = async(exam) => {
+    const edit = await fetchDetails("/getExam", { id: exam.id });
+
+    router.visit('/newexam', {
+            method: 'post',
+            data: {
+              edit: edit[0]
+            }
+        });
+  }
+
   return (
     <div className="px-3 md:px-6">
       <div>
@@ -143,7 +249,11 @@ const ExamManager = ({exams, currentPage=1,totalPages=1, onPageChange={},pageLev
                 <>
                   <Link href="/newexam"><PrimaryButton>Crear examen</PrimaryButton></Link>
                 </>
-              ) : ""
+              ) : (
+                  <>
+                    <Link href="/testexam"><PrimaryButton>Probar examen</PrimaryButton></Link>
+                  </>
+              )
             )}
           </div>
           
@@ -215,7 +325,7 @@ const ExamManager = ({exams, currentPage=1,totalPages=1, onPageChange={},pageLev
         </div>
 
         {/* Estadísticas rápidas */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 hidden">
+        {/* <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 hidden">
           <div className="bg-[var(--fontBox)] p-4 rounded-lg shadow">
             <div className="flex items-center gap-3">
               <div className="bg-teal-100 p-3 rounded-full">
@@ -253,7 +363,7 @@ const ExamManager = ({exams, currentPage=1,totalPages=1, onPageChange={},pageLev
               </div>
             </div>
           </div>
-        </div>
+        </div> */}
 
         {/* Vista de Tarjetas */}
         {viewType === 'grid' && (
@@ -275,7 +385,14 @@ const ExamManager = ({exams, currentPage=1,totalPages=1, onPageChange={},pageLev
                       {exam.subject}
                     </span>
                     <span>
-                        <ActionExamDropdown pageLevel={pageLevel} />
+                      <ActionExamDropdown
+                        item={exam}
+                        pageLevel={pageLevel}
+                        onView={handleDetails}
+                        onViewQuestions={handleViewQuestions}
+                        onDelete={handleConfirmDelete}
+                        onEdit={handleEdit}
+                      />
                     </span>
                   </div>
                   <p title={exam.description} className="text-gray-500 text-sm line-clamp-2">
@@ -499,7 +616,12 @@ const ExamManager = ({exams, currentPage=1,totalPages=1, onPageChange={},pageLev
                       <td className="py-4 px-3 w-1">
                         <span>
                           <ActionExamDropdown
+                            item={exam}
                             pageLevel={pageLevel}
+                            onView={handleDetails}
+                            onViewQuestions={handleViewQuestions}
+                            onDelete={handleConfirmDelete}
+                            onEdit={handleEdit}
                           />
                         </span>
                       </td>
@@ -510,7 +632,6 @@ const ExamManager = ({exams, currentPage=1,totalPages=1, onPageChange={},pageLev
             </div>
           </div>
         )}
-        
 
         {/* Sin datos */}
         {filteredExams.length === 0 && (
@@ -538,6 +659,151 @@ const ExamManager = ({exams, currentPage=1,totalPages=1, onPageChange={},pageLev
           </div>
       </div>
       {/* ------------------------ */}
+
+      {/* DETAILS MODAL */}
+      <Modal show={modalDetailsOpen} onClose={() => setModalDetailsOpen(false)}>
+          <div className="p-6 space-y-4">
+              <div className="flex justify-between items-center mb-4">
+                  <h3 className="text-lg font-semibold text-[var(--primary)]">
+                      Detalles del examen
+                  </h3>
+                  <button onClick={() => setModalDetailsOpen(false)} className="text-[var(--secondary)] hover:text-[var(--primary)]">
+                      <FaTimes />
+                  </button>
+              </div>
+      
+              <div>
+                  {/* Table */}
+                  {viewDetails.length > 0 && (
+                      <div className="overflow-x-auto">
+                          <table className="table-auto border-collapse border border-[var(--secondary)] w-full">
+                              <tbody>
+                                  {Object.entries(viewDetails[0]).map(([key, value], i) => (
+                                  <tr key={i}>
+                                      <th className="border border-[var(--secondary)] px-2 py-1 bg-[var(--font)] text-[var(--primary)] text-left w-1/3">
+                                      {key}
+                                      </th>
+                                      <td className="border border-[var(--secondary)] px-2 py-1">
+                                      {value === null || value === undefined ? "" : String(value)}
+                                      </td>
+                                  </tr>
+                                  ))}
+                              </tbody>
+                          </table>
+                      </div>
+                  )}
+
+              </div>
+          </div>
+      </Modal>
+
+      {/* VIEW QUESTIONS MODAL */}
+      <Modal show={modalQuestionsOpen} onClose={() => setModalQuestionsOpen(false)}>
+          <div className="p-6 space-y-4">
+              <div className="flex justify-between items-center mb-4">
+                  <h3 className="text-lg font-semibold text-[var(--primary)]">
+                      Preguntas del examen
+                  </h3>
+                  <button onClick={() => setModalQuestionsOpen(false)} className="text-[var(--secondary)] hover:text-[var(--primary)]">
+                      <FaTimes />
+                  </button>
+              </div>
+      
+              <div className="space-y-6">
+                  {viewQuestions.length > 0 && viewQuestions.map((question, index) => {
+                    const options = JSON.parse(question.options);
+                    const correctAnswers = JSON.parse(question.correct_answers);
+                    
+                    return (
+                      <div key={question.id} className="border border-[var(--secondary)] rounded-lg p-4 bg-[var(--font)]">
+
+                        <div id={`question_${question.id}`} className="flex justify-between items-center mb-3">
+                          <span className="text-sm font-medium text-[var(--primary)] bg-[var(--fontBox)] px-2 py-1 rounded">
+                            Pregunta {index + 1}
+                          </span>
+                          <span className="text-xs text-gray-500 capitalize">
+                            {questionType(question.question_type)}
+                          </span>
+                        </div>
+
+                        <h4 className="font-medium text-gray-900 mb-4">
+                          {question.question}
+                        </h4>
+
+                        <div className="space-y-2 mb-4">
+                          {options.map((option, optionIndex) => {
+                            const isCorrect = correctAnswers.includes(optionIndex);
+                            return (
+                              <div 
+                                key={optionIndex}
+                                className={`p-3 rounded-md border ${
+                                  isCorrect 
+                                    ? 'bg-[var(--fontBox)] border border-[var(--primary)]' 
+                                    : 'bg-[var(--fontBox)]'
+                                }`}
+                              >
+                                <div className="flex items-center justify-between">
+                                  <span>{option}</span>
+                                  {isCorrect && (
+                                    <span className="text-[var(--primary)] font-medium text-sm">
+                                      <FaCheckCircle />
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+
+                        {question.explanation && (
+                          <div className="bg-blue-50 border-l-4 border-[var(--secondary)] p-3 rounded-r">
+                            <div className="flex items-start">
+                              
+                              <div className="flex-shrink-0">
+                                <span className="text-[var(--secondary)] font-bold text-sm">
+                                  Explicación:
+                                </span>
+                                <span className="ml-1 text-sm text-[var(--secondary)]">
+                                  {question.explanation}
+                                </span>
+                              </div>
+                              
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+
+              </div>
+          </div>
+      </Modal>
+      
+      {/* DELETE MODAL */}
+      <ConfirmDeleteModal
+          show={modalDeleteOpen}
+          onClose={() => setModalDeleteOpen(false)}
+          onConfirm={async (id) => {
+              try {
+                  await handleDelete(id);
+                  setModalDeleteOpen(false);
+                  setTimeout(() => {
+                      toast.success("Se ha eliminado exámen");
+                  }, 150);
+              } catch (err) {
+                  if (err && typeof err === "object") {
+                      setTimeout(() => { Object.values(err).forEach(msg => {
+                          toast.error(msg);
+                      }); }, 150);
+                  } else {
+                      setTimeout(() => { toast.error(err?.message || "Ocurrió un error"); }, 150);
+                  }
+              }
+          }}
+        id={deleteId}
+        title="Confirma la eliminación"
+        text = "Esta acción no se puede deshacer."
+      />
 
     </div>
   );
