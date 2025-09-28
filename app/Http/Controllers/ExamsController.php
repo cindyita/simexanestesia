@@ -53,6 +53,7 @@ class ExamsController extends Controller
                 'lastAttempt' => $lastAttempt ? [
                     'completed' => $lastAttempt->status === 'completed',
                     'score' => $lastAttempt->score,
+                    'startedAt' => $lastAttempt->started_at,
                     'completedAt' => $lastAttempt->completed_at,
                     'timeUsed' => $lastAttempt->time_used,
                     'attempts' => $lastAttempt->attempt_number,
@@ -267,7 +268,27 @@ class ExamsController extends Controller
         return response()->json([
             'exam_id' => $exam->id
         ], 200);
+    }
 
+    public function startExam(Request $request) {
+        $id = $request->input('id');
+
+        $exam = Exams::select(
+            'reg_exams.*',
+            'reg_subjects.name as subject',
+            'sys_users.name as created_by_name',
+        )
+            ->join('reg_subjects', 'reg_exams.id_subject', '=', 'reg_subjects.id')
+            ->join('sys_users', 'reg_exams.created_by', '=', 'sys_users.id')
+            ->where('reg_exams.id', $id)->first();
+
+        $questions = ExamsQuestions::where('id_exam', $id)->orderBy('order')->get();
+
+        $exam['questions'] = $questions;
+
+        return Inertia::render('StartExam', [
+            'data' => $exam
+        ]);
     }
 
     public function getHistory(Request $request): Response {

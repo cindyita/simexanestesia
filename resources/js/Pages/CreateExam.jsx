@@ -32,12 +32,10 @@ import ImageDropInput from '@/CustomComponents/form/ImageDropInput';
 
 const CreateExam = () => {
     const subjects = usePage().props.subjects;
-    const edit = usePage().props.edit;
-    console.log(edit);
-    
+    const edit = usePage().props.edit ?? null;
 
     // info state
-    const [examData, setExamData] = useState({
+    const [examData, setExamData] = useState( edit ? {
         id: (edit.id ?? null),
         name: (edit.name ?? ''),
         description: (edit.description ?? ''),
@@ -53,14 +51,30 @@ const CreateExam = () => {
         // available_until: '',
         show_results: (edit.show_results ?? false),
         is_active: (edit.is_active ?? 1)
+    } : {
+        id: (null),
+        name: (''),
+        description: (''),
+        subject_id: (''),
+        time_limit: (0),
+        exam_type: ('mixed'),
+        difficulty: ('basic'),
+        passing_score: (70),
+        max_attempts: (1),
+        shuffle_questions: (false),
+        shuffle_options: (false),
+        // available_from: '',
+        // available_until: '',
+        show_results: (false),
+        is_active: (1)
     });
 
     // questions state
-    const [questions, setQuestions] = useState((edit.questions ?? []).map(q => ({
+    const [questions, setQuestions] = useState(edit ? (edit.questions ?? []).map(q => ({
         ...q,
         options: JSON.parse(q.options),
         correct_answers: JSON.parse(q.correct_answers),
-    })) ?? []);
+    })) : []);
     const [currentQuestion, setCurrentQuestion] = useState({
         question: '',
         question_type: 'multiple_choice',
@@ -129,12 +143,12 @@ const CreateExam = () => {
     // Agregar o actualizar pregunta
     const saveQuestion = () => {
         if (!currentQuestion.question.trim()) {
-            alert('La pregunta no puede estar vacía');
+            toast.error('La pregunta no puede estar vacía');
             return;
         }
 
         if (currentQuestion.correct_answers.length === 0) {
-            alert('Debe seleccionar al menos una respuesta correcta');
+            toast.error('Debe seleccionar al menos una respuesta correcta');
             return;
         }
 
@@ -199,15 +213,15 @@ const CreateExam = () => {
     // Guardar examen completo
     const saveExam = async () => {
         if (!examData.name.trim()) {
-            alert('El nombre del examen es obligatorio');
+            toast.error('El nombre del examen es obligatorio');
             return;
         }
         if (!examData.subject_id) {
-            alert('Debe seleccionar una materia');
+            toast.error('Debe seleccionar una materia');
             return;
         }
         if (questions.length === 0) {
-            alert('Debe agregar al menos una pregunta');
+            toast.error('Debe agregar al menos una pregunta');
             return;
         }
 
@@ -529,7 +543,7 @@ const CreateExam = () => {
 
                 {/* Formulario de pregunta */}
                 {showQuestionForm && (
-                    <div className="bg-[var(--fontBox)] rounded-lg shadow p-6">
+                <div className="bg-[var(--fontBox)] rounded-lg shadow p-6">
                     <h3 className="text-lg font-semibold mb-4">
                         {editingQuestionIndex >= 0 ? 'Editar Pregunta' : 'Nueva Pregunta'}
                     </h3>
@@ -550,9 +564,10 @@ const CreateExam = () => {
                                 {/* <option value="essay">Desarrollo</option> */}
                             </Select>
                         </div>
-                        <div>
+                        {/* IMAGENES DE LA PREGUNTA */}
+                        {/* <div>
                             <ImageDropInput />
-                        </div>
+                        </div> */}
 
                         {/* Pregunta */}
                         <div>
@@ -659,7 +674,7 @@ const CreateExam = () => {
                             </PrimaryButton>
                         </div>
                     </div>
-                    </div>
+                </div>
                 )}
 
                 {/* Botones de navegación y guardado */}
