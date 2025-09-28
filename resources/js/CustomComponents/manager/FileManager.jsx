@@ -26,6 +26,9 @@ import { toast } from 'sonner';
 import ConfirmDeleteModal from '../modal/ConfirmDeleteModal';
 import FormModal from '../modal/FormModal';
 import { useFormValidation } from '@/hooks/useFormValidation';
+import IconButton from '../button/IconButton';
+import { AiOutlineFullscreen } from 'react-icons/ai';
+import { BiFullscreen } from 'react-icons/bi';
 
 const FileManager = ({files,subjects, currentPage=1, totalPages=1, onPageChange={},pageLevel=1, isAdmin=0}) => {
   const [viewType, setViewType] = useState('grid');
@@ -44,6 +47,8 @@ const FileManager = ({files,subjects, currentPage=1, totalPages=1, onPageChange=
 
   const [viewDetailsEdit, setViewDetailsEdit] = useState([]);
   const [formEdit, setFormEdit] = useState({});
+
+  const [fullscreen, setFullscreen] = useState(false);
 
   const getFileIcon = (fileType, filePath) => {
     
@@ -148,7 +153,7 @@ const FileManager = ({files,subjects, currentPage=1, totalPages=1, onPageChange=
     setModalViewFileOpen(true);
   }
 
-  let selectsubjects = [{ id: 0, name: "SELECCIONA" }, ...subjects];
+  let selectsubjects = [{ id: 0, name: "SELECCIONA", code: "" }, ...subjects];
 
   const handleActionFields = {
     id: { label: "id", type: "number", editable: false, show: false },
@@ -159,16 +164,17 @@ const FileManager = ({files,subjects, currentPage=1, totalPages=1, onPageChange=
   };
 
   const handleActionUpdate = async (item) => {
-    const details = await handleActionDetails(item.id);
-      const row = details[0];
-
-      const [baseName, ...extParts] = row.name.split(".");
-
-      row['name'] = baseName;
+    const details = await handleActionDetailsEdit(item.id);
     
-      setViewDetailsEdit(row);
-      setFormEdit(row);
-      setModalEditOpen(true);
+    const row = details[0];
+
+    const [baseName, ...extParts] = row.name.split(".");
+
+    row['name'] = baseName;
+    
+    setViewDetailsEdit(row);
+    setFormEdit(row);
+    setModalEditOpen(true);
   }
 
   const handleActionDetails = async (id) => {
@@ -184,6 +190,11 @@ const FileManager = ({files,subjects, currentPage=1, totalPages=1, onPageChange=
       updated_at: "Última actualización"
     };
     return await fetchDetails("/getFile", { id },headerMap);
+  }
+
+  const handleActionDetailsEdit = async (id) => {
+
+    return await fetchDetails("/getFile", { id });
   }
 
   const handleConfirmDelete = (item) => {
@@ -495,15 +506,25 @@ const FileManager = ({files,subjects, currentPage=1, totalPages=1, onPageChange=
 
       {/* VIEW FILE MODAL */}
       { selectedViewFile &&
-        <Modal show={modalViewFileOpen} fullscreen={true} onClose={() => setModalViewFileOpen(false)}>
+        <Modal show={modalViewFileOpen} fullscreen={fullscreen} onClose={() => setModalViewFileOpen(false)}>
           <div className="p-6 space-y-4">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-lg font-semibold text-[var(--primary)]">
                 {selectedViewFile.name}
               </h3>
-              <button onClick={() => setModalViewFileOpen(false)} className="text-[var(--secondary)] hover:text-[var(--primary)]">
-                <FaTimes />
-              </button>
+              <div className="flex gap-4">
+                <IconButton
+                  type="button"
+                  onClick={() => setFullscreen(!fullscreen)}
+                  className="bg-[var(--primary)]"
+                >
+                  <BiFullscreen />
+                </IconButton>
+                <button onClick={() => setModalViewFileOpen(false)} className="text-[var(--secondary)] hover:text-[var(--primary)]">
+                  <FaTimes />
+                </button>
+              </div>
+              
             </div>
 
             <div className="flex justify-center items-center">

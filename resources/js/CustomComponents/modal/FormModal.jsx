@@ -26,7 +26,8 @@ export default function FormModal({
             for (const key in fields) {
                 const field = fields[key];
                 if (field.type === "select") {
-                    defaultForm[key] = initialData[key] ?? field.options?.[0] ?? "";
+                    defaultForm[key] = initialData[key] 
+                        ?? (field.options?.[0]?.id ?? field.options?.[0] ?? "");
                 } else {
                     defaultForm[key] = initialData[key] ?? "";
                 }

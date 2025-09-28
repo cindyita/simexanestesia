@@ -16,7 +16,7 @@ import {
 } from 'react-icons/fa';
 
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
 import MiniButton from '@/CustomComponents/button/MiniButton';
 import TextInput from '@/CustomComponents/form/TextInput';
 import InputInputLabel from '@/CustomComponents/form/InputLabel';
@@ -25,201 +25,213 @@ import PrimaryButton from '@/CustomComponents/button/PrimaryButton';
 import SecondaryButton from '@/CustomComponents/button/SecondaryButton';
 import Textarea from '@/CustomComponents/form/Textarea';
 import Select from '@/CustomComponents/form/Select';
+import FileDropInput from '@/CustomComponents/form/FileDropInput';
+import axios from 'axios';
+import { toast } from 'sonner';
+import ImageDropInput from '@/CustomComponents/form/ImageDropInput';
 
 const CreateExam = () => {
-  // Estado para la información del examen
-  const [examData, setExamData] = useState({
-    name: '',
-    description: '',
-    subject_id: '',
-    time_limit: 60,
-    exam_type: 'multiple_choice',
-    difficulty: 'intermediate',
-    passing_score: 70,
-    max_attempts: 1,
-    shuffle_questions: false,
-    shuffle_options: false,
-    available_from: '',
-    available_until: '',
-    show_results: true,
-    is_active: true
-  });
-
-  // Estado para las preguntas
-  const [questions, setQuestions] = useState([]);
-  const [currentQuestion, setCurrentQuestion] = useState({
-    question: '',
-    question_type: 'multiple_choice',
-    options: ['', '', '', ''],
-    correct_answers: [],
-    explanation: '',
-    order: 0
-  });
-
-  // Estado de la interfaz
-  const [activeStep, setActiveStep] = useState(1); // 1: Info del examen, 2: Preguntas
-  const [editingQuestionIndex, setEditingQuestionIndex] = useState(-1);
-  const [showQuestionForm, setShowQuestionForm] = useState(false);
-
-  // Datos de ejemplo para materias
-    const subjects = [
-    { id: 1, name: 'Anatomía Humana', code: 'ANAT101' },
-    { id: 2, name: 'Fisiología', code: 'FISIO102' },
-    { id: 3, name: 'Farmacología', code: 'FARMA103' },
-    { id: 4, name: 'Anestesiología', code: 'ANES201' },
-    { id: 5, name: 'Medicina Interna', code: 'MEDINT202' },
-    { id: 6, name: 'Cirugía General', code: 'CIRUG203' },
-    { id: 7, name: 'Urgencias Médicas', code: 'URGEN204' },
-    { id: 8, name: 'Cuidados Intensivos', code: 'UCI205' }
-    ];
-
-
-  // Manejar cambios en la información del examen
-  const handleExamChange = (field, value) => {
-    setExamData(prev => ({
-      ...prev,
-      [field]: value
-    }));
-  };
-
-  // Manejar cambios en la pregunta actual
-  const handleQuestionChange = (field, value) => {
-    setCurrentQuestion(prev => ({
-      ...prev,
-      [field]: value
-    }));
-  };
-
-  // Manejar cambios en las opciones de respuesta
-  const handleOptionChange = (index, value) => {
-    const newOptions = [...currentQuestion.options];
-    newOptions[index] = value;
-    setCurrentQuestion(prev => ({
-      ...prev,
-      options: newOptions
-    }));
-  };
-
-  // Manejar selección de respuesta correcta
-  const handleCorrectAnswerToggle = (index) => {
-    const currentCorrect = [...currentQuestion.correct_answers];
-    const optionIndex = currentCorrect.indexOf(index);
+    const subjects = usePage().props.subjects;
+    const edit = usePage().props.edit;
+    console.log(edit);
     
-    if (currentQuestion.question_type === 'multiple_choice') {
-      // Solo una respuesta correcta para opción múltiple
-      setCurrentQuestion(prev => ({
-        ...prev,
-        correct_answers: [index]
-      }));
-    } else {
-      // Múltiples respuestas para otros tipos
-      if (optionIndex > -1) {
-        currentCorrect.splice(optionIndex, 1);
-      } else {
-        currentCorrect.push(index);
-      }
-      setCurrentQuestion(prev => ({
-        ...prev,
-        correct_answers: currentCorrect
-      }));
-    }
-  };
 
-  // Agregar o actualizar pregunta
-  const saveQuestion = () => {
-    if (!currentQuestion.question.trim()) {
-      alert('La pregunta no puede estar vacía');
-      return;
-    }
-
-    if (currentQuestion.correct_answers.length === 0) {
-      alert('Debe seleccionar al menos una respuesta correcta');
-      return;
-    }
-
-    const questionToSave = {
-      ...currentQuestion,
-      order: editingQuestionIndex >= 0 ? questions[editingQuestionIndex].order : questions.length + 1
-    };
-
-    if (editingQuestionIndex >= 0) {
-      // Actualizar pregunta existente
-      const updatedQuestions = [...questions];
-      updatedQuestions[editingQuestionIndex] = questionToSave;
-      setQuestions(updatedQuestions);
-      setEditingQuestionIndex(-1);
-    } else {
-      // Agregar nueva pregunta
-      setQuestions(prev => [...prev, questionToSave]);
-    }
-
-    // Limpiar formulario
-    setCurrentQuestion({
-      question: '',
-      question_type: 'multiple_choice',
-      options: ['', '', '', ''],
-      correct_answers: [],
-      explanation: '',
-      order: 0
+    // info state
+    const [examData, setExamData] = useState({
+        id: (edit.id ?? null),
+        name: (edit.name ?? ''),
+        description: (edit.description ?? ''),
+        subject_id: (edit.id_subject ?? ''),
+        time_limit: (edit.time_limit ?? 0),
+        exam_type: (edit.exam_type ?? 'mixed'),
+        difficulty: (edit.difficulty ?? 'basic'),
+        passing_score: (edit.passing_score ?? 70),
+        max_attempts: (edit.max_attempts ?? 1),
+        shuffle_questions: (edit.shuffle_questions ?? false),
+        shuffle_options: (edit.shuffle_options ?? false),
+        // available_from: '',
+        // available_until: '',
+        show_results: (edit.show_results ?? false),
+        is_active: (edit.is_active ?? 1)
     });
-    setShowQuestionForm(false);
-  };
 
-  // Editar pregunta
-  const editQuestion = (index) => {
-    setCurrentQuestion(questions[index]);
-    setEditingQuestionIndex(index);
-    setShowQuestionForm(true);
-  };
+    // questions state
+    const [questions, setQuestions] = useState((edit.questions ?? []).map(q => ({
+        ...q,
+        options: JSON.parse(q.options),
+        correct_answers: JSON.parse(q.correct_answers),
+    })) ?? []);
+    const [currentQuestion, setCurrentQuestion] = useState({
+        question: '',
+        question_type: 'multiple_choice',
+        options: ['', '', '', ''],
+        correct_answers: [],
+        explanation: '',
+        order: 0
+    });
 
-  // Eliminar pregunta
-  const deleteQuestion = (index) => {
-    if (confirm('¿Eliminar esta pregunta?')) {
-      const updatedQuestions = questions.filter((_, i) => i !== index);
-      setQuestions(updatedQuestions);
-    }
-  };
+    // step state
+    const [activeStep, setActiveStep] = useState(1); // 1: Info, 2: Question
+    const [editingQuestionIndex, setEditingQuestionIndex] = useState(-1);
+    const [showQuestionForm, setShowQuestionForm] = useState(false);
 
-  // Cambiar tipo de pregunta
-  const handleQuestionTypeChange = (type) => {
-    let newOptions = ['', '', '', ''];
-    if (type === 'true_false') {
-      newOptions = ['Verdadero', 'Falso'];
-    }
-    
-    setCurrentQuestion(prev => ({
-      ...prev,
-      question_type: type,
-      options: newOptions,
-      correct_answers: []
-    }));
-  };
-
-  // Guardar examen completo
-  const saveExam = () => {
-    if (!examData.name.trim()) {
-      alert('El nombre del examen es obligatorio');
-      return;
-    }
-    if (!examData.subject_id) {
-      alert('Debe seleccionar una materia');
-      return;
-    }
-    if (questions.length === 0) {
-      alert('Debe agregar al menos una pregunta');
-      return;
-    }
-
-    const examToSave = {
-      ...examData,
-      total_questions: questions.length,
-      questions: questions
+    // handles
+    const handleExamChange = (field, value) => {
+        setExamData(prev => ({
+        ...prev,
+        [field]: value
+        }));
     };
 
-    console.log('Guardando examen:', examToSave);
-    alert('Examen guardado exitosamente!');
-    // Aquí harías la llamada a la API
-  };
+    // Manejar cambios en la pregunta actual
+    const handleQuestionChange = (field, value) => {
+        setCurrentQuestion(prev => ({
+        ...prev,
+        [field]: value
+        }));
+    };
+
+    // Manejar cambios en las opciones de respuesta
+    const handleOptionChange = (index, value) => {
+        const newOptions = [...currentQuestion.options];
+        newOptions[index] = value;
+        setCurrentQuestion(prev => ({
+        ...prev,
+        options: newOptions
+        }));
+    };
+
+    // Manejar selección de respuesta correcta
+    const handleCorrectAnswerToggle = (index) => {
+        const currentCorrect = [...currentQuestion.correct_answers];
+        const optionIndex = currentCorrect.indexOf(index);
+        
+        if (currentQuestion.question_type === 'multiple_choice') {
+        // Solo una respuesta correcta para opción múltiple
+        setCurrentQuestion(prev => ({
+            ...prev,
+            correct_answers: [index]
+        }));
+        } else {
+        // Múltiples respuestas para otros tipos
+        if (optionIndex > -1) {
+            currentCorrect.splice(optionIndex, 1);
+        } else {
+            currentCorrect.push(index);
+        }
+        setCurrentQuestion(prev => ({
+            ...prev,
+            correct_answers: currentCorrect
+        }));
+        }
+    };
+
+    // Agregar o actualizar pregunta
+    const saveQuestion = () => {
+        if (!currentQuestion.question.trim()) {
+            alert('La pregunta no puede estar vacía');
+            return;
+        }
+
+        if (currentQuestion.correct_answers.length === 0) {
+            alert('Debe seleccionar al menos una respuesta correcta');
+            return;
+        }
+
+        const questionToSave = {
+            ...currentQuestion,
+            order: editingQuestionIndex >= 0 ? questions[editingQuestionIndex].order : questions.length + 1
+        };
+
+        if (editingQuestionIndex >= 0) {
+            // Actualizar pregunta existente
+            const updatedQuestions = [...questions];
+            updatedQuestions[editingQuestionIndex] = questionToSave;
+            setQuestions(updatedQuestions);
+            setEditingQuestionIndex(-1);
+        } else {
+            // Agregar nueva pregunta
+            setQuestions(prev => [...prev, questionToSave]);
+        }
+
+        // Limpiar formulario
+        setCurrentQuestion({
+            question: '',
+            question_type: 'multiple_choice',
+            options: ['', '', '', ''],
+            correct_answers: [],
+            explanation: '',
+            order: 0
+        });
+        setShowQuestionForm(false);
+    };
+
+    // Editar pregunta
+    const editQuestion = (index) => {
+        setCurrentQuestion(questions[index]);
+        setEditingQuestionIndex(index);
+        setShowQuestionForm(true);
+    };
+
+    // Eliminar pregunta
+    const deleteQuestion = (index) => {
+        if (confirm('¿Eliminar esta pregunta?')) {
+            const updatedQuestions = questions.filter((_, i) => i !== index);
+            setQuestions(updatedQuestions);
+        }
+    };
+
+    // Cambiar tipo de pregunta
+    const handleQuestionTypeChange = (type) => {
+        let newOptions = ['', '', '', ''];
+            if (type === 'true_false') {
+            newOptions = ['Verdadero', 'Falso'];
+        }
+        
+        setCurrentQuestion(prev => ({
+            ...prev,
+            question_type: type,
+            options: newOptions,
+            correct_answers: []
+        }));
+    };
+
+    // Guardar examen completo
+    const saveExam = async () => {
+        if (!examData.name.trim()) {
+            alert('El nombre del examen es obligatorio');
+            return;
+        }
+        if (!examData.subject_id) {
+            alert('Debe seleccionar una materia');
+            return;
+        }
+        if (questions.length === 0) {
+            alert('Debe agregar al menos una pregunta');
+            return;
+        }
+
+        const examToSave = {
+            ...examData,
+            total_questions: questions.length,
+            questions: questions,
+            edit: edit ? 1 : 0
+        };
+
+        const response = await axios.post('/saveExam', {
+            exam: examToSave
+        });
+
+        if ((response['status'] ?? false) === 200) {
+            toast.success(edit ? "Se actualizó el exámen" : "Se creó el exámen");
+            setTimeout(() => {
+                router.visit('/exams'); 
+            }, 700);
+        } else {
+            toast.error("Hubo un problema");
+            console.log(response);
+        }
+    };
 
     return (
       <AuthenticatedLayout
@@ -229,7 +241,9 @@ const CreateExam = () => {
             {/* Header */}
             <div className="mb-6">
                 <div className="flex items-center gap-2 mb-4 justify-between">
-                        <h3 className="text-xl font-semibold text-[var(--primary)]">Crear Nuevo Examen</h3> 
+                        <h3 className="text-xl font-semibold text-[var(--primary)]">
+                            {edit ? 'Editar Examen' : 'Crear Nuevo Examen'}
+                        </h3> 
                     <Link href="/exams">   
                         <MiniButton className="flex items-center gap-2 text-[var(--primary)]">
                             <FaArrowLeft />
@@ -295,7 +309,7 @@ const CreateExam = () => {
                         {/* Materia */}
                         <div>
                         <InputInputLabel className="block text-sm font-medium text-[var(--primary)] mb-2">
-                            Materia asociada *
+                            Materia asociada
                         </InputInputLabel>
                         <Select
                             value={examData.subject_id}
@@ -470,7 +484,7 @@ const CreateExam = () => {
                     {/* Lista de preguntas */}
                     {questions.length > 0 && (
                     <div className="space-y-3">
-                        {questions.map((question, index) => (
+                    {questions.map((question, index) => (
                         <div key={index} className="border border-[var(--font)] rounded-lg p-4">
                             <div className="flex items-start justify-between">
                             <div className="flex-1">
@@ -523,18 +537,21 @@ const CreateExam = () => {
                     <div className="space-y-4">
                         {/* Tipo de pregunta */}
                         <div>
-                        <InputLabel className="block text-sm font-medium text-[var(--primary)] mb-2">
-                            Tipo de Pregunta
-                        </InputLabel>
-                        <Select
-                            value={currentQuestion.question_type}
-                            onChange={(e) => handleQuestionTypeChange(e.target.value)}
-                            className="w-full px-3 py-2 border border-[var(--secondary)] rounded-md focus:ring-2 focus:ring-[var(--secondary)] focus:border-transparent"
-                        >
-                            <option value="multiple_choice">Opción Múltiple</option>
-                            <option value="true_false">Verdadero/Falso</option>
-                            <option value="essay">Desarrollo</option>
-                        </Select>
+                            <InputLabel className="block text-sm font-medium text-[var(--primary)] mb-2">
+                                Tipo de Pregunta
+                            </InputLabel>
+                            <Select
+                                value={currentQuestion.question_type}
+                                onChange={(e) => handleQuestionTypeChange(e.target.value)}
+                                className="w-full px-3 py-2 border border-[var(--secondary)] rounded-md focus:ring-2 focus:ring-[var(--secondary)] focus:border-transparent"
+                            >
+                                <option value="multiple_choice">Opción Múltiple</option>
+                                <option value="true_false">Verdadero/Falso</option>
+                                {/* <option value="essay">Desarrollo</option> */}
+                            </Select>
+                        </div>
+                        <div>
+                            <ImageDropInput />
                         </div>
 
                         {/* Pregunta */}
@@ -589,17 +606,29 @@ const CreateExam = () => {
 
                         {/* Explicación */}
                         <div>
-                        <InputLabel className="block text-sm font-medium text-[var(--primary)] mb-2">
-                            Explicación (opcional)
-                        </InputLabel>
-                        <Textarea
-                            value={currentQuestion.explanation}
-                            onChange={(e) => handleQuestionChange('explanation', e.target.value)}
-                            rows={2}
-                            className="w-full px-3 py-2 border border-[var(--secondary)] rounded-md focus:ring-2 focus:ring-[var(--secondary)] focus:border-transparent"
-                            placeholder="Explica por qué esta es la respuesta correcta..."
-                        />
+                            <InputLabel className="block text-sm font-medium text-[var(--primary)] mb-2">
+                                Explicación (opcional)
+                            </InputLabel>
+                            <Textarea
+                                value={currentQuestion.explanation}
+                                onChange={(e) => handleQuestionChange('explanation', e.target.value)}
+                                rows={2}
+                                className="w-full px-3 py-2 border border-[var(--secondary)] rounded-md focus:ring-2 focus:ring-[var(--secondary)] focus:border-transparent"
+                                placeholder="Explica por qué esta es la respuesta correcta..."
+                            />
                         </div>
+                        <div>
+                            <InputLabel className="block text-sm font-medium text-[var(--primary)] mb-2">
+                                Órden
+                            </InputLabel>
+                            <TextInput
+                                    type="number"
+                                    value={currentQuestion.order}
+                                    onChange={(e) => handleQuestionChange('order', e.target.value)}
+                                    className="flex-1 px-3 py-2 border border-[var(--secondary)] rounded-md focus:ring-2 focus:ring-[var(--secondary)] focus:border-transparent"
+                                />
+                        </div>
+                                    
 
                         {/* Botones de acción */}
                         <div className="flex justify-between md:justify-end gap-3 pt-4 border-t">
@@ -648,7 +677,7 @@ const CreateExam = () => {
                         className="flex items-center gap-2"
                         disabled={questions.length === 0}
                     >
-                        Crear Examen
+                        {edit ? 'Editar Examen' : 'Crear Examen'}
                     </PrimaryButton>
                     </div>
                 </div>

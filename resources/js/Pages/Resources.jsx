@@ -10,7 +10,7 @@ export default function Resources() {
     const pageLevel = usePage().props.menu[4]['level'];
     const isAdmin = usePage().props.user['mode_admin'] ? true : false;
     const subjects = usePage().props.subjects;
-
+    
     const files = data.data;
     const [currentPage, setCurrentPage] = useState(data.current_page);
 
