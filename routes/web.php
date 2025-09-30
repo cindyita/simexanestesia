@@ -83,6 +83,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/getExam', [ExamsController::class, 'getExam'])->middleware(['menu.permission:'.idMenu['exams']])->name('getexam');
 
     Route::get('/getExamQuestions', [ExamsController::class, 'getExamQuestions'])->middleware(['menu.permission:'.idMenu['exams']])->name('getexamquestions');
+
+    Route::get('/startExam/{id}', [ExamsController::class, 'startExam'])->middleware(['menu.permission:'.idMenu['exams']])->name('startexam');
     
     // POST IN PAGES ------------------------
     Route::post('/registerkeys', [AccountController::class, 'getRegisterKeys'])->middleware(['menu.permission:'.idMenu['registerkeys']])->name('registerkeys');
@@ -109,7 +111,13 @@ Route::middleware('auth')->group(function () {
 
     Route::post('/newexam', [ExamsController::class, 'createExam'])->middleware(['menu.permission:'.idMenu['exams']])->name('editexam');
 
-    Route::post('/startExam', [ExamsController::class, 'startExam'])->middleware(['menu.permission:'.idMenu['exams']])->name('startexam');
+    Route::post('/createHistory', [ExamsController::class, 'createHistory'])->middleware(['menu.permission:'.idMenu['exams']])->name('createhistory');
+
+    Route::post('/updateHistory', [ExamsController::class, 'updateHistory'])->middleware(['menu.permission:'.idMenu['exams']])->name('updatehistory');
+
+    Route::post('/finishExam', [ExamsController::class, 'finishExam'])->middleware(['menu.permission:'.idMenu['exams']])->name('finishexam');
+
+    Route::post('/getExamStatus', [ExamsController::class, 'getExamStatus'])->middleware(['menu.permission:'.idMenu['exams']])->name('getexamstatus');
 
     // DASHBOARD ----------------------
     Route::post('/alert', [DashboardController::class, 'alertUpdate'])->name('alert.update');
