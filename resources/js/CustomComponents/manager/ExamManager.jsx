@@ -112,11 +112,8 @@ const ExamManager = ({ exams, currentPage = 1, totalPages = 1, onPageChange = {}
   };
 
   const startExam = (id) => {
-    router.visit('/startExam', {
-            method: 'post',
-            data: {
-              id: id
-            }
+    router.visit(`/startExam/${id}`, {
+            method: 'get'
         });
   };
 

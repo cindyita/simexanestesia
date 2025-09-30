@@ -1,21 +1,57 @@
 import { useState, useEffect } from 'react';
 import { Link, usePage } from '@inertiajs/react';
 import ExamLayout from '@/Layouts/ExamLayout';
-import { FaClock, FaQuestionCircle, FaCheckCircle, FaExclamationTriangle } from 'react-icons/fa';
+import { FaClock, FaQuestionCircle, FaCheckCircle, FaExclamationTriangle, FaTimes } from 'react-icons/fa';
 import PrimaryButton from '@/CustomComponents/button/PrimaryButton';
 import SecondaryButton from '@/CustomComponents/button/SecondaryButton';
 import TertiaryButton from '@/CustomComponents/button/TertiaryButton';
 import IconButton from '@/CustomComponents/button/IconButton';
 import MiniButton from '@/CustomComponents/button/MiniButton';
+import { toast } from 'sonner';
+import Modal from '@/CustomComponents/modal/Modal';
 
 export default function StartExam () {
     const exam = usePage().props.data;
+
+    const [statusExam, setStatusExam] = useState(exam.last_attempt.status ?? null);
+
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
     const [answers, setAnswers] = useState({});
     const [timeRemaining, setTimeRemaining] = useState(exam.time_limit * 60); // convertir minutos a segundos
     const [examStarted, setExamStarted] = useState(false);
     const [examCompleted, setExamCompleted] = useState(false);
     const [showConfirmSubmit, setShowConfirmSubmit] = useState(false);
+    const [actualHistory, setActualHistory] = useState(null);
+
+    const [modalQuestionsOpen, setModalQuestionsOpen] = useState(false);
+    const [viewQuestions, setViewQuestions] = useState([]);
+
+    const openModalViewAnswers = async () => {
+        const questions = await axios.get('/getExamQuestions', { params: { id:exam.id } });
+        setViewQuestions(questions.data);
+        setModalQuestionsOpen(true);
+    }
+
+    useEffect(() => {
+        if (exam.last_attempt && exam.last_attempt.status === "in_progress") {
+            checkStatus();
+        }
+    }, [exam]); 
+
+    const checkStatus = async () => {
+        const res = await axios.post('/getExamStatus', {
+                id: exam.id,
+                started_at: exam.last_attempt.started_at,
+                time_limit: exam.time_limit
+            });
+        if (res.data.status === "expired") {
+            setStatusExam("expired");
+            handleSubmitExam();
+        } else {
+            setTimeRemaining((res.data.time_remaining));
+            startExam();
+        }
+    }
 
     // Timer countdown
     useEffect(() => {
@@ -51,7 +87,10 @@ export default function StartExam () {
         }));
     };
 
-    // Navegar entre preguntas
+    useEffect(() => {
+        updateAnswers();
+    }, [answers]);
+
     const goToQuestion = (index) => {
         setCurrentQuestionIndex(index);
     };
@@ -68,18 +107,43 @@ export default function StartExam () {
         }
     };
 
-    // Enviar examen
-    const handleSubmitExam = () => {
-        console.log('Enviando respuestas:', answers);
-        // Aquí harías la llamada a tu API para enviar las respuestas
+    const handleSubmitExam = async () => {
+
+        const res = await axios.post('/finishExam', {
+            id: actualHistory,
+            completehistory: {
+                'time_used': (exam.time_limit * 60) - timeRemaining,
+                'answers': answers
+            },
+            minScore: exam.passing_score
+        });
+        toast.success("El exámen finalizó");
         setExamCompleted(true);
         setShowConfirmSubmit(false);
     };
 
-    // Iniciar examen
-    const startExam = () => {
+    const startExam = async () => {
+        const history = await axios.post(`/createHistory`, {
+            id: exam.id,
+            numAttempt: exam.last_attempt.attempt_number,
+            newhistory: {
+                status: 'in_progress'
+            }
+        });
+        setActualHistory(history.data.id);
+        setAnswers(JSON.parse(history.data.answers));
         setExamStarted(true);
     };
+
+    const updateAnswers = async () => {
+        await axios.post(`/updateHistory`, {
+            id: actualHistory,
+            updatehistory: {
+                'time_used': (exam.time_limit * 60) - timeRemaining,
+                'answers': answers
+            }
+        });
+    }
 
     // Verificar si todas las preguntas están respondidas
     const getAnsweredQuestions = () => {
@@ -125,13 +189,28 @@ export default function StartExam () {
                             </div>
                         </div>
 
-                        <div className="text-center">
+                        
+
+                        <div className="flex flex-col gap-2 items-center text-center justify-center">
+                            
+                            {statusExam && statusExam == 'in_progress' ?
+                                    <><strong>Tiempo restante: {formatTime(timeRemaining)}</strong></>
+                                    : null
+                            }
+
+                            {statusExam == "expired" ? <>El tiempo del exámen expiró</> : null}
+                            
                             <PrimaryButton
                                 onClick={startExam}
                                 className="py-3 px-8"
+                                disabled={statusExam == "expired" ? 'disabled' : null}
                             >
-                                Iniciar Examen
+                                {statusExam && statusExam == 'in_progress' ?
+                                    <>Continuar Exámen</>
+                                    : <>Iniciar Exámen</>
+                                }
                             </PrimaryButton>
+
                         </div>
                     </div>
                 </div>
@@ -146,10 +225,16 @@ export default function StartExam () {
                     <div className="box rounded-lg shadow p-8 text-center">
                         <FaCheckCircle className="mx-auto text-6xl mb-4" />
                         <h1 className="text-3xl font-bold mb-4">¡Examen Completado!</h1>
+                        <p className="mb-1"><strong>Exámen: </strong>{exam.name}</p>
                         <p className="text-gray-600 mb-4">Has completado el examen exitosamente.</p>
-                        <p className="text-sm text-gray-500">
+                        <p className="text-sm text-gray-500 mb-4">
                             Respondiste {getAnsweredQuestions()} de {exam.total_questions} preguntas
                         </p>
+                        <SecondaryButton
+                            onClick={() => openModalViewAnswers}
+                        >
+                            Ver respuestas
+                        </SecondaryButton>
                         <Link href="/exams">   
                             <MiniButton className="flex items-center gap-2 text-[var(--primary)]">
                                 Volver a Exámenes
@@ -326,6 +411,89 @@ export default function StartExam () {
                     </div>
                 )}
             </div>
+
+            {/* VIEW QUESTIONS MODAL */}
+            <Modal show={modalQuestionsOpen} onClose={() => setModalQuestionsOpen(false)}>
+                <div className="p-6 space-y-4">
+                    <div className="flex justify-between items-center mb-4">
+                        <h3 className="text-lg font-semibold text-[var(--primary)]">
+                            Preguntas del examen
+                        </h3>
+                        <button onClick={() => setModalQuestionsOpen(false)} className="text-[var(--secondary)] hover:text-[var(--primary)]">
+                            <FaTimes />
+                        </button>
+                    </div>
+            
+                    <div className="space-y-6">
+                        {viewQuestions.length > 0 && viewQuestions.map((question, index) => {
+                        const options = JSON.parse(question.options);
+                        const correctAnswers = JSON.parse(question.correct_answers);
+                        
+                        return (
+                            <div key={question.id} className="border border-[var(--secondary)] rounded-lg p-4 bg-[var(--font)]">
+    
+                            <div id={`question_${question.id}`} className="flex justify-between items-center mb-3">
+                                <span className="text-sm font-medium text-[var(--primary)] bg-[var(--fontBox)] px-2 py-1 rounded">
+                                Pregunta {index + 1}
+                                </span>
+                                <span className="text-xs text-gray-500 capitalize">
+                                {questionType(question.question_type)}
+                                </span>
+                            </div>
+    
+                            <h4 className="font-medium text-gray-900 mb-4">
+                                {question.question}
+                            </h4>
+    
+                            <div className="space-y-2 mb-4">
+                                {options.map((option, optionIndex) => {
+                                const isCorrect = correctAnswers.includes(optionIndex);
+                                return (
+                                    <div 
+                                    key={optionIndex}
+                                    className={`p-3 rounded-md border ${
+                                        isCorrect 
+                                        ? 'bg-[var(--fontBox)] border border-[var(--primary)]' 
+                                        : 'bg-[var(--fontBox)]'
+                                    }`}
+                                    >
+                                    <div className="flex items-center justify-between">
+                                        <span>{option}</span>
+                                        {isCorrect && (
+                                        <span className="text-[var(--primary)] font-medium text-sm">
+                                            <FaCheckCircle />
+                                        </span>
+                                        )}
+                                    </div>
+                                    </div>
+                                );
+                                })}
+                            </div>
+    
+                            {question.explanation && (
+                                <div className="bg-blue-50 border-l-4 border-[var(--secondary)] p-3 rounded-r">
+                                <div className="flex items-start">
+                                    
+                                    <div className="flex-shrink-0">
+                                    <span className="text-[var(--secondary)] font-bold text-sm">
+                                        Explicación:
+                                    </span>
+                                    <span className="ml-1 text-sm text-[var(--secondary)]">
+                                        {question.explanation}
+                                    </span>
+                                    </div>
+                                    
+                                </div>
+                                </div>
+                            )}
+                            </div>
+                        );
+                        })}
+    
+                    </div>
+                </div>
+            </Modal>
+
         </ExamLayout>
     );
 

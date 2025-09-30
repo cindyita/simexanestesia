@@ -8,6 +8,7 @@ use App\Models\History;
 use App\Models\Subjects;
 use Illuminate\Support\Facades\Auth;
 use App\Models\ViewRolesPermissions;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -270,9 +271,8 @@ class ExamsController extends Controller
         ], 200);
     }
 
-    public function startExam(Request $request) {
-        $id = $request->input('id');
-
+    public function startExam($id) {
+        $idUser = session('user')['id'];
         $exam = Exams::select(
             'reg_exams.*',
             'reg_subjects.name as subject',
@@ -281,6 +281,13 @@ class ExamsController extends Controller
             ->join('reg_subjects', 'reg_exams.id_subject', '=', 'reg_subjects.id')
             ->join('sys_users', 'reg_exams.created_by', '=', 'sys_users.id')
             ->where('reg_exams.id', $id)->first();
+        
+        $lastAttempt = History::where('id_exam', $id)
+        ->where('id_user', $idUser)
+        ->orderBy('attempt_number', 'desc')
+        ->first();
+
+        $exam->last_attempt = $lastAttempt ? $lastAttempt : [];
 
         $questions = ExamsQuestions::where('id_exam', $id)->orderBy('order')->get();
 
@@ -290,6 +297,98 @@ class ExamsController extends Controller
             'data' => $exam
         ]);
     }
+
+    public function finishExam(Request $request) {
+        $idHistory = $request->input('id');
+        $idUser = session('user')['id'];
+
+        $data = $request->input('completehistory');
+
+        $history = History::where('id', $idHistory)
+            ->where('id_user', $idUser)
+            ->first();
+
+        if (!$history) {
+            return response()->json([
+                'status'  => 404
+            ]);
+        }
+
+        $minScore = $request->input('minScore');
+
+        $userAnswers = $data['answers'] ?? json_decode($history->answers, true);
+
+        $questions = ExamsQuestions::where('id_exam', $history->id_exam)
+            ->get();
+
+        $totalQuestions = $questions->count();
+        $correctCount = 0;
+
+        foreach ($questions as $q) {
+            $correctAnswers = json_decode($q->correct_answers, true); // array con respuestas correctas
+            $userAnswer = $userAnswers[$q->id] ?? null;
+
+            if ($userAnswer !== null) {
+                if (is_array($userAnswer)) {
+                    sort($userAnswer);
+                    sort($correctAnswers);
+                    if ($userAnswer === $correctAnswers) {
+                        $correctCount++;
+                    }
+                } else {
+                    if (in_array($userAnswer, $correctAnswers)) {
+                        $correctCount++;
+                    }
+                }
+            }
+        }
+
+        $score = $totalQuestions > 0 ? round(($correctCount / $totalQuestions) * 100, 2) : 0;
+
+        $passed = $score >= $minScore ? 1 : 0;
+
+        $history->update([
+            'status'          => 'completed',
+            'completed_at'    => now(),
+            'time_used'       => $data['time_used'] ?? $history->time_used,
+            'score'           => $score,
+            'correct_answers' => $correctCount,
+            'passed'          => $passed,
+            'answers'         => json_encode($userAnswers),
+            'ip_address'      => $request->ip(),
+            'user_agent'      => $request->userAgent()
+        ]);
+
+        return response()->json([
+            'status'  => 200,
+            'message' => 'Examen finalizado',
+            'score'   => $score,
+            'passed'  => $passed
+        ]);
+    }
+
+    public function getExamStatus(Request $request){
+        $startedAt = $request->input('started_at');
+        $timeLimit = $request->input('time_limit');
+
+        $now = now();
+        $start = Carbon::parse($startedAt);
+        $limit = $timeLimit * 60;
+
+        $timeUsed = $start->diffInSeconds($now);
+        $timeRemaining = max($limit - $timeUsed, 0);
+
+        $status = $timeRemaining <= 0 ? 'expired' : 'in_progress';
+
+        return response()->json([
+            'status' => $status,
+            'time_used' => $timeUsed,
+            'time_remaining' => $timeRemaining,
+        ]);
+    }
+
+
+
 
     public function getHistory(Request $request): Response {
         $perPage = $request->input('per_page', 15);
@@ -349,6 +448,88 @@ class ExamsController extends Controller
 
         return response()->json([$data]);
     }
+
+    public function createHistory(Request $request) {
+        $id = $request->input('id');
+        $idUser = session('user')['id'];
+        $idCompany = session('user')['id_company'];
+
+        $numAttempt = $request->input('numAttempt');
+        $attemptNumber = $numAttempt ? $numAttempt + 1 : 1;
+
+        $data = $request->input('newhistory');
+
+        $existingHistory = History::where('id_user', $idUser)
+            ->where('id_exam', $id)
+            ->where('status', 'in_progress')
+            ->first();
+
+        if ($existingHistory) {
+            $existingHistory->update([
+                'time_used'       => $data['time_used'] ?? $existingHistory->time_used,
+                'answers'         => json_encode($data['answers'] ?? json_decode($existingHistory->answers, true) ?? []),
+                'ip_address'      => $request->ip(),
+                'user_agent'      => $request->userAgent(),
+                'updated_at'      => now()
+            ]);
+
+            $history = $existingHistory;
+        } else {
+            $history = History::create([
+                'id_user'         => $idUser,
+                'id_exam'         => $id,
+                'attempt_number'  => $attemptNumber,
+                'status'          => $data['status'] ?? 'in_progress',
+                'started_at'      => now(),
+                'completed_at'    => $data['completed_at'] ?? null,
+                'time_used'       => $data['time_used'] ?? null,
+                'score'           => $data['score'] ?? 0,
+                'correct_answers' => $data['correct_answers'] ?? 0,
+                'passed'          => $data['passed'] ?? false,
+                'answers'         => json_encode($data['answers'] ?? []),
+                'question_order'  => json_encode($data['question_order'] ?? []),
+                'ip_address'      => $request->ip(),
+                'user_agent'      => $request->userAgent(),
+                'metadata'        => json_encode([]),
+                'id_company'      => $idCompany
+            ]);
+        }
+
+        return response()->json(['id'=> $history->id,'answers'=>$history->answers]);
+    }
+
+    public function updateHistory(Request $request) {
+        $idHistory = $request->input('id');
+        $idUser = session('user')['id'];
+
+        $data = $request->input('updatehistory');
+
+        $history = History::where('id', $idHistory)
+            ->where('id_user', $idUser)
+            ->first();
+
+        if (!$history) {
+            return response()->json([
+                'status'  => 404
+            ]);
+        }
+
+        $history->update([
+            'time_used'  => $data['time_used'] ?? $history->time_used,
+            'answers'    => json_encode($data['answers'] ?? json_decode($history->answers, true)),
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+            'updated_at' => now()
+        ]);
+
+        return response()->json([
+            'status'  => 200,
+            'message' => 'Intento actualizado'
+        ]);
+    }
+
+
+
 
 
 }
