@@ -32,7 +32,7 @@ class ExamsController extends Controller
 
         $exams = Exams::with(['subject','histories' => function($query) use ($userId) {
             $query->where('id_user', $userId)
-                ->orderBy('completed_at', 'desc')
+                ->orderBy('id', 'desc')
                 ->limit(1);
         }])
         ->orderBy('id', 'desc')
@@ -49,6 +49,7 @@ class ExamsController extends Controller
                 'questionCount' => $exam->total_questions,
                 'exam_type' => $exam->exam_type,
                 'difficulty' => $exam->difficulty,
+                'max_attempts' => $exam->max_attempts,
                 'is_active' => $exam->is_active,
                 'shuffle_questions' => $exam->shuffle_questions,
                 'lastAttempt' => $lastAttempt ? [
@@ -387,9 +388,6 @@ class ExamsController extends Controller
         ]);
     }
 
-
-
-
     public function getHistory(Request $request): Response {
         $perPage = $request->input('per_page', 15);
 
@@ -427,6 +425,18 @@ class ExamsController extends Controller
         ]);
     }
 
+    public function getHistoryByExam($id){
+        $history = History::select(
+            'reg_history.*',
+            'sys_users.name as student_name',
+        )
+            ->join('sys_users', 'reg_history.id_user', '=', 'sys_users.id')
+            ->where('reg_history.id_exam',$id)
+            ->orderBy('reg_history.id', 'desc')->get();
+        
+        return response()->json($history);
+    }
+
     public function getHistoryOne(Request $request) {
         $id = $request->query('id');
 
@@ -450,7 +460,7 @@ class ExamsController extends Controller
     }
 
     public function createHistory(Request $request) {
-        $id = $request->input('id');
+        $idExam = $request->input('id'); //idexam
         $idUser = session('user')['id'];
         $idCompany = session('user')['id_company'];
 
@@ -460,7 +470,7 @@ class ExamsController extends Controller
         $data = $request->input('newhistory');
 
         $existingHistory = History::where('id_user', $idUser)
-            ->where('id_exam', $id)
+            ->where('id_exam', $idExam)
             ->where('status', 'in_progress')
             ->first();
 
@@ -477,7 +487,7 @@ class ExamsController extends Controller
         } else {
             $history = History::create([
                 'id_user'         => $idUser,
-                'id_exam'         => $id,
+                'id_exam'         => $idExam,
                 'attempt_number'  => $attemptNumber,
                 'status'          => $data['status'] ?? 'in_progress',
                 'started_at'      => now(),

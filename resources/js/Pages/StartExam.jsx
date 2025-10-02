@@ -17,7 +17,8 @@ export default function StartExam () {
 
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
     const [answers, setAnswers] = useState({});
-    const [timeRemaining, setTimeRemaining] = useState(exam.time_limit * 60); // convertir minutos a segundos
+    // Si time_limit es 0, iniciamos en 0 para contar hacia arriba, sino convertimos a segundos
+    const [timeRemaining, setTimeRemaining] = useState(exam.time_limit === 0 ? 0 : exam.time_limit * 60);
     const [examStarted, setExamStarted] = useState(false);
     const [examCompleted, setExamCompleted] = useState(false);
     const [showConfirmSubmit, setShowConfirmSubmit] = useState(false);
@@ -26,10 +27,46 @@ export default function StartExam () {
     const [modalQuestionsOpen, setModalQuestionsOpen] = useState(false);
     const [viewQuestions, setViewQuestions] = useState([]);
 
+    const hasTimeLimit = exam.time_limit > 0;
+
     const openModalViewAnswers = async () => {
-        const questions = await axios.get('/getExamQuestions', { params: { id:exam.id } });
+        const questions = await axios.get('/getExamQuestions', { params: { id: exam.id } });
+        console.log(answers);
         setViewQuestions(questions.data);
         setModalQuestionsOpen(true);
+    }
+
+    const questionType = (type) => {
+        switch (type) {
+        case 'multiple_choice':
+            return "Opción múltiple";
+        case 'true_false':
+            return "Verdadero/Falso";
+        case 'essay':
+            return "Desarrollo";
+        case 'mixed':
+            return "Mixto";
+        }
+    }
+
+    const checkStatus = async () => {
+        const res = await axios.post('/getExamStatus', {
+                id: exam.id,
+                started_at: exam.last_attempt.started_at,
+                time_limit: exam.time_limit
+        });
+        if (res.data.status === "expired" && hasTimeLimit) {
+            setStatusExam("expired");
+            settingHistory();
+            handleSubmitExam();
+        } else {
+            if (hasTimeLimit) {
+                setTimeRemaining((res.data.time_remaining));
+            } else {
+                setTimeRemaining((res.data.time_used));
+            }
+            startExam();
+        }
     }
 
     useEffect(() => {
@@ -38,46 +75,42 @@ export default function StartExam () {
         }
     }, [exam]); 
 
-    const checkStatus = async () => {
-        const res = await axios.post('/getExamStatus', {
-                id: exam.id,
-                started_at: exam.last_attempt.started_at,
-                time_limit: exam.time_limit
-            });
-        if (res.data.status === "expired") {
-            setStatusExam("expired");
-            handleSubmitExam();
-        } else {
-            setTimeRemaining((res.data.time_remaining));
-            startExam();
-        }
-    }
-
-    // Timer countdown
+    // Timer countdown o countup dependiendo si hay límite de tiempo
     useEffect(() => {
         let timer;
-        if (examStarted && timeRemaining > 0 && !examCompleted) {
+        if (examStarted && !examCompleted) {
             timer = setInterval(() => {
                 setTimeRemaining(prev => {
-                    if (prev <= 1) {
-                        setExamCompleted(true);
-                        handleSubmitExam();
-                        return 0;
+                    if (hasTimeLimit) {
+                        // Cuenta regresiva
+                        if (prev <= 1) {
+                            setExamCompleted(true);
+                            handleSubmitExam();
+                            return 0;
+                        }
+                        return prev - 1;
+                    } else {
+                        // Cuenta progresiva (sin límite)
+                        return prev + 1;
                     }
-                    return prev - 1;
                 });
             }, 1000);
         }
         return () => clearInterval(timer);
-    }, [examStarted, timeRemaining, examCompleted]);
+    }, [examStarted, examCompleted, hasTimeLimit]);
 
-    // Formatear tiempo restante
+    // Formatear tiempo restante o transcurrido
     const formatTime = (seconds) => {
-        const hours = Math.floor(seconds / 3600);
-        const minutes = Math.floor((seconds % 3600) / 60);
-        const secs = seconds % 60;
-        return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        const totalSeconds = Math.floor(seconds);
+        const hours = Math.floor(totalSeconds / 3600);
+        const minutes = Math.floor((totalSeconds % 3600) / 60);
+        const secs = totalSeconds % 60;
+
+        return `${hours.toString().padStart(2, '0')}:${minutes
+            .toString()
+            .padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
     };
+
 
     // Manejar respuesta seleccionada
     const handleAnswerChange = (questionId, selectedOption) => {
@@ -108,21 +141,26 @@ export default function StartExam () {
     };
 
     const handleSubmitExam = async () => {
+        // Calcular tiempo usado dependiendo si hay límite o no
+        const timeUsed = hasTimeLimit 
+            ? (exam.time_limit * 60) - timeRemaining 
+            : timeRemaining;
 
         const res = await axios.post('/finishExam', {
             id: actualHistory,
             completehistory: {
-                'time_used': (exam.time_limit * 60) - timeRemaining,
+                'time_used': timeUsed,
                 'answers': answers
             },
             minScore: exam.passing_score
         });
+        // console.log(res);
         toast.success("El exámen finalizó");
         setExamCompleted(true);
         setShowConfirmSubmit(false);
     };
 
-    const startExam = async () => {
+    const settingHistory = async () => {
         const history = await axios.post(`/createHistory`, {
             id: exam.id,
             numAttempt: exam.last_attempt.attempt_number,
@@ -132,14 +170,25 @@ export default function StartExam () {
         });
         setActualHistory(history.data.id);
         setAnswers(JSON.parse(history.data.answers));
+        return history;
+    }
+
+    const startExam = async () => {
+        const history = await settingHistory();
+        setAnswers(JSON.parse(history.data.answers));
         setExamStarted(true);
     };
 
     const updateAnswers = async () => {
+        // Calcular tiempo usado dependiendo si hay límite o no
+        const timeUsed = hasTimeLimit 
+            ? (exam.time_limit * 60) - timeRemaining 
+            : timeRemaining;
+
         await axios.post(`/updateHistory`, {
             id: actualHistory,
             updatehistory: {
-                'time_used': (exam.time_limit * 60) - timeRemaining,
+                'time_used': timeUsed,
                 'answers': answers
             }
         });
@@ -172,7 +221,7 @@ export default function StartExam () {
                                     <li><strong>Tipo:</strong> {exam.exam_type}</li>
                                     <li><strong>Dificultad:</strong> {exam.difficulty}</li>
                                     <li><strong>Preguntas:</strong> {exam.total_questions}</li>
-                                    <li><strong>Tiempo límite:</strong> {exam.time_limit} minutos</li>
+                                    <li><strong>Tiempo límite:</strong> {hasTimeLimit ? `${exam.time_limit} minutos` : 'Sin límite'}</li>
                                     <li><strong>Puntuación mínima:</strong> {exam.passing_score}%</li>
                                 </ul>
                             </div>
@@ -183,7 +232,8 @@ export default function StartExam () {
                                     <li>• Lee cada pregunta cuidadosamente</li>
                                     <li>• Selecciona la respuesta que consideres correcta</li>
                                     <li>• Puedes navegar entre preguntas usando los botones</li>
-                                    <li>• El tiempo comenzará a contar al iniciar</li>
+                                    {hasTimeLimit && <li>• El tiempo comenzará a contar al iniciar</li>}
+                                    {!hasTimeLimit && <li>• Se registrará el tiempo que tardes en completar el examen</li>}
                                     <li>• Asegúrate de responder todas las preguntas</li>
                                 </ul>
                             </div>
@@ -193,17 +243,17 @@ export default function StartExam () {
 
                         <div className="flex flex-col gap-2 items-center text-center justify-center">
                             
-                            {statusExam && statusExam == 'in_progress' ?
+                            {statusExam && statusExam == 'in_progress' && hasTimeLimit ?
                                     <><strong>Tiempo restante: {formatTime(timeRemaining)}</strong></>
                                     : null
                             }
 
-                            {statusExam == "expired" ? <>El tiempo del exámen expiró</> : null}
+                            {statusExam == "expired" && hasTimeLimit ? <>El tiempo del exámen expiró</> : null}
                             
                             <PrimaryButton
                                 onClick={startExam}
                                 className="py-3 px-8"
-                                disabled={statusExam == "expired" ? 'disabled' : null}
+                                disabled={statusExam == "expired" && hasTimeLimit ? 'disabled' : null}
                             >
                                 {statusExam && statusExam == 'in_progress' ?
                                     <>Continuar Exámen</>
@@ -230,18 +280,144 @@ export default function StartExam () {
                         <p className="text-sm text-gray-500 mb-4">
                             Respondiste {getAnsweredQuestions()} de {exam.total_questions} preguntas
                         </p>
-                        <SecondaryButton
-                            onClick={() => openModalViewAnswers}
-                        >
-                            Ver respuestas
-                        </SecondaryButton>
-                        <Link href="/exams">   
-                            <MiniButton className="flex items-center gap-2 text-[var(--primary)]">
-                                Volver a Exámenes
-                            </MiniButton>
-                        </Link> 
+                        <div className="flex gap-3 justify-center items-center flex-col md:flex-row">
+                            {
+                                exam.show_results && (
+                                    <SecondaryButton onClick={() => openModalViewAnswers()}>
+                                        Ver respuestas
+                                    </SecondaryButton>
+                                )
+                            }
+                            
+                            <Link href="/exams">   
+                                <PrimaryButton className="flex items-center gap-2 text-[var(--primary)]">
+                                    Volver a Exámenes
+                                </PrimaryButton>
+                            </Link>
+                        </div>
                     </div>
                 </div>
+
+                {/* VIEW QUESTIONS MODAL */}
+                {
+                    exam.show_results && (
+                        <Modal show={modalQuestionsOpen} onClose={() => setModalQuestionsOpen(false)}>
+                            <div className="p-6 space-y-4">
+                                <div className="flex justify-between items-center mb-4">
+                                    <h3 className="text-lg font-semibold text-[var(--primary)]">
+                                        Preguntas del examen
+                                    </h3>
+                                    <button onClick={() => setModalQuestionsOpen(false)} className="text-[var(--secondary)] hover:text-[var(--primary)]">
+                                        <FaTimes />
+                                    </button>
+                                </div>
+                        
+                                <div className="space-y-6">
+                                    {viewQuestions.length > 0 && viewQuestions.map((question, index) => {
+                                    const options = JSON.parse(question.options);
+                                    const correctAnswers = JSON.parse(question.correct_answers);
+                                    const userAnswer = answers[question.id];
+                                    const isUserCorrect = userAnswer !== undefined && correctAnswers.includes(userAnswer);
+                                    
+                                    return (
+                                        <div key={question.id} className={`border rounded-lg p-4 ${
+                                            userAnswer !== undefined 
+                                                ? isUserCorrect 
+                                                    ? 'border-green-500 bg-green-50' 
+                                                    : 'border-red-500 bg-red-50'
+                                                : 'border-[var(--secondary)] bg-[var(--font)]'
+                                        }`}>
+                
+                                        <div id={`question_${question.id}`} className="flex justify-between items-center mb-3">
+                                            <div className="flex items-center gap-2">
+                                                <span className="text-sm font-medium text-[var(--primary)] bg-[var(--fontBox)] px-2 py-1 rounded">
+                                                    Pregunta {index + 1}
+                                                </span>
+                                                {userAnswer !== undefined && (
+                                                    <span className={`text-xs font-semibold px-2 py-1 rounded ${
+                                                        isUserCorrect 
+                                                            ? 'bg-green-200 text-green-800' 
+                                                            : 'bg-red-200 text-red-800'
+                                                    }`}>
+                                                        {isUserCorrect ? '✓ Correcta' : '✗ Incorrecta'}
+                                                    </span>
+                                                )}
+                                            </div>
+                                            <span className="text-xs text-gray-500 capitalize">
+                                                {questionType(question.question_type)}
+                                            </span>
+                                        </div>
+                
+                                        <h4 className="font-medium text-gray-900 mb-4">
+                                            {question.question}
+                                        </h4>
+                
+                                        <div className="space-y-2 mb-4">
+                                            {options.map((option, optionIndex) => {
+                                            const isCorrect = correctAnswers.includes(optionIndex);
+                                            const isUserSelection = userAnswer === optionIndex;
+                                            
+                                            return (
+                                                <div 
+                                                key={optionIndex}
+                                                className={`p-3 rounded-md border ${
+                                                    isCorrect 
+                                                        ? 'bg-green-100 border-green-500 font-medium' 
+                                                        : isUserSelection
+                                                            ? 'bg-red-100 border-red-500'
+                                                            : 'bg-[var(--fontBox)] border-gray-200'
+                                                }`}
+                                                >
+                                                <div className="flex items-center justify-between">
+                                                    <span className={isUserSelection && !isCorrect ? 'line-through' : ''}>
+                                                        {option}
+                                                    </span>
+                                                    <div className="flex items-center gap-2">
+                                                        {isUserSelection && (
+                                                            <span className={`font-medium text-sm ${
+                                                                isCorrect ? 'text-green-700' : 'text-red-700'
+                                                            }`}>
+                                                                Tu respuesta
+                                                            </span>
+                                                        )}
+                                                        {isCorrect && (
+                                                            <span className="text-green-700 font-medium text-sm">
+                                                                <FaCheckCircle />
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                                </div>
+                                            );
+                                            })}
+                                        </div>
+                
+                                        {question.explanation && (
+                                            <div className="bg-blue-50 border-l-4 border-[var(--secondary)] p-3 rounded-r">
+                                            <div className="flex items-start">
+                                                
+                                                <div className="flex-shrink-0">
+                                                <span className="text-[var(--secondary)] font-bold text-sm">
+                                                    Explicación:
+                                                </span>
+                                                <span className="ml-1 text-sm text-[var(--secondary)]">
+                                                    {question.explanation}
+                                                </span>
+                                                </div>
+                                                
+                                            </div>
+                                            </div>
+                                        )}
+                                        </div>
+                                    );
+                                    })}
+                
+                                </div>
+                            </div>
+                        </Modal>
+                    )
+                }
+
             </ExamLayout>
         );
     }
@@ -267,8 +443,11 @@ export default function StartExam () {
                         <div className="flex items-center justify-end text-[var(--primary)]">
                             <FaClock className="mr-2" />
                             <span className="font-mono text-lg font-bold">
-                                {formatTime(timeRemaining)}
+                                {hasTimeLimit ? formatTime(timeRemaining) : formatTime(timeRemaining)}
                             </span>
+                            {!hasTimeLimit && (
+                                <span className="text-xs text-gray-500 ml-2">transcurrido</span>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -411,88 +590,6 @@ export default function StartExam () {
                     </div>
                 )}
             </div>
-
-            {/* VIEW QUESTIONS MODAL */}
-            <Modal show={modalQuestionsOpen} onClose={() => setModalQuestionsOpen(false)}>
-                <div className="p-6 space-y-4">
-                    <div className="flex justify-between items-center mb-4">
-                        <h3 className="text-lg font-semibold text-[var(--primary)]">
-                            Preguntas del examen
-                        </h3>
-                        <button onClick={() => setModalQuestionsOpen(false)} className="text-[var(--secondary)] hover:text-[var(--primary)]">
-                            <FaTimes />
-                        </button>
-                    </div>
-            
-                    <div className="space-y-6">
-                        {viewQuestions.length > 0 && viewQuestions.map((question, index) => {
-                        const options = JSON.parse(question.options);
-                        const correctAnswers = JSON.parse(question.correct_answers);
-                        
-                        return (
-                            <div key={question.id} className="border border-[var(--secondary)] rounded-lg p-4 bg-[var(--font)]">
-    
-                            <div id={`question_${question.id}`} className="flex justify-between items-center mb-3">
-                                <span className="text-sm font-medium text-[var(--primary)] bg-[var(--fontBox)] px-2 py-1 rounded">
-                                Pregunta {index + 1}
-                                </span>
-                                <span className="text-xs text-gray-500 capitalize">
-                                {questionType(question.question_type)}
-                                </span>
-                            </div>
-    
-                            <h4 className="font-medium text-gray-900 mb-4">
-                                {question.question}
-                            </h4>
-    
-                            <div className="space-y-2 mb-4">
-                                {options.map((option, optionIndex) => {
-                                const isCorrect = correctAnswers.includes(optionIndex);
-                                return (
-                                    <div 
-                                    key={optionIndex}
-                                    className={`p-3 rounded-md border ${
-                                        isCorrect 
-                                        ? 'bg-[var(--fontBox)] border border-[var(--primary)]' 
-                                        : 'bg-[var(--fontBox)]'
-                                    }`}
-                                    >
-                                    <div className="flex items-center justify-between">
-                                        <span>{option}</span>
-                                        {isCorrect && (
-                                        <span className="text-[var(--primary)] font-medium text-sm">
-                                            <FaCheckCircle />
-                                        </span>
-                                        )}
-                                    </div>
-                                    </div>
-                                );
-                                })}
-                            </div>
-    
-                            {question.explanation && (
-                                <div className="bg-blue-50 border-l-4 border-[var(--secondary)] p-3 rounded-r">
-                                <div className="flex items-start">
-                                    
-                                    <div className="flex-shrink-0">
-                                    <span className="text-[var(--secondary)] font-bold text-sm">
-                                        Explicación:
-                                    </span>
-                                    <span className="ml-1 text-sm text-[var(--secondary)]">
-                                        {question.explanation}
-                                    </span>
-                                    </div>
-                                    
-                                </div>
-                                </div>
-                            )}
-                            </div>
-                        );
-                        })}
-    
-                    </div>
-                </div>
-            </Modal>
 
         </ExamLayout>
     );

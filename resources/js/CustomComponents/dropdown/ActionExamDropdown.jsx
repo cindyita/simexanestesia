@@ -3,7 +3,7 @@ import { createPortal } from "react-dom";
 import { FaEdit, FaTrash, FaEye, FaEllipsisV, FaLink, FaFileDownload, FaList } from "react-icons/fa";
 import { FaCircleQuestion } from "react-icons/fa6";
 
-const ActionExamDropdown = ({ item, onView, onViewQuestions, onEdit, onDelete, onCustomAction, pageLevel=1 }) => {
+const ActionExamDropdown = ({ item, onView, onViewQuestions, onViewHistory, onEdit, onDelete, onCustomAction, pageLevel=1 }) => {
   
   const [isOpen, setIsOpen] = useState(false);
   const [position, setPosition] = useState({ top: 0, left: 0 });
@@ -31,6 +31,9 @@ const ActionExamDropdown = ({ item, onView, onViewQuestions, onEdit, onDelete, o
         break;
       case "viewquestions":
         onViewQuestions?.(item);
+        break;
+      case "viewhistory":
+        onViewHistory?.(item);
         break;
       case "edit":
         if(pageLevel > 1) onEdit?.(item);
@@ -96,7 +99,7 @@ const ActionExamDropdown = ({ item, onView, onViewQuestions, onEdit, onDelete, o
                 </button>
                         
                 <button
-                  onClick={(e) => handleAction("edit", e)}
+                  onClick={(e) => handleAction("viewhistory", e)}
                   className="group flex items-center px-4 py-2 text-sm text-[var(--primary)] hover:bg-[var(--font)] hover:text-[var(--primary)] w-full text-left"
                 >
                   <FaList className="mr-3 h-4 w-4 text-[var(--secondary)] group-hover:text-[var(--secondary)]" />

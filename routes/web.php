@@ -85,6 +85,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/getExamQuestions', [ExamsController::class, 'getExamQuestions'])->middleware(['menu.permission:'.idMenu['exams']])->name('getexamquestions');
 
     Route::get('/startExam/{id}', [ExamsController::class, 'startExam'])->middleware(['menu.permission:'.idMenu['exams']])->name('startexam');
+
+    Route::get('/getHistoryByExam/{id}', [ExamsController::class, 'getHistoryByExam'])->middleware(['menu.permission:'.idMenu['history']])->name('gethistorybyexam');
     
     // POST IN PAGES ------------------------
     Route::post('/registerkeys', [AccountController::class, 'getRegisterKeys'])->middleware(['menu.permission:'.idMenu['registerkeys']])->name('registerkeys');

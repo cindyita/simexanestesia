@@ -6,6 +6,8 @@ import { useEffect, useState } from 'react';
 import { FaUser } from "react-icons/fa";
 
 import { Toaster } from 'sonner'
+import PrimaryButton from '@/CustomComponents/button/PrimaryButton';
+import MiniButton from '@/CustomComponents/button/MiniButton';
 
 export default function ExamLayout({ header, title, name, children }) {
     const user = usePage().props.auth.user;
@@ -52,7 +54,10 @@ export default function ExamLayout({ header, title, name, children }) {
                                         <AppLogo className="block w-auto fill-current" />
                                     </div>
                                 </li>
-                                <div>
+                                <div className="flex items-center gap-3">
+                                    <Link href="/exams">
+                                        <MiniButton>Volver a exámenes</MiniButton>
+                                    </Link>
                                     <strong>EXÁMEN: {name}</strong>
                                 </div>
                             </div>
