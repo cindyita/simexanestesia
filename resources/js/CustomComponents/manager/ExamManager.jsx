@@ -43,6 +43,9 @@ const ExamManager = ({ exams, currentPage = 1, totalPages = 1, onPageChange = {}
   const [modalQuestionsOpen, setModalQuestionsOpen] = useState(false);
   const [viewQuestions, setViewQuestions] = useState([]);
 
+  const [modalHistoryOpen, setModalHistoryOpen] = useState(false);
+  const [viewHistory, setViewHistory] = useState([]);
+
   const [modalDeleteOpen, setModalDeleteOpen] = useState(false);
   const [deleteId, setDeleteId] = useState(0);
 
@@ -118,7 +121,9 @@ const ExamManager = ({ exams, currentPage = 1, totalPages = 1, onPageChange = {}
   };
 
   const retakeExam = (id) => {
-    alert(`Reiniciando examen`);
+    router.visit(`/startExam/${id}`, {
+            method: 'get'
+        });
   };
 
   const viewAnswersExam = (id) => {
@@ -191,6 +196,31 @@ const ExamManager = ({ exams, currentPage = 1, totalPages = 1, onPageChange = {}
     const questions = await axios.get('/getExamQuestions', { params: { id } });
     setViewQuestions(questions.data);
     setModalQuestionsOpen(true);
+  }
+
+  const handleViewHistory = async (item) => {
+    const data = await axios.get('/getHistoryByExam/' + item.id);
+
+    const columnsMap = {
+      id: "id",
+      attempt_number: "Intento",
+      status: "Estado",
+      started_at: "Fecha de inicio",
+      completed_at: "Completado el",
+      time_used: "Tiempo usado",
+      score: "Score"
+    };
+
+    const filteredHistory = data.data.map(row => {
+      const filtered = {};
+      Object.keys(columnsMap).forEach(key => {
+        filtered[columnsMap[key]] = row[key];
+      });
+      return filtered;
+    });
+
+    setViewHistory(filteredHistory);
+    setModalHistoryOpen(true);
   }
 
   const questionType = (type) => {
@@ -388,6 +418,7 @@ const ExamManager = ({ exams, currentPage = 1, totalPages = 1, onPageChange = {}
                         pageLevel={pageLevel}
                         onView={handleDetails}
                         onViewQuestions={handleViewQuestions}
+                        onViewHistory={handleViewHistory}
                         onDelete={handleConfirmDelete}
                         onEdit={handleEdit}
                       />
@@ -487,13 +518,18 @@ const ExamManager = ({ exams, currentPage = 1, totalPages = 1, onPageChange = {}
                             <MdOutlineRateReview className="w-4 h-4" />
                             Ver respuestas
                           </TertiaryButton>
-                          <SecondaryButton
-                            onClick={() => retakeExam(exam.id)}
-                            className="flex-1 flex items-center justify-center gap-2 py-3"
-                          >
-                            <FaRedo className="w-4 h-4" />
-                            Repetir Examen
-                          </SecondaryButton>
+                          {
+                            exam.max_attempts > exam.lastAttempt.attempts ? (
+                              <SecondaryButton
+                                onClick={() => retakeExam(exam.id)}
+                                className="flex-1 flex items-center justify-center gap-2 py-3"
+                              >
+                                <FaRedo className="w-4 h-4" />
+                                Repetir Examen
+                              </SecondaryButton>
+                            ) : ""
+                          }
+                          
                         </div>
                       ) :
                         (
@@ -657,6 +693,7 @@ const ExamManager = ({ exams, currentPage = 1, totalPages = 1, onPageChange = {}
                             pageLevel={pageLevel}
                             onView={handleDetails}
                             onViewQuestions={handleViewQuestions}
+                            onViewHistory={handleViewHistory}
                             onDelete={handleConfirmDelete}
                             onEdit={handleEdit}
                           />
@@ -811,6 +848,57 @@ const ExamManager = ({ exams, currentPage = 1, totalPages = 1, onPageChange = {}
                       </div>
                     );
                   })}
+
+              </div>
+          </div>
+      </Modal>
+
+      {/* HISTORY MODAL */}
+      <Modal show={modalHistoryOpen} onClose={() => setModalHistoryOpen(false)}>
+          <div className="p-6 space-y-4">
+              <div className="flex justify-between items-center mb-4">
+                  <h3 className="text-lg font-semibold text-[var(--primary)]">
+                      Historial del examen
+                  </h3>
+                  <button onClick={() => setModalHistoryOpen(false)} className="text-[var(--secondary)] hover:text-[var(--primary)]">
+                      <FaTimes />
+                  </button>
+              </div>
+      
+              <div>
+                  {/* Table */}
+                  {viewHistory.length > 0 && (
+                    <div className="overflow-x-auto">
+                      <table className="table-auto border-collapse border border-[var(--secondary)] w-full">
+                        <thead>
+                          <tr>
+                            {Object.keys(viewHistory[0]).map((key, i) => (
+                              <th
+                                key={i}
+                                className="border border-[var(--secondary)] px-2 py-1 bg-[var(--font)] text-[var(--primary)] text-left"
+                              >
+                                {key}
+                              </th>
+                            ))}
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {viewHistory.map((row, rowIndex) => (
+                            <tr key={rowIndex}>
+                              {Object.values(row).map((value, colIndex) => (
+                                <td
+                                  key={colIndex}
+                                  className="border border-[var(--secondary)] px-2 py-1"
+                                >
+                                  {value === null || value === undefined ? "" : String(value)}
+                                </td>
+                              ))}
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
 
               </div>
           </div>
