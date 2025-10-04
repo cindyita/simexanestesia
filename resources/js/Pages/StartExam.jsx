@@ -9,6 +9,7 @@ import IconButton from '@/CustomComponents/button/IconButton';
 import MiniButton from '@/CustomComponents/button/MiniButton';
 import { toast } from 'sonner';
 import Modal from '@/CustomComponents/modal/Modal';
+import axios from 'axios';
 
 export default function StartExam () {
     const exam = usePage().props.data;
@@ -31,7 +32,6 @@ export default function StartExam () {
 
     const openModalViewAnswers = async () => {
         const questions = await axios.get('/getExamQuestions', { params: { id: exam.id } });
-        console.log(answers);
         setViewQuestions(questions.data);
         setModalQuestionsOpen(true);
     }

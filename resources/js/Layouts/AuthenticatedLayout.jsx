@@ -3,7 +3,7 @@ import Dropdown from '@/CustomComponents/dropdown/Dropdown';
 import { Link, usePage, Head } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
 
-import { MdDashboard } from "react-icons/md";
+import { MdDashboard, MdClass } from "react-icons/md";
 import { FaUser } from "react-icons/fa";
 import { FaHistory } from "react-icons/fa";
 import { IoFileTrayFull } from "react-icons/io5";
@@ -53,7 +53,8 @@ export default function AuthenticatedLayout({ header, title, children }) {
         FaBook,
         GoPasskeyFill,
         FaUserCog,
-        FaGear
+        FaGear,
+        MdClass
     };
 
     const handleSubMenu1 = (idParent) => {
