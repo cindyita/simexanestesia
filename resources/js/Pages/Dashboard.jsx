@@ -21,6 +21,10 @@ import Select from '@/CustomComponents/form/Select';
 export default function Dashboard() {
 
     const company = usePage().props.company;
+    const company_stats = usePage().props.company_stats;
+    const exam_stats = usePage().props.exam_stats;
+    const history_stats = usePage().props.history_stats;
+
     const alertsProp = usePage().props.alerts;
     const isAdmin = usePage().props.user['mode_admin'] ? true : false;
 
@@ -70,16 +74,25 @@ export default function Dashboard() {
 
     const [activeIndex, setActiveIndex] = useState(0);
 
-    const dataStats = [
-        { name: "Ene", aciertos: 30, intentos: 40 },
-        { name: "Feb", aciertos: 20, intentos: 110 },
-        { name: "Mar", aciertos: 50, intentos: 290 },
-        { name: "Abr", aciertos: 70, intentos: 200 },
-        { name: "May", aciertos: 60, intentos: 305 },
-        { name: "Jun", aciertos: 76, intentos: 360 },
-        { name: "Jul", aciertos: 68, intentos: 210 },
-        { name: "Ago", aciertos: 95, intentos: 450 }
-    ]
+    const formatMonth = (date) => {
+        const month = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
+        const part = date.split("-");
+        const m = month[parseInt(part[1], 10) - 1];
+        const d = part[2];
+        return `${m}-${d}`;
+    }
+
+    const dataStats1 = history_stats.map(data => ({
+        name: formatMonth(data.date),
+        score: parseInt(data.avg_score)
+    }));
+
+    const dataStats2 = exam_stats.map(exam => ({
+        name: exam.exam_name.length > 7 
+          ? '['+exam.id_exam+']'+exam.exam_name.substring(0, 7) + '...' 
+          : '['+exam.id_exam+']'+exam.exam_name,
+        intentos: parseInt(exam.total_attempts)
+    }));
 
     const formattedDate = (date) => {
         return date ? new Date(date).toLocaleDateString('es-MX', {
@@ -173,20 +186,19 @@ export default function Dashboard() {
                             <CardDescription>Total examenes</CardDescription>
                             <div className="flex gap-2 items-center">
                                 <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl text-[var(--primary)]">
-                                    15
+                                    {company_stats.total_exams}
                                 </CardTitle>
                                 <div>
                                     <Badge className="bg-[var(--primary)] hover:bg-[var(--secondary)]">
-                                        <MdOutlineTrendingUp className="font-bold text-lg pe-1" />
-                                        +2
+                                        <MdOutlineTrendingUp className="font-bold text-lg" />
                                     </Badge>
                                 </div>
                             </div>
-                            <div className="flex-col items-start gap-1.5 text-sm">
+                            {/* <div className="flex-col items-start gap-1.5 text-sm">
                                 <div className="flex gap-2 font-medium">
                                     Durante Agosto
                                 </div>
-                            </div>
+                            </div> */}
                         </CardHeader>
                     </Card>
 
@@ -195,20 +207,19 @@ export default function Dashboard() {
                             <CardDescription>Total intentos</CardDescription>
                             <div className="flex gap-2 items-center">
                                 <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl text-[var(--primary)]">
-                                    300
+                                    {company_stats.total_exam_attempts}
                                 </CardTitle>
                                 <div>
                                     <Badge className="bg-[var(--primary)] hover:bg-[var(--secondary)]">
-                                        <MdOutlineTrendingUp className="font-bold text-lg pe-1" />
-                                        +12.5%
+                                        <MdOutlineTrendingUp className="font-bold text-lg" />
                                     </Badge>
                                 </div>
                             </div>
-                            <div className="flex-col items-start gap-1.5 text-sm">
+                            {/* <div className="flex-col items-start gap-1.5 text-sm">
                                 <div className="flex gap-2 font-medium">
                                     Durante Agosto
                                 </div>
-                            </div>
+                            </div> */}
                         </CardHeader>
                     </Card>
 
@@ -217,42 +228,40 @@ export default function Dashboard() {
                             <CardDescription>Total usuarios</CardDescription>
                             <div className="flex gap-2 items-center">
                                 <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl text-[var(--primary)]">
-                                    450
+                                    {company_stats.total_users}
                                 </CardTitle>
                                 <div>
                                     <Badge className="bg-[var(--primary)] hover:bg-[var(--secondary)]">
-                                        <MdOutlineTrendingUp className="font-bold text-lg pe-1" />
-                                        +15%
+                                        <MdOutlineTrendingUp className="font-bold text-lg" />
                                     </Badge>
                                 </div>
                             </div>
-                            <div className="flex-col items-start gap-1.5 text-sm">
-                                <div className="flex gap-2 font-medium">
-                                    Durante Agosto
-                                </div>
-                            </div>
+                            {/* <div>
+                                <Badge className="bg-[var(--primary)] hover:bg-[var(--secondary)]">
+                                    <MdOutlineTrendingUp className="font-bold text-lg" />
+                                </Badge>
+                            </div> */}
                         </CardHeader>
                     </Card>
 
                     <Card className="@container/card box shadow rounded-lg flex-1">
                         <CardHeader>
-                            <CardDescription>Porcentaje de aciertos</CardDescription>
+                            <CardDescription>Total recursos</CardDescription>
                             <div className="flex gap-2 items-center">
                                 <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl text-[var(--primary)]">
-                                    57%
+                                    {company_stats.total_resources}
                                 </CardTitle>
                                 <div>
-                                    <Badge className="bg-red-500 hover:bg-red-600">
-                                        <MdOutlineTrendingDown className="font-bold text-lg pe-1" />
-                                        -1%
+                                    <Badge className="bg-[var(--primary)] hover:bg-[var(--secondary)]">
+                                        <MdOutlineTrendingUp className="font-bold text-lg" />
                                     </Badge>
                                 </div>
                             </div>
-                            <div className="flex-col items-start gap-1.5 text-sm">
+                            {/* <div className="flex-col items-start gap-1.5 text-sm">
                                 <div className="flex gap-2 font-medium">
                                     Durante Agosto
                                 </div>
-                            </div>
+                            </div> */}
                         </CardHeader>
                     </Card>
 
@@ -263,16 +272,16 @@ export default function Dashboard() {
                     {/* GRÁFICAS */}
                     <Card className="box shadow rounded-lg flex-1">
                         <CardHeader>
-                            <CardTitle className="text-lg font-semibold">Estadísticas de aciertos</CardTitle>
+                            <CardTitle className="text-lg font-semibold">Estadísticas de aciertos %</CardTitle>
                             </CardHeader>
                         <CardContent className="h-60">
                             <ResponsiveContainer width="100%" height="100%">
-                                <LineChart data={dataStats}>
+                                <LineChart data={dataStats1}>
                                     <CartesianGrid strokeDasharray="3 3" />
                                     <XAxis dataKey="name" />
                                     <YAxis />
                                     <Tooltip />
-                                    <Line type="monotone" dataKey="aciertos" stroke={company.primary_color} strokeWidth={3} />
+                                    <Line type="monotone" dataKey="score" stroke={company.primary_color} strokeWidth={3} />
                                 </LineChart>
                             </ResponsiveContainer>
                         </CardContent>
@@ -285,7 +294,7 @@ export default function Dashboard() {
                         </CardHeader>
                         <CardContent className="h-60">
                         <ResponsiveContainer width="100%" height="100%">
-                            <BarChart data={dataStats}>
+                            <BarChart data={dataStats2}>
                             <CartesianGrid strokeDasharray="3 3" />
                             <XAxis dataKey="name" />
                             <YAxis />

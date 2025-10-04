@@ -12,6 +12,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 use Spatie\Activitylog\Models\Activity;
+use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
 {
@@ -31,9 +32,28 @@ class DashboardController extends Controller
         })
         ->orderBy('created_at', 'desc')
         ->get();
+
+        //--------STATS--------------------
+        $idCompany = session('user')['id_company'];
+
+        $companyStats = DB::table('view_company_stats')
+        ->select('*')
+        ->where('id_company', $idCompany)->first();
+
+        $examStats = DB::table('view_exam_stats')
+        ->select('*')
+        ->where('id_company', $idCompany)->get();
+
+        $HistoryStats = DB::table('view_history_stats')
+        ->select('*')
+        ->where('id_company', $idCompany)->get();
+        //--------------------------------
         
         return Inertia::render('Dashboard',[
-            'alerts' => $alerts
+            'alerts' => $alerts,
+            'company_stats'=> $companyStats,
+            'exam_stats'=> $examStats,
+            'history_stats' => $HistoryStats
         ]);
     }
 

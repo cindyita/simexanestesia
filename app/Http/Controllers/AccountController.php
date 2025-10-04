@@ -81,43 +81,6 @@ class AccountController extends Controller
         return Redirect::to('/');
     }
 
-    public function getLogs(Request $request) {
-        $isAdmin = session('user')['mode_admin'] ? true : false;
-        $idUser = session('user')['id'];
-
-        // ROW DELETE --------------------------------------
-        $id_delete = $request->input('id_delete');
-
-        if($id_delete){
-            Activity::where('id', $id_delete)->delete();
-        }
-
-        $perPage = $request->input('per_page', 15);
-        $logs = Activity::select('activity_log.*','sys_users.name')
-        ->leftJoin('sys_users', 'sys_users.id', '=', 'activity_log.causer_id')
-        ->where('activity_log.event',session('user')['id_company'])
-        ->when(!$isAdmin, function($query) use ($idUser) {
-                $query->where('reg_history.id_user', $idUser);
-            })
-        ->orderBy('activity_log.id', 'desc')
-        ->paginate($perPage);
-
-        return Inertia::render('Logs', [
-            'data' => $logs
-        ]);
-    }
-
-    public function getLog(Request $request) {
-        $id = $request->query('id');
-
-        $log = Activity::select('activity_log.*','sys_users.name as name_user_causer')
-        ->leftJoin('sys_users', 'sys_users.id', '=', 'activity_log.causer_id')
-        ->where('activity_log.id',$id)
-        ->get();
-
-        return response()->json($log);
-    }
-
     public function getSession(Request $request) {
         return $request->session()->all();
     }

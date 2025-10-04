@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AccountController;
+use App\Http\Controllers\ArchiveController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\UsersController;
 use App\Http\Controllers\RolesController;
@@ -24,7 +25,8 @@ const idMenu = [
     'registerkeys' => 10,
     'records' => 11, // PARENT
     'logs' => 12,
-    'settings' => 14
+    'settings' => 14,
+    'subjects'=>15
 ];
 
 // ROUTES --------------------------
@@ -61,14 +63,16 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/roles', [RolesController::class, 'getRoles'])->middleware(['menu.permission:'.idMenu['roles']])->name('roles');
 
-    Route::get('/logs', [AccountController::class, 'getLogs'])->middleware(['menu.permission:'.idMenu['logs']])->name('logs');
+    Route::get('/logs', [ArchiveController::class, 'getLogs'])->middleware(['menu.permission:'.idMenu['logs']])->name('logs');
 
     Route::get('/registerkeys/{show?}', [AccountController::class, 'getRegisterKeys'])->middleware(['menu.permission:'.idMenu['registerkeys']])->name('registerkeys');
 
     Route::get('/appsettings', [SettingsController::class, 'getAppSettings'])->middleware(['menu.permission:'.idMenu['settings']])->name('appsettings');
 
+    Route::get('/subjects', [ArchiveController::class, 'getSubjects'])->middleware(['menu.permission:'.idMenu['subjects']])->name('subjects');
+
     // GET IN PAGES ------------------------
-    Route::get('/getLog', [AccountController::class, 'getLog'])->middleware(['menu.permission:'.idMenu['logs']])->name('getLog');
+    Route::get('/getLog', [ArchiveController::class, 'getLog'])->middleware(['menu.permission:'.idMenu['logs']])->name('getLog');
 
     Route::get('/getRol', [RolesController::class, 'getRol'])->middleware(['menu.permission:'.idMenu['roles']])->name('getRol');
 
@@ -87,6 +91,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/startExam/{id}', [ExamsController::class, 'startExam'])->middleware(['menu.permission:'.idMenu['exams']])->name('startexam');
 
     Route::get('/getHistoryByExam/{id}', [ExamsController::class, 'getHistoryByExam'])->middleware(['menu.permission:'.idMenu['history']])->name('gethistorybyexam');
+
+    Route::get('/getSubject', [ArchiveController::class, 'getSubject'])->middleware(['menu.permission:'.idMenu['subjects']])->name('getsubject');
     
     // POST IN PAGES ------------------------
     Route::post('/registerkeys', [AccountController::class, 'getRegisterKeys'])->middleware(['menu.permission:'.idMenu['registerkeys']])->name('registerkeys');
@@ -101,9 +107,7 @@ Route::middleware('auth')->group(function () {
 
     Route::post('/history', [ExamsController::class, 'getHistory'])->middleware(['menu.permission:'.idMenu['history']])->name('history');
 
-    // Route::post('/roles/update', [RolesController::class, 'updateRol'])->middleware(['menu.permission:'.idMenu['roles']])->name('updateroles');
-
-    Route::post('/logs', [AccountController::class, 'getLogs'])->middleware(['menu.permission:'.idMenu['logs']])->name('logs');
+    Route::post('/logs', [ArchiveController::class, 'getLogs'])->middleware(['menu.permission:'.idMenu['logs']])->name('logs');
 
     Route::post('/resources', [ResourcesController::class, 'getResources'])->middleware(['menu.permission:'.idMenu['resources']])->name('resources');
 
@@ -120,6 +124,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/finishExam', [ExamsController::class, 'finishExam'])->middleware(['menu.permission:'.idMenu['exams']])->name('finishexam');
 
     Route::post('/getExamStatus', [ExamsController::class, 'getExamStatus'])->middleware(['menu.permission:'.idMenu['exams']])->name('getexamstatus');
+
+    Route::post('/subjects', [ArchiveController::class, 'getSubjects'])->middleware(['menu.permission:'.idMenu['subjects']])->name('subjects');
 
     // DASHBOARD ----------------------
     Route::post('/alert', [DashboardController::class, 'alertUpdate'])->name('alert.update');
