@@ -30,6 +30,8 @@ import Modal from '../modal/Modal';
 import axios from 'axios';
 import ConfirmDeleteModal from '../modal/ConfirmDeleteModal';
 import { toast } from 'sonner';
+import { View } from 'lucide-react';
+import ViewQuestionsModal from '../modal/ViewQuestionsModal';
 
 const ExamManager = ({ exams, currentPage = 1, totalPages = 1, onPageChange = {}, pageLevel = 1, isAdmin = false }) => {
   
@@ -48,6 +50,8 @@ const ExamManager = ({ exams, currentPage = 1, totalPages = 1, onPageChange = {}
 
   const [modalDeleteOpen, setModalDeleteOpen] = useState(false);
   const [deleteId, setDeleteId] = useState(0);
+
+  const [lastAttemptAnswers, setLastAttemptAnswers] = useState(null);
 
   const getDifficultyColor = (difficulty) => {
     switch (difficulty) {
@@ -126,8 +130,10 @@ const ExamManager = ({ exams, currentPage = 1, totalPages = 1, onPageChange = {}
         });
   };
 
-  const viewAnswersExam = (id) => {
+  const viewAnswersExam = (id, lastAttempt) => {
+    const answers = lastAttempt.answers;
     handleViewQuestions(id);
+    setLastAttemptAnswers(answers);
   };
 
   const getExamType = (type) => {
@@ -525,7 +531,7 @@ const ExamManager = ({ exams, currentPage = 1, totalPages = 1, onPageChange = {}
                       (exam.lastAttempt && exam.lastAttempt.completed ? (
                         <div className="flex gap-2 justify-between w-full">
                           <TertiaryButton
-                            onClick={() => viewAnswersExam(exam.id)}
+                            onClick={() => viewAnswersExam(exam.id,exam.lastAttempt)}
                             className="flex-1 flex items-center justify-center gap-2 py-3"
                           >
                             <MdOutlineRateReview className="w-4 h-4" />
@@ -785,86 +791,15 @@ const ExamManager = ({ exams, currentPage = 1, totalPages = 1, onPageChange = {}
       </Modal>
 
       {/* VIEW QUESTIONS MODAL */}
-      <Modal show={modalQuestionsOpen} onClose={() => setModalQuestionsOpen(false)}>
-          <div className="p-6 space-y-4">
-              <div className="flex justify-between items-center mb-4">
-                  <h3 className="text-lg font-semibold text-[var(--primary)]">
-                      Preguntas del examen
-                  </h3>
-                  <button onClick={() => setModalQuestionsOpen(false)} className="text-[var(--secondary)] hover:text-[var(--primary)]">
-                      <FaTimes />
-                  </button>
-              </div>
-      
-              <div className="space-y-6">
-                  {viewQuestions.length > 0 && viewQuestions.map((question, index) => {
-                    const options = JSON.parse(question.options);
-                    const correctAnswers = JSON.parse(question.correct_answers);
-                    
-                    return (
-                      <div key={question.id} className="border border-[var(--secondary)] rounded-lg p-4 bg-[var(--font)]">
-
-                        <div id={`question_${question.id}`} className="flex justify-between items-center mb-3">
-                          <span className="text-sm font-medium text-[var(--primary)] bg-[var(--fontBox)] px-2 py-1 rounded">
-                            Pregunta {index + 1}
-                          </span>
-                          <span className="text-xs text-gray-500 capitalize">
-                            {questionType(question.question_type)}
-                          </span>
-                        </div>
-
-                        <h4 className="font-medium text-gray-900 mb-4">
-                          {question.question}
-                        </h4>
-
-                        <div className="space-y-2 mb-4">
-                          {options.map((option, optionIndex) => {
-                            const isCorrect = correctAnswers.includes(optionIndex);
-                            return (
-                              <div 
-                                key={optionIndex}
-                                className={`p-3 rounded-md border ${
-                                  isCorrect 
-                                    ? 'bg-[var(--fontBox)] border border-[var(--primary)]' 
-                                    : 'bg-[var(--fontBox)]'
-                                }`}
-                              >
-                                <div className="flex items-center justify-between">
-                                  <span>{option}</span>
-                                  {isCorrect && (
-                                    <span className="text-[var(--primary)] font-medium text-sm">
-                                      <FaCheckCircle />
-                                    </span>
-                                  )}
-                                </div>
-                              </div>
-                            );
-                          })}
-                        </div>
-
-                        {question.explanation && (
-                          <div className="bg-blue-50 border-l-4 border-[var(--secondary)] p-3 rounded-r">
-                            <div className="flex items-start">
-                              
-                              <div className="flex-shrink-0">
-                                <span className="text-[var(--secondary)] font-bold text-sm">
-                                  Explicación:
-                                </span>
-                                <span className="ml-1 text-sm text-[var(--secondary)]">
-                                  {question.explanation}
-                                </span>
-                              </div>
-                              
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
-
-              </div>
-          </div>
-      </Modal>
+      <ViewQuestionsModal
+        show={modalQuestionsOpen}
+        onClose={() => setModalQuestionsOpen(false)}
+        questions={viewQuestions}
+        answers={lastAttemptAnswers}
+        questionType={(type) =>
+          type === "multiple_choice" ? "Opción múltiple" : (type === "true_false" ? "Verdadero/Falso" : "")
+        }
+      />
 
       {/* HISTORY MODAL */}
       <Modal show={modalHistoryOpen} onClose={() => setModalHistoryOpen(false)}>

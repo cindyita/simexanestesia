@@ -67,6 +67,7 @@ class ExamsController extends Controller
                     'completedAt' => $lastAttempt->completed_at,
                     'timeUsed' => $lastAttempt->time_used,
                     'attempts' => $lastAttempt->attempt_number,
+                    'answers' => json_decode($lastAttempt->answers,true),
                 ] : null
             ];
         });

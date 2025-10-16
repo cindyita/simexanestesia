@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { 
   FaPlus, 
   FaTrash, 
@@ -77,6 +77,8 @@ const CreateExam = () => {
         order: 0
     });
 
+    const questionForm = useRef(null);
+
     // STEP STATE
     const [activeStep, setActiveStep] = useState(1); // 1: Info, 2: Question
     const [editingQuestionIndex, setEditingQuestionIndex] = useState(-1);
@@ -110,23 +112,23 @@ const CreateExam = () => {
         const currentCorrect = [...currentQuestion.correct_answers];
         const optionIndex = currentCorrect.indexOf(index);
         
-        if (currentQuestion.question_type === 'multiple_choice') {
-        // MULTIPLE CHOICE 1 ANSWER
-        setCurrentQuestion(prev => ({
-            ...prev,
-            correct_answers: [index]
-        }));
+        if (currentQuestion.question_type === 'multiple_choice' || currentQuestion.question_type === 'true_false') {
+            // MULTIPLE CHOICE 1 ANSWER
+            setCurrentQuestion(prev => ({
+                ...prev,
+                correct_answers: [index]
+            }));
         } else {
-        // MULTIPLE ANSWER
-        if (optionIndex > -1) {
-            currentCorrect.splice(optionIndex, 1);
-        } else {
-            currentCorrect.push(index);
-        }
-        setCurrentQuestion(prev => ({
-            ...prev,
-            correct_answers: currentCorrect
-        }));
+            // MULTIPLE ANSWER
+            if (optionIndex > -1) {
+                currentCorrect.splice(optionIndex, 1);
+            } else {
+                currentCorrect.push(index);
+            }
+            setCurrentQuestion(prev => ({
+                ...prev,
+                correct_answers: currentCorrect
+            }));
         }
     };
 
@@ -170,11 +172,27 @@ const CreateExam = () => {
         setShowQuestionForm(false);
     };
 
+    // CREATE ANSWER
+    const createAnswer = () => {
+        setCurrentQuestion({
+            question: '',
+            question_type: 'multiple_choice',
+            options: ['', '', '', ''],
+            correct_answers: [],
+            explanation: '',
+            order: 0
+        });
+        setEditingQuestionIndex(-1);
+        setShowQuestionForm(true);
+        questionForm.current?.scrollIntoView({ behavior: "smooth" });
+    }
+
     // UPDATE ANSWER
     const editQuestion = (index) => {
         setCurrentQuestion(questions[index]);
         setEditingQuestionIndex(index);
         setShowQuestionForm(true);
+        questionForm.current?.scrollIntoView({ behavior: "smooth" });
     };
 
     // DELETE ANSWER
@@ -202,7 +220,7 @@ const CreateExam = () => {
 
     // SAVE EXAM-------------------------------
     const saveExam = async () => {
-        if (!examData.name.trim()) {
+        if (!examData.name) {
             toast.error('El nombre del examen es obligatorio');
             return;
         }
@@ -466,7 +484,7 @@ const CreateExam = () => {
                             Preguntas del Examen ({questions.length})
                         </h3>
                         <PrimaryButton
-                            onClick={() => setShowQuestionForm(true)}
+                            onClick={() => createAnswer()}
                             className="flex items-center gap-2"
                         >
                             <FaPlus />
@@ -520,7 +538,7 @@ const CreateExam = () => {
                 </div>
 
                 {showQuestionForm && (
-                <div className="bg-[var(--fontBox)] rounded-lg shadow p-6">
+                <div ref={questionForm} className="bg-[var(--fontBox)] rounded-lg shadow p-6">
                     <h3 className="text-lg font-semibold mb-4">
                         {editingQuestionIndex >= 0 ? 'Editar Pregunta' : 'Nueva Pregunta'}
                     </h3>
@@ -577,7 +595,7 @@ const CreateExam = () => {
                                 >
                                     {currentQuestion.correct_answers.includes(index) && <FaCheck size={12} />}
                                 </button>
-                            <TextInput
+                                <TextInput
                                     type="text"
                                     value={option}
                                     onChange={(e) => handleOptionChange(index, e.target.value)}

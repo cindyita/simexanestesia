@@ -17,6 +17,7 @@ import PrimaryButton from '@/CustomComponents/button/PrimaryButton';
 import SecondaryButton from '@/CustomComponents/button/SecondaryButton';
 import Textarea from '@/CustomComponents/form/Textarea';
 import Select from '@/CustomComponents/form/Select';
+import axios from 'axios';
 
 // STAT CARD -------------------------------------
 const StatCard = ({ title, value, icon: Icon }) => (
@@ -132,7 +133,7 @@ export default function Dashboard() {
     const history_stats = usePage().props.history_stats;
     const user_stats = usePage().props.user_stats;
 
-  const alerts = alertsProp.length > 0 ? alertsProp : [{
+  let alerts = alertsProp.length > 0 ? alertsProp : [{
     id: 0,
     title: "Funcionamiento normal",
     type: "info",
@@ -212,11 +213,25 @@ export default function Dashboard() {
     setModalAlertOpen(true);
   };
 
-  const handleAlertSave = (e) => {
+  const handleAlertSave = async (e) => {
     e.preventDefault();
-    post(route('alert.update', selectedAlert.id), {
-      onSuccess: () => setModalAlertOpen(false),
-      onError: () => console.log(errors),
+    // post(route('alert.update', selectedAlert.id), {
+    //   onSuccess: () => setModalAlertOpen(false),
+    //   onError: () => console.log(errors),
+    // });
+    await axios.post('/alert', {
+      id: data.id,
+      title: data.title,
+      description: data.description,
+      type: data.type,
+      expire: data.expire
+    })
+      .then(() => {
+        alerts[0] = data;
+      setModalAlertOpen(false);
+    })
+    .catch((error) => {
+      console.log(error.response?.data || error);
     });
   };
     // RETURN -----------------------------------
