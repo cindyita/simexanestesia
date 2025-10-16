@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Clave de registro - Simexanestesia</title>
+    <title>Reestablecer contraseña - Simexanestesia</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         body {
@@ -83,17 +83,13 @@
         </div>
 
         <div class="content">
-            <h2>¡Únete a Simexanestesia!</h2>
-            <p>Te han invitado a registrarte en nuestra plataforma.</p>
-            <p>Tu clave es:</p>
+            <h2>Reestablece tu contraseña</h2>
+            <p>Recupera tu cuenta haciendo click en el siguiente link:</p>
 
-            <div class="key-box">
-                {{ $key }}
-            </div>
+            <a href="{{ $resetUrl }}" class="btn">Reestablecer cuenta</a>
 
-            <p>Puedes registrarte directamente aquí:</p>
-
-            <a href="https://app.simexanestesia.com/register/{{ $key }}" class="btn">Registrarme ahora</a>
+            <p>Si no solicitaste este cambio, puedes ignorar este correo.</p>
+            <small>Este enlace es válido por tiempo limitado.</small>
         </div>
 
         <div class="footer">

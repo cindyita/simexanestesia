@@ -2,7 +2,7 @@ import InputError from '@/CustomComponents/form/InputError';
 import PrimaryButton from '@/CustomComponents/button/PrimaryButton';
 import TextInput from '@/CustomComponents/form/TextInput';
 import GuestLayout from '@/Layouts/GuestLayout';
-import { Head, useForm } from '@inertiajs/react';
+import { Head, Link, useForm } from '@inertiajs/react';
 
 export default function ForgotPassword({ status }) {
     const { data, setData, post, processing, errors } = useForm({
@@ -11,7 +11,6 @@ export default function ForgotPassword({ status }) {
 
     const submit = (e) => {
         e.preventDefault();
-
         post(route('password.email'));
     };
 
@@ -20,9 +19,7 @@ export default function ForgotPassword({ status }) {
             <Head title="Forgot Password" />
 
             <div className="mb-4 text-sm text-[var(--primary)]">
-                Forgot your password? No problem. Just let us know your email
-                address and we will email you a password reset link that will
-                allow you to choose a new one.
+                Te enviaremos un correo para recuperar tu cuenta.
             </div>
 
             {status && (
@@ -37,6 +34,7 @@ export default function ForgotPassword({ status }) {
                     type="email"
                     name="email"
                     value={data.email}
+                    placeholder="Correo electrónico"
                     className="mt-1 block w-full"
                     isFocused={true}
                     onChange={(e) => setData('email', e.target.value)}
@@ -44,9 +42,17 @@ export default function ForgotPassword({ status }) {
 
                 <InputError message={errors.email} className="mt-2" />
 
-                <div className="mt-4 flex items-center justify-end">
-                    <PrimaryButton className="ms-4" disabled={processing}>
-                        Email Password Reset Link
+                <div className="mt-4 flex items-center justify-center flex-col gap-4">
+                    
+                    <Link
+                        href={route('login')}
+                        className="text-sm text-[var(--primary)] underline hover:text-[var(--primary)]"
+                    >
+                        Ya puedo iniciar sesión
+                    </Link>
+                    
+                    <PrimaryButton disabled={processing}>
+                        Enviar restablecimiento
                     </PrimaryButton>
                 </div>
             </form>
