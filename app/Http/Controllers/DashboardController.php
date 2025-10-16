@@ -16,6 +16,11 @@ use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
 {
+    /**
+     * show view dashboard
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\RedirectResponse|\Inertia\Response
+     */
     public function get(Request $request) {
 
         $user = session('user');
@@ -35,6 +40,7 @@ class DashboardController extends Controller
 
         //--------STATS--------------------
         $idCompany = session('user')['id_company'];
+        $idUser = session('user')['id'];
 
         $companyStats = DB::table('view_company_stats')
         ->select('*')
@@ -42,23 +48,38 @@ class DashboardController extends Controller
 
         $examStats = DB::table('view_exam_stats')
         ->select('*')
-        ->where('id_company', $idCompany)->get();
+        ->where('id_company', $idCompany)
+        ->limit(10)
+        ->get();
 
         $HistoryStats = DB::table('view_history_stats')
         ->select('*')
-        ->where('id_company', $idCompany)->get();
+        ->where('id_company', $idCompany)
+        ->limit(10)
+        ->get();
+
+        $userStats = DB::table('view_user_performance')
+        ->select('*')
+        ->where('id_company', $idCompany)
+        ->where('id_user', $idUser)
+        ->first();
         //--------------------------------
         
         return Inertia::render('Dashboard',[
             'alerts' => $alerts,
             'company_stats'=> $companyStats,
             'exam_stats'=> $examStats,
-            'history_stats' => $HistoryStats
+            'history_stats' => $HistoryStats,
+            'user_stats' => $userStats
         ]);
     }
 
-    public function alertUpdate(Request $request)
-{
+    /**
+     * alertUpdate
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function alertUpdate(Request $request) {
         $crudtype = 'update';
         if ($request->id == 0) {
             Alerts::deleteExpired();

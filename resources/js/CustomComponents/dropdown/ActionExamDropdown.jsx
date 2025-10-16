@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
-import { FaEdit, FaTrash, FaEye, FaEllipsisV, FaLink, FaFileDownload, FaList } from "react-icons/fa";
+import { FaEdit, FaTrash, FaEye, FaEllipsisV, FaList } from "react-icons/fa";
 import { FaCircleQuestion } from "react-icons/fa6";
 
 const ActionExamDropdown = ({ item, onView, onViewQuestions, onViewHistory, onEdit, onDelete, onCustomAction, pageLevel=1 }) => {
@@ -82,30 +82,30 @@ const ActionExamDropdown = ({ item, onView, onViewQuestions, onViewHistory, onEd
               }}
             >
               <div className="py-1">
-                <button
+                {onView && <button
                   onClick={(e) => handleAction("view", e)}
                   className="group flex items-center px-4 py-2 text-sm text-[var(--primary)] hover:bg-[var(--font)] hover:text-[var(--primary)] w-full text-left"
                 >
                   <FaEye className="mr-3 h-4 w-4 text-[var(--secondary)] group-hover:text-[var(--secondary)]" />
                   Ver detalles
-                </button>
+                </button>}
 
-                <button
+                {onViewQuestions && <button
                   onClick={(e) => handleAction("viewquestions", e)}
                   className="group flex items-center px-4 py-2 text-sm text-[var(--primary)] hover:bg-[var(--font)] hover:text-[var(--primary)] w-full text-left"
                 >
                   <FaCircleQuestion className="mr-3 h-4 w-4 text-[var(--secondary)] group-hover:text-[var(--secondary)]" />
                   Ver preguntas
-                </button>
+                </button>}
                         
-                <button
+                {onViewHistory && <button
                   onClick={(e) => handleAction("viewhistory", e)}
                   className="group flex items-center px-4 py-2 text-sm text-[var(--primary)] hover:bg-[var(--font)] hover:text-[var(--primary)] w-full text-left"
                 >
                   <FaList className="mr-3 h-4 w-4 text-[var(--secondary)] group-hover:text-[var(--secondary)]" />
                   Ver intentos
-                </button>
-                {( pageLevel > 1 ? 
+                </button>}
+                {( onEdit && pageLevel > 1 ? 
                 (<button
                     onClick={(e) => handleAction("edit", e)}
                     className="group flex items-center px-4 py-2 text-sm text-[var(--primary)] hover:bg-[var(--font)] hover:text-[var(--primary)] w-full text-left"
@@ -115,7 +115,7 @@ const ActionExamDropdown = ({ item, onView, onViewQuestions, onViewHistory, onEd
                 </button>) : ""
                 )}    
 
-                {( pageLevel > 2 ? 
+                {( onDelete && pageLevel > 2 ? 
                   (<>
                     <hr className="border-[var(--font)]" />
                     <button

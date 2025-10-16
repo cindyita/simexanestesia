@@ -18,6 +18,11 @@ use Illuminate\Support\Facades\Storage;
 
 class SettingsController extends Controller
 {
+    /**
+     * getAppSettings - view of settings
+     * @param \Illuminate\Http\Request $request
+     * @return \Inertia\Response
+     */
     public function getAppSettings(Request $request): Response {
         $req = $request->all();
         $idCompany = session('user')['id_company'];

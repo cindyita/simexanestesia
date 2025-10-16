@@ -55,7 +55,7 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/newexam', [ExamsController::class, 'createExam'])->middleware(['menu.permission:'.idMenu['exams']])->name('newexam');
 
-    Route::get('/history', [ExamsController::class, 'getHistory'])->middleware(['menu.permission:'.idMenu['history']])->name('history');
+    Route::get('/history/{idExam?}/{nameExam?}', [ExamsController::class, 'getHistory'])->middleware(['menu.permission:'.idMenu['history']])->name('history');
 
     Route::get('/resources', [ResourcesController::class, 'getResources'])->middleware(['menu.permission:'.idMenu['resources']])->name('resources');
 
@@ -134,6 +134,6 @@ Route::middleware('auth')->group(function () {
     Route::post('/registerkeys/send', [EmailsController::class, 'sendRegisterKeys'])->middleware(['menu.permission:'.idMenu['registerkeys']])->name('registerkeys.send');
 });
 
-Route::get('/session', [AccountController::class, 'getSession']);
+// Route::get('/session', [AccountController::class, 'getSession']);
 
 require __DIR__.'/auth.php';

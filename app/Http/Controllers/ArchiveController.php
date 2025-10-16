@@ -10,6 +10,11 @@ use Spatie\Activitylog\Models\Activity;
 class ArchiveController extends Controller
 {
 
+    /**
+     * getLogs - CRUD OF LOGS
+     * @param \Illuminate\Http\Request $request
+     * @return \Inertia\Response
+     */
     public function getLogs(Request $request) {
         $isAdmin = session('user')['mode_admin'] ? true : false;
         $idUser = session('user')['id'];
@@ -36,6 +41,11 @@ class ArchiveController extends Controller
         ]);
     }
 
+    /**
+     * getLog
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function getLog(Request $request) {
         $id = $request->query('id');
 
@@ -47,6 +57,11 @@ class ArchiveController extends Controller
         return response()->json($log);
     }
 
+    /**
+     * getSubjects
+     * @param \Illuminate\Http\Request $request
+     * @return \Inertia\Response
+     */
     public function getSubjects(Request $request) {
         $perPage = $request->input('per_page', 15);
         $idCompany = session('user')['id_company'];
@@ -88,6 +103,11 @@ class ArchiveController extends Controller
         ]);
     }
 
+    /**
+     * getSubject
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function getSubject(Request $request) {
         $id = $request->query('id');
 

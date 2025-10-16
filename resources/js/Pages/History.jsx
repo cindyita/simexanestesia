@@ -1,15 +1,17 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { router, Head, usePage } from "@inertiajs/react";
+import { router, Head, usePage, Link } from "@inertiajs/react";
 import { useState } from 'react';
 import TableComp from '@/CustomComponents/table/TableComp';
 import { useFetchDetails } from '@/hooks/useFetchDetails';
 import { IoDocumentText } from 'react-icons/io5';
 import axios from 'axios';
 import Modal from '@/CustomComponents/modal/Modal';
-import { FaCheckCircle, FaTimes } from 'react-icons/fa';
+import { FaArrowLeft, FaCheckCircle, FaTimes } from 'react-icons/fa';
 
 export default function History() {
     const { data, auth } = usePage().props;
+    const nameExam = usePage().props.nameExam;
+
     const pageLevel = usePage().props.menu[3]['level'];
     const isAdmin = usePage().props.user['mode_admin'] ? true : false;
     // const user = auth.user;
@@ -62,10 +64,8 @@ export default function History() {
 
     const handleDetails = async (id, useHeaders = true) => {
         if (useHeaders) {
-            const headerMap = {
+            const headerMapCommons = {
                 id: "id",
-                student_name: "Usuario",
-                id_exam: "Id del examen",
                 exam_name: "Examen",
                 attempt_number: "Intento #",
                 status: "Estado",
@@ -73,13 +73,20 @@ export default function History() {
                 completed_at: "Terminado el",
                 time_used: "Tiempo usado",
                 score: "Puntuación %",
-                correct_answers: "Respuestas correctas",
-                passed: "Aprobado",
-                answers: "Respuestas",
-                question_order: "Órden de las preguntas",
-                ip_address: "IP",
-                metadata: "metadata"
-            };
+                passed: "Aprobado"
+            }
+            const headerMap = isAdmin 
+                ? {
+                ...headerMapCommons, ...{
+                    student_name: "Usuario",
+                    id_exam: "Id del examen",
+                    correct_answers: "Respuestas correctas",
+                    answers: "Respuestas",
+                    // question_order: "Órden de las preguntas",
+                    ip_address: "IP",
+                    metadata: "metadata"
+                } } : headerMapCommons;
+            
             return await fetchDetails("/getHistory", { id }, headerMap);
         } else {
             return await fetchDetails("/getHistory", { id });
@@ -115,18 +122,25 @@ export default function History() {
 
     //---------------------------------
 
+    const titleHistory = nameExam ? `Historial de exámen: ${nameExam}` : (isAdmin ? 'Historial de intentos de alumnos' : 'Mi Historial de Intentos');
+
     return (
         <AuthenticatedLayout
             title="Historial"
         >
-            <div className="logs">
+            <div className="history">
                 <div>
                     <div className="bg-[var(--fontBox)] rounded-lg shadow">
                         <div className="p-3 md:p-6 text-[var(--primary)]">
+                            
+                            {
+                                nameExam &&
+                                <><Link href="/history" className='flex gap-2 items-center'><FaArrowLeft /> Volver a vista general</Link></>
+                            }
 
                             <TableComp
                                 id_table={'history_table'}
-                                table_name={isAdmin ? 'Historial de intentos de alumnos' : 'Mi Historial de Intentos'}
+                                table_name={titleHistory}
                                 columns={columns}
                                 dataRaw={tableData}
                                 downloadBtns={true}

@@ -17,7 +17,7 @@ export default function Exams() {
         setCurrentPage(page);
         router.get('exams', { page }, {});
     };
-
+    // RETURN------------------------------------
     return (
         <AuthenticatedLayout
             title="Examenes"

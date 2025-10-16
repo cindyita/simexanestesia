@@ -22,6 +22,8 @@ export default function Roles() {
     const data = usePage().props.data;
     const pageLevel = usePage().props.menu[8]['level'];
 
+    const isAdmin = usePage().props.user['mode_admin'] ? true : false;
+
     const [modalKeyOpen, setModalKeyOpen] = useState(false);
     const [modalSettingsOpen, setModalSettingsOpen] = useState(false);
     const [currentPage, setCurrentPage] = useState(data.current_page);
@@ -164,6 +166,10 @@ export default function Roles() {
         });
     };
 
+    if (!isAdmin) {
+        handleDelete = "";
+    }
+
     return (
         <AuthenticatedLayout
             title="Roles"
@@ -179,7 +185,7 @@ export default function Roles() {
                                 </h3>
                             </div>
                             <div className="flex items-center gap-2">
-                                <PrimaryButton onClick={() => setModalNewOpen(true)}>Nuevo rol</PrimaryButton>
+                                {isAdmin && <PrimaryButton onClick={() => setModalNewOpen(true)}>Nuevo rol</PrimaryButton>}
                             </div>
                         </div>
                         <div className="px-3 md:px-6 pb-6 text-[var(--primary)]">

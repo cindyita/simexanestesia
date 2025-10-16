@@ -5,16 +5,19 @@ namespace App\Http\Controllers;
 use App\Models\Resources;
 use App\Models\Subjects;
 use Illuminate\Support\Facades\Auth;
-use App\Models\ViewRolesPermissions;
 use Illuminate\Http\Request;
 
 use Inertia\Inertia;
-use Inertia\Response;
 
 use Illuminate\Support\Facades\Storage;
 
 class ResourcesController extends Controller
 {
+    /**
+     * getResources - CRUD RESOURCES
+     * @param \Illuminate\Http\Request $request
+     * @return \Inertia\Response
+     */
     public function getResources(Request $request) {
         $perPage = $request->input('per_page', 30);
         $idCompany = session('user')['id_company'];
@@ -100,7 +103,11 @@ class ResourcesController extends Controller
             'subjects' => $subjects
         ]);
     }
-
+    /**
+     * getFile
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function getFile(Request $request) {
         $id = $request->query('id');
 

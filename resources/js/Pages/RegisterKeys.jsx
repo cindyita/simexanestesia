@@ -185,6 +185,10 @@ export default function RegisterKeys() {
             return await fetchDetails("/getRegisterKey", { id });
         }
     };
+
+    if (!isAdmin) {
+        handleDelete = "";
+    }
     
     return (
         <AuthenticatedLayout title="Claves de registro">
@@ -229,8 +233,14 @@ export default function RegisterKeys() {
                                         Todas las claves
                                     </option>
                                 </Select>
-                                <PrimaryButton className="whitespace-nowrap" onClick={() => setModalLoteKeysOpen(true)}>Crear lote de claves</PrimaryButton>
-                                <PrimaryButton className="whitespace-nowrap" onClick={() => setModalKeysOpen(true)}>Nueva clave</PrimaryButton>
+                                {
+                                    isAdmin &&
+                                    <>
+                                        <PrimaryButton className="whitespace-nowrap" onClick={() => setModalLoteKeysOpen(true)}>Crear lote de claves</PrimaryButton>
+                                        <PrimaryButton className="whitespace-nowrap" onClick={() => setModalKeysOpen(true)}>Nueva clave</PrimaryButton>
+                                    </>
+                                }
+                                
                             </div>
                         </div>
                         <div className="px-3 md:px-6 pb-6 text-[var(--primary)]">

@@ -24,6 +24,8 @@ class RegisteredUserController extends Controller
 {
     /**
      * Display the registration view.
+     * @param mixed $key
+     * @return \Inertia\Response
      */
     public function create($key = null): Response
     {   
@@ -40,98 +42,6 @@ class RegisteredUserController extends Controller
             'email'=>$registerkey['email'] ?? null
         ]);
     }
-
-    // /**
-    //  * Handle an incoming registration request.
-    //  *
-    //  * @throws \Illuminate\Validation\ValidationException
-    //  */
-    // public function store(Request $request)
-    // {   
-    //     if($request->default_key){
-    //         $registerkey = RegisterKeys::select('email', 'used_by','id_company','id_rol')->where('key', $request->register_key)->first();
-
-    //         if($registerkey['used_by']){
-    //             return Inertia::render('ErrorPage',[
-    //             'status' => 'invalid_key']);
-    //         }
-    //     }else{
-    //         $registerkey = Company::select('id as id_company','id_rol_register as id_rol','use_uniquekeys')->where('register_key',$request->register_key)->first;
-            
-    //         if(!$registerkey || $registerkey['use_uniquekeys']){
-    //             $registerkey = RegisterKeys::select('email', 'used_by','id_company','id_rol')->where('key', $request->register_key)->first();
-
-    //             if($registerkey['used_by']){
-    //                 return Inertia::render('ErrorPage',[
-    //                 'status' => 'invalid_key']);
-    //             }
-    //         } 
-    //     }
-
-    //     if(!$registerkey){
-    //         return Inertia::render('ErrorPage',[
-    //         'status' => 'invalid_key']);
-    //     }
-    
-
-    //     $emailunique = User::where('email', $request->email)->first();
-
-    //     if($emailunique){
-    //         return Inertia::render('ErrorPage',[
-    //         'status' => 'email_used']);
-    //     }
-
-    //     $request->validate([
-    //         'name' => 'required|string|max:255',
-    //         'email' => 'required|string|lowercase|email|max:255|unique:sys_users,email',
-    //         'password' => ['required', 'confirmed', Rules\Password::defaults()],
-    //     ]);
-
-    //     $user = User::create([
-    //         'name' => $request->name,
-    //         'email' => $request->email,
-    //         'id_company'=>$registerkey->id_company,
-    //         'id_rol'=>$registerkey->id_rol,
-    //         'password' => Hash::make($request->password),
-    //     ]);
-
-    //     if (!$user) {
-    //         return redirect()->back()->withErrors(['msg' => 'No se pudo crear el usuario. Intenta de nuevo.']);
-    //     }
-
-    //     event(new Registered($user));
-
-    //     activity('create user')
-    //         ->causedBy($user)
-    //         ->withProperties(['Nueva cuenta: '=>$user->only(['id','name','email'])])
-    //         ->log('Se registró un usuario');
-
-    //     Auth::login($user);
-
-    //     //------------------------------
-    //     $role = Roles::select('mode_admin','name')
-    //     ->where('id', $user->id_rol)
-    //     ->first();
-
-    //     $request->session()->put('user', [
-    //         'id' => $user->id,
-    //         'name' => $user->name,
-    //         'email' => $user->email,
-    //         'id_rol' => $user->id_rol,
-    //         'rol_name' => $role->name,
-    //         'mode_admin' => $role->mode_admin,
-    //         'id_company' => $user->id_company,
-    //     ]);
-
-    //     $company = Company::where("id", $user->id_company)->first();
-
-    //     $request->session()->put('company', $company);
-    //     $menu = new MenuService;
-    //     $menu->setMenuInSession($user->id_rol);
-    //     //------------------------------
-
-    //     return redirect(route('dashboard', absolute: false));
-    // }
 
     //------------------------------------------------------------
     /**
@@ -207,6 +117,11 @@ class RegisteredUserController extends Controller
         }
     }
 
+    /**
+     * Process register key
+     * @param \Illuminate\Http\Request $request
+     * @return array{id_company: mixed, id_rol: mixed, key_id: mixed, type: string|array{id_company: mixed, id_rol: mixed, type: string}|null}
+     */
     private function processRegisterKey(Request $request)
     {
         $isDefaultKey = $request->boolean('default_key');
@@ -235,6 +150,11 @@ class RegisteredUserController extends Controller
         ];
     }
 
+    /**
+     * processIndividualKey
+     * @param string $key
+     * @return array{id_company: mixed, id_rol: mixed, key_id: mixed, type: string|null}
+     */
     private function processIndividualKey(string $key)
     {
         $registerKey = RegisterKeys::select('id', 'email', 'used_by', 'id_company', 'id_rol')
@@ -257,6 +177,12 @@ class RegisteredUserController extends Controller
         ];
     }
 
+    /**
+     * setupUserSession
+     * @param \Illuminate\Http\Request $request
+     * @param \App\Models\User $user
+     * @return void
+     */
     private function setupUserSession(Request $request, User $user)
     {
         $role = Roles::select('mode_admin', 'name')
@@ -283,6 +209,11 @@ class RegisteredUserController extends Controller
     }
     //------------------------------------------------------------
 
+    /**
+     * storeByUser
+     * @param \Illuminate\Http\Request $request
+     * @return RedirectResponse
+     */
     public function storeByUser(Request $request): RedirectResponse
     {
         $request->validate([

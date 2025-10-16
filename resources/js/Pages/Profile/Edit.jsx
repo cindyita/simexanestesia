@@ -29,9 +29,9 @@ export default function Edit({ mustVerifyEmail, status }) {
                         <UpdatePasswordForm className="max-w-xl" />
                     </div>
 
-                    <div className="bg-[var(--fontBox)] p-4 sm:rounded-lg sm:p-8">
+                    {/* <div className="bg-[var(--fontBox)] p-4 sm:rounded-lg sm:p-8">
                         <DeleteUserForm className="max-w-xl" />
-                    </div>
+                    </div> */}
                 </div>
             </div>
         </AuthenticatedLayout>

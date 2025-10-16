@@ -171,7 +171,7 @@ const ExamManager = ({ exams, currentPage = 1, totalPages = 1, onPageChange = {}
 
   const handleActionDetails = async (id) => {
     
-    const headerMap = {
+    const headerMapCommons = {
       name: "Nombre",
       description: "Descripción",
       subject: "Materia asociada",
@@ -183,44 +183,54 @@ const ExamManager = ({ exams, currentPage = 1, totalPages = 1, onPageChange = {}
       max_attempts: "Máximo de intentos",
       shuffle_questions: "Randomizar preguntas",
       shuffle_options: "Randomizar opciones",
-      show_results: "Mostrar respuestas",
-      is_active_show: "Activo",
-      created_by_name: "Creado por",
-      created_at: "Fecha de creación",
-      updated_at: "Última actualización"
+      show_results: "Mostrar respuestas"
     };
+
+    const headerMap = isAdmin 
+      ? {
+        ...headerMapCommons, ...{
+          is_active_show: "Activo",
+          created_by_name: "Creado por",
+          created_at: "Fecha de creación",
+          updated_at: "Última actualización"
+    } } : headerMapCommons;
+
     return await fetchDetails("/getExam", { id },headerMap);
   }
 
-  const handleViewQuestions = async (id) => {
+  let handleViewQuestions = async (id) => {
     const questions = await axios.get('/getExamQuestions', { params: { id } });
     setViewQuestions(questions.data);
-    setModalQuestionsOpen(true);
+    setModalQuestionsOpen(true)
   }
 
-  const handleViewHistory = async (item) => {
-    const data = await axios.get('/getHistoryByExam/' + item.id);
+  // let handleViewHistory = async (item) => {
+  //   const data = await axios.get('/getHistoryByExam/' + item.id);
 
-    const columnsMap = {
-      id: "id",
-      attempt_number: "Intento",
-      status: "Estado",
-      started_at: "Fecha de inicio",
-      completed_at: "Completado el",
-      time_used: "Tiempo usado",
-      score: "Score"
-    };
+  //   const columnsMap = {
+  //     id: "id",
+  //     attempt_number: "Intento",
+  //     status: "Estado",
+  //     started_at: "Fecha de inicio",
+  //     completed_at: "Completado el",
+  //     time_used: "Tiempo usado",
+  //     score: "Score"
+  //   };
 
-    const filteredHistory = data.data.map(row => {
-      const filtered = {};
-      Object.keys(columnsMap).forEach(key => {
-        filtered[columnsMap[key]] = row[key];
-      });
-      return filtered;
-    });
+  //   const filteredHistory = data.data.map(row => {
+  //     const filtered = {};
+  //     Object.keys(columnsMap).forEach(key => {
+  //       filtered[columnsMap[key]] = row[key];
+  //     });
+  //     return filtered;
+  //   });
 
-    setViewHistory(filteredHistory);
-    setModalHistoryOpen(true);
+  //   setViewHistory(filteredHistory);
+  //   setModalHistoryOpen(true);
+  // }
+
+  let handleViewHistory = (item) => {
+    router.visit('/history/'+item.id+'/'+item.name);
   }
 
   const questionType = (type) => {
@@ -236,12 +246,22 @@ const ExamManager = ({ exams, currentPage = 1, totalPages = 1, onPageChange = {}
     }
   }
 
-  const handleConfirmDelete = (item) => {
+  let handleEdit = async (exam) => {
+    const edit = await fetchDetails("/getExam", { id: exam.id });
+    router.visit('/newexam', {
+            method: 'post',
+            data: {
+              edit: edit[0]
+            }
+    });
+  }
+
+  let handleConfirmDelete = (item) => {
     setDeleteId(item.id);
     setModalDeleteOpen(true);
   }
 
-  const handleDelete = async (id) => {
+  let handleDelete = async (id) => {
     return new Promise((resolve, reject) => {
         router.visit('/exams', {
             method: 'post',
@@ -254,15 +274,11 @@ const ExamManager = ({ exams, currentPage = 1, totalPages = 1, onPageChange = {}
     });
   }
 
-  const handleEdit = async(exam) => {
-    const edit = await fetchDetails("/getExam", { id: exam.id });
-
-    router.visit('/newexam', {
-            method: 'post',
-            data: {
-              edit: edit[0]
-            }
-        });
+  if (!isAdmin) {
+    handleViewQuestions = "";
+    handleEdit = "";
+    handleDelete = "";
+    handleConfirmDelete = "";
   }
 
   return (
@@ -279,7 +295,7 @@ const ExamManager = ({ exams, currentPage = 1, totalPages = 1, onPageChange = {}
                 </>
               ) : (
                   <>
-                    <Link href="/testexam"><PrimaryButton>Probar examen</PrimaryButton></Link>
+                    {/* <Link href="/testexam"><PrimaryButton>Exámen de prueba</PrimaryButton></Link> */}
                   </>
               )
             )}
@@ -291,7 +307,6 @@ const ExamManager = ({ exams, currentPage = 1, totalPages = 1, onPageChange = {}
             <div className="flex flex-wrap gap-3 items-center">
               <div className="flex items-center gap-2">
                 <FaFilter className="text-[var(--secondary)]" />
-                <span className="text-sm font-medium text-[var(--primary)]">Filtros:</span>
               </div>
               
               <Select 
@@ -335,7 +350,6 @@ const ExamManager = ({ exams, currentPage = 1, totalPages = 1, onPageChange = {}
                 }`}
               >
                 <FaTh className="w-4 h-4" />
-                Tarjetas
               </button>
               <button
                 onClick={() => setViewType('list')}
@@ -346,7 +360,6 @@ const ExamManager = ({ exams, currentPage = 1, totalPages = 1, onPageChange = {}
                 }`}
               >
                 <FaList className="w-4 h-4" />
-                Lista
               </button>
             </div>
           </div>

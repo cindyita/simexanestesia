@@ -178,17 +178,21 @@ const FileManager = ({files,subjects, currentPage=1, totalPages=1, onPageChange=
   }
 
   const handleActionDetails = async (id) => {
-    const headerMap = {
+    const headerMapCommons = {
       name: "Nombre",
       description: "Descripción",
       subject: "Materia asociada",
-      file_type: "Tipo de archivo",
-      download_count: "Descargas",
-      view_count: "Vistas",
-      uploaded_by: "Subido por",
-      created_at: "Fecha de subida",
-      updated_at: "Última actualización"
+      file_type: "Tipo de archivo"
     };
+    const headerMap = isAdmin 
+      ? {
+        ...headerMapCommons, ...{
+        download_count: "Descargas",
+        view_count: "Vistas",
+        uploaded_by: "Subido por",
+        created_at: "Fecha de subida",
+        updated_at: "Última actualización"
+        } } : headerMapCommons;
     return await fetchDetails("/getFile", { id },headerMap);
   }
 
@@ -236,6 +240,12 @@ const FileManager = ({files,subjects, currentPage=1, totalPages=1, onPageChange=
         });
   }
 
+  if (!isAdmin) {
+    handleActionUpdate = "";
+    handleDelete = "";
+    handleConfirmDelete = "";
+  }
+
   return (
     <div className="px-3 md:px-6">
       <div>
@@ -263,7 +273,6 @@ const FileManager = ({files,subjects, currentPage=1, totalPages=1, onPageChange=
             <div className="flex flex-wrap gap-3 items-center">
               <div className="flex items-center gap-2">
                 <FaFilter className="text-[var(--secondary)]" />
-                <span className="text-sm font-medium text-[var(--primary)]">Filtros:</span>
               </div>
               
               <Select
@@ -305,26 +314,28 @@ const FileManager = ({files,subjects, currentPage=1, totalPages=1, onPageChange=
                 onClick={() => setViewType('grid')}
                 className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm transition-colors ${
                   viewType === 'grid' 
-                    ? 'bg-[var(--fontBox)] text-[var(--primary)] shadow-sm' 
+                    ? 'bg-[var(--fontBox)] text-[var(--secondary)] shadow-sm' 
                     : 'text-[var(--primary)] hover:text-[var(--primary)]'
                 }`}
               >
                 <FaTh className="w-4 h-4" />
-                Cuadrícula
               </button>
               <button
                 onClick={() => setViewType('list')}
                 className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm transition-colors ${
                   viewType === 'list' 
-                    ? 'bg-[var(--fontBox)] text-[var(--primary)] shadow-sm' 
+                    ? 'bg-[var(--fontBox)] text-[var(--secondary)] shadow-sm' 
                     : 'text-[var(--primary)] hover:text-[var(--primary)]'
                 }`}
               >
                 <FaList className="w-4 h-4" />
-                Lista
               </button>
             </div>
           </div>
+        </div>
+
+        <div className='text-xs pb-2'>
+          <span>*Da doble click para abrir un archivo</span>
         </div>
 
         {/* Contador de archivos */}

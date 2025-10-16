@@ -12,6 +12,8 @@ export default function Subjects() {
     
     const data = usePage().props.data;
     const pageLevel = usePage().props.menu[15]['level'];
+
+    const isAdmin = usePage().props.user['mode_admin'];
     
     const subjects = data.data;
 
@@ -102,6 +104,10 @@ export default function Subjects() {
         'code': "Código"
     };
 
+    if (!isAdmin) {
+        handleDelete = "";
+    }
+
     return (
         <AuthenticatedLayout
             title="Materias"
@@ -117,7 +123,7 @@ export default function Subjects() {
                                 </h3>
                             </div>
                             <div className="flex items-center gap-2">
-                                <PrimaryButton onClick={() => setModalNewOpen(true)}>Nueva materia</PrimaryButton>
+                                {isAdmin && <PrimaryButton onClick={() => setModalNewOpen(true)}>Nueva materia</PrimaryButton>}
                             </div>
                         </div>
                         <div className="px-3 md:px-6 pb-6 text-[var(--primary)]">

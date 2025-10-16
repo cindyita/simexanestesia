@@ -14,6 +14,8 @@ export default function AppSettings() {
     const data = usePage().props.data;
     const pageLevel = usePage().props.menu[14]['level'];
     const isAdmin = usePage().props.user['mode_admin'] ? true : false;
+    
+    if (!isAdmin) return "No tienes permisos para ver esta página";
 
     const roles = usePage().props.roles;
 
@@ -145,16 +147,6 @@ export default function AppSettings() {
             
             <div className="py-6">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
-                    {/* MESSAGE */}
-                    {/* {message.text && (
-                        <div className={`mb-4 p-4 rounded-md ${
-                            message.type === 'success' 
-                                ? 'bg-green-50 text-green-800 border border-green-200' 
-                                : 'bg-red-50 text-red-800 border border-red-200'
-                        }`}>
-                            {message.text}
-                        </div>
-                    )} */}
 
                     <form onSubmit={handleSave} className="flex flex-col-reverse gap-6">
                         <div  className="grid grid-cols-1 lg:grid-cols-2 gap-6">

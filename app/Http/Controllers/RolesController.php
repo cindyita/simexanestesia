@@ -16,7 +16,11 @@ use Inertia\Response;
 
 class RolesController extends Controller
 {
-
+    /**
+     * getRoles - CRUD OF ROLES
+     * @param \Illuminate\Http\Request $request
+     * @return \Inertia\Response
+     */
     public function getRoles(Request $request): Response {
         $idCompany = session('user')['id_company'];
 
@@ -119,7 +123,11 @@ class RolesController extends Controller
     //          return response()->json($role);
     //     }
     // }
-
+    /**
+     * getRolPermission - GET permissions of a rol
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function getRolPermission(Request $request) {
         $idRol = $request->input('id');
 
@@ -141,7 +149,11 @@ class RolesController extends Controller
             'permissions' => $permissions
         ]);
     }
-
+    /**
+     * getRol
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function getRol(Request $request) {
         $id = $request->query('id');
 

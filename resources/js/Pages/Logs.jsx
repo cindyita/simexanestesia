@@ -10,6 +10,9 @@ export default function Logs() {
     
     const data = usePage().props.data;
     const pageLevel = usePage().props.menu[12]['level'];
+
+    const isAdmin = usePage().props.user['mode_admin'] ? true : false;
+    if (!isAdmin) return "No tienes permisos para ver esta página";
     
     const logs = data.data;
 

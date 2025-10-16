@@ -7,8 +7,12 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Http\Request;
 
 class EmailsController extends Controller {
-    public function sendRegisterKeys(Request $request)
-    {
+    /**
+     * sendRegisterKeys
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function sendRegisterKeys(Request $request) {
         $data = $request->validate([
             'keys' => 'required|array',
             'keys.*.email' => 'required|email',
@@ -25,7 +29,6 @@ class EmailsController extends Controller {
             ->log('Envío de claves de registro por email');
 
         return back()->with('success', 'Claves enviadas correctamente');
-        // return response()->json($request->all());
     }
 
 }

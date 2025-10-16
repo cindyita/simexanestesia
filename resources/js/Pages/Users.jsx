@@ -13,6 +13,8 @@ export default function Users() {
     const data = usePage().props.data;
     const pageLevel = usePage().props.menu[7]['level'];
 
+    const isAdmin = usePage().props.user['mode_admin'] ? true : false;
+
     const roles = usePage().props.roles;
 
     const [currentPage, setCurrentPage] = useState(data.current_page);
@@ -124,6 +126,10 @@ export default function Users() {
     };
     //---------------------------------
 
+    if (!isAdmin) {
+        handleDelete = "";
+    }
+
     return (
         <AuthenticatedLayout
             title="Usuarios"
@@ -139,7 +145,7 @@ export default function Users() {
                                 </h3>
                             </div>
                             <div>
-                                <PrimaryButton onClick={() => setModalNewOpen(true)}>Nuevo usuario</PrimaryButton>
+                                {isAdmin && <PrimaryButton onClick={() => setModalNewOpen(true)}>Nuevo usuario</PrimaryButton>}
                             </div>
                         </div>
                         <div className="px-3 md:px-6 pb-6 text-[var(--primary)]">

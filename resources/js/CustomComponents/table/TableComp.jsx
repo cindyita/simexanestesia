@@ -365,7 +365,7 @@ function TableComp({ children,id_table, table_name, columns, columnsHidden = [],
                         <div className="flex flex-col sm:flex-row gap-3">
                             {/* DATA DOWNLOAD BUTTONS */}
                             <div className="flex gap-2 justify-start sm:justify-start">
-                                {downloadBtns &&
+                                {dataRaw.length > 0 && downloadBtns &&
                                     <>
                                         <IconButton
                                             onClick={handleDownloadCsv}
@@ -411,7 +411,8 @@ function TableComp({ children,id_table, table_name, columns, columnsHidden = [],
                     <div className="hidden md:block overflow-x-auto">
                         <div className="overflow-x-auto overflow-y-auto">
                             <div style={{ minWidth: '600px' }}>
-                                <CompactTable
+                                {dataRaw.length > 0 ?
+                                    <CompactTable
                                     key={visibleColumns.join('-')} // Key para forzar re-render cuando cambien las columnas
                                     columns={mapColumns}
                                     data={filteredData}
@@ -425,26 +426,26 @@ function TableComp({ children,id_table, table_name, columns, columnsHidden = [],
                                         --data-table-library_grid-template-columns: ${gridTemplateColumns};
                                         `,
                                         Header: {
-                                        backgroundColor: '#f8fafc',
-                                        color: '#374151',
-                                        fontWeight: '600',
-                                        borderBottom: '2px solid #e5e7eb',
+                                            backgroundColor: '#f8fafc',
+                                            color: '#374151',
+                                            fontWeight: '600',
+                                            borderBottom: '2px solid #e5e7eb',
                                         },
                                         Row: {
-                                        backgroundColor: 'white',
-                                        '&:nth-of-type(even)': {
-                                            backgroundColor: '#f9fafb',
-                                        },
-                                        '&:hover': {
-                                            backgroundColor: '#f3f4f6',
-                                        },
+                                            backgroundColor: 'white',
+                                            '&:nth-of-type(even)': {
+                                                backgroundColor: '#f9fafb',
+                                            },
+                                            '&:hover': {
+                                                backgroundColor: '#f3f4f6',
+                                            },
                                         },
                                         Cell: {
-                                        padding: '12px',
-                                        borderRight: '1px solid #e5e7eb',
-                                        '&:last-child': {
-                                            borderRight: 'none',
-                                        },
+                                            padding: '12px',
+                                            borderRight: '1px solid #e5e7eb',
+                                            '&:last-child': {
+                                                borderRight: 'none',
+                                            },
                                         },
                                     }}
                                     layout={{
@@ -452,7 +453,9 @@ function TableComp({ children,id_table, table_name, columns, columnsHidden = [],
                                         horizontalScroll: true,
                                         custom: true
                                     }}
-                                />
+                                    />
+                                    : <div className="p-5 flex justify-center">[No se encontraron datos]</div>
+                                }
                             </div>
                         </div>
                     </div>
@@ -460,7 +463,11 @@ function TableComp({ children,id_table, table_name, columns, columnsHidden = [],
                     {/* Mobile */}
                     <div className="md:hidden overflow-y-auto">
                         <div className="space-y-2">
-                            {renderMobileCards()}
+                            {
+                                dataRaw.length > 0 ?
+                                    renderMobileCards()
+                                : <div className="p-3 flex justify-center">[No se encontraron datos]</div>
+                            }
                         </div>
                     </div>
                 

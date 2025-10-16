@@ -26,7 +26,8 @@ class AuthenticatedSessionController extends Controller
     }
 
     /**
-     * Display the login view.
+     * Show login
+     * @return \Inertia\Response
      */
     public function create(): Response
     {
@@ -37,7 +38,9 @@ class AuthenticatedSessionController extends Controller
     }
 
     /**
-     * Handle an incoming authentication request.
+     * Store session (login)
+     * @param \App\Http\Requests\Auth\LoginRequest $request
+     * @return RedirectResponse
      */
     public function store(LoginRequest $request): RedirectResponse
     {
@@ -71,7 +74,9 @@ class AuthenticatedSessionController extends Controller
     }
 
     /**
-     * Destroy an authenticated session.
+     * Destroy session
+     * @param \Illuminate\Http\Request $request
+     * @return RedirectResponse
      */
     public function destroy(Request $request): RedirectResponse
     {
@@ -84,7 +89,11 @@ class AuthenticatedSessionController extends Controller
         return redirect('/');
     }
 
-
+    /**
+     * Logout
+     * @param \Illuminate\Http\Request $request
+     * @return RedirectResponse
+     */
     public static function logout(Request $request): RedirectResponse
     {
         Auth::guard('web')->logout();
@@ -95,7 +104,12 @@ class AuthenticatedSessionController extends Controller
 
         return redirect('/');
     }
-    
+
+    /**
+     * Store menu in session
+     * @param mixed $idRol
+     * @return int
+     */
     public static function refreshMenuInSession($idRol = null)
     {
         $idRol = $idRol ? $idRol : session('id_rol');

@@ -14,8 +14,16 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Illuminate\Support\Facades\Log;
 
+/**
+ * ExamsController and HistoryController
+ */
 class ExamsController extends Controller
 {
+    /**
+     * Show view exams and CRUD
+     * @param \Illuminate\Http\Request $request
+     * @return \Inertia\Response
+     */
     public function get(Request $request): Response {
         $userId = session('user')['id'];
 
@@ -68,6 +76,11 @@ class ExamsController extends Controller
         ]);
     }
 
+    /**
+     * getExam
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function getExam(Request $request) {
         $id = $request->input('id');
 
@@ -123,7 +136,11 @@ class ExamsController extends Controller
 
         return response()->json([$exam]);
     }
-
+    /**
+     * getExamQuestions
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function getExamQuestions(Request $request) {
         $id = $request->input('id');
 
@@ -131,7 +148,11 @@ class ExamsController extends Controller
 
         return response()->json($questions);
     }
-
+    /**
+     * show view create exam
+     * @param \Illuminate\Http\Request $request
+     * @return \Inertia\Response
+     */
     public function createExam(Request $request): Response {
         $isAdmin = session('user')['mode_admin'] ? true : false;
         $idCompany = session('user')['id_company'];
@@ -151,7 +172,11 @@ class ExamsController extends Controller
             'status' => '403']);
         }    
     }
-
+    /**
+     * saveExam - CREATE AND UPDATE
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\JsonResponse|\Inertia\Response
+     */
     public function saveExam(Request $request) {
         $id = session('user')['id'];
         $isAdmin = session('user')['mode_admin'] ? true : false;
@@ -271,7 +296,11 @@ class ExamsController extends Controller
             'exam_id' => $exam->id
         ], 200);
     }
-
+    /**
+     * show view startExam
+     * @param mixed $id
+     * @return \Inertia\Response
+     */
     public function startExam($id) {
         $idUser = session('user')['id'];
         $exam = Exams::select(
@@ -298,7 +327,11 @@ class ExamsController extends Controller
             'data' => $exam
         ]);
     }
-
+    /**
+     * finishExam
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function finishExam(Request $request) {
         $idHistory = $request->input('id');
         $idUser = session('user')['id'];
@@ -367,7 +400,11 @@ class ExamsController extends Controller
             'passed'  => $passed
         ]);
     }
-
+    /**
+     * getExamStatus - json reponse of status time of the user in exam
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function getExamStatus(Request $request){
         $startedAt = $request->input('started_at');
         $timeLimit = $request->input('time_limit');
@@ -387,8 +424,12 @@ class ExamsController extends Controller
             'time_remaining' => $timeRemaining,
         ]);
     }
-
-    public function getHistory(Request $request): Response {
+    /**
+     * getHistory - CRUD and view history
+     * @param \Illuminate\Http\Request $request
+     * @return \Inertia\Response
+     */
+    public function getHistory(Request $request, $idExam = null, $nameExam = null): Response {
         $perPage = $request->input('per_page', 15);
 
         // ROW DELETE --------------------------------------
@@ -401,6 +442,7 @@ class ExamsController extends Controller
 
         $isAdmin = session('user')['mode_admin'] ? true : false;
         $idUser = session('user')['id'];
+
         $history = History::select(
             'reg_history.*',
             'reg_exams.name as exam_name',
@@ -410,6 +452,9 @@ class ExamsController extends Controller
             ->join('sys_users', 'reg_history.id_user', '=', 'sys_users.id')
             ->when(!$isAdmin, function($query) use ($idUser) {
                 $query->where('reg_history.id_user', $idUser);
+            })
+            ->when($idExam, function($query) use ($idExam) {
+                $query->where('reg_history.id_exam', $idExam);
             })
             ->orderBy('reg_history.id', 'desc')
             ->paginate($perPage)
@@ -421,22 +466,33 @@ class ExamsController extends Controller
             });
 
         return Inertia::render('History', [
-            'data' => $history
+            'data' => $history,
+            'nameExam'=> $nameExam
         ]);
     }
-
+    /**
+     * getHistoryByExam
+     * @param mixed $id
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function getHistoryByExam($id){
+        $idUser = session('user')['id'];
         $history = History::select(
             'reg_history.*',
             'sys_users.name as student_name',
         )
             ->join('sys_users', 'reg_history.id_user', '=', 'sys_users.id')
             ->where('reg_history.id_exam',$id)
+            ->where('reg_history.id_user',$idUser)
             ->orderBy('reg_history.id', 'desc')->get();
         
         return response()->json($history);
     }
-
+    /**
+     * getHistoryOne
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function getHistoryOne(Request $request) {
         $id = $request->query('id');
 
@@ -458,7 +514,11 @@ class ExamsController extends Controller
 
         return response()->json([$data]);
     }
-
+    /**
+     * createHistory
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function createHistory(Request $request) {
         $idExam = $request->input('id'); //idexam
         $idUser = session('user')['id'];
@@ -507,7 +567,11 @@ class ExamsController extends Controller
 
         return response()->json(['id'=> $history->id,'answers'=>$history->answers]);
     }
-
+    /**
+     * updateHistory
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function updateHistory(Request $request) {
         $idHistory = $request->input('id');
         $idUser = session('user')['id'];

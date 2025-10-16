@@ -7,16 +7,12 @@ import {
   FaArrowLeft,
   FaCheck,
   FaTimes,
-  FaQuestionCircle,
-  FaClock,
-  FaListUl,
   FaToggleOn,
-  FaToggleOff,
-  FaEye
+  FaToggleOff
 } from 'react-icons/fa';
 
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, Link, router, usePage } from '@inertiajs/react';
+import { Link, router, usePage } from '@inertiajs/react';
 import MiniButton from '@/CustomComponents/button/MiniButton';
 import TextInput from '@/CustomComponents/form/TextInput';
 import InputInputLabel from '@/CustomComponents/form/InputLabel';
@@ -25,16 +21,17 @@ import PrimaryButton from '@/CustomComponents/button/PrimaryButton';
 import SecondaryButton from '@/CustomComponents/button/SecondaryButton';
 import Textarea from '@/CustomComponents/form/Textarea';
 import Select from '@/CustomComponents/form/Select';
-import FileDropInput from '@/CustomComponents/form/FileDropInput';
 import axios from 'axios';
 import { toast } from 'sonner';
-import ImageDropInput from '@/CustomComponents/form/ImageDropInput';
 
 const CreateExam = () => {
     const subjects = usePage().props.subjects;
     const edit = usePage().props.edit ?? null;
+    const isAdmin = usePage().props.user['mode_admin'];
 
-    // info state
+    if (!isAdmin) return "No tienes permisos para ver esta página";
+
+    // INFO CREATE OR UPDATE STATE
     const [examData, setExamData] = useState( edit ? {
         id: (edit.id ?? null),
         name: (edit.name ?? ''),
@@ -47,8 +44,6 @@ const CreateExam = () => {
         max_attempts: (edit.max_attempts ?? 1),
         shuffle_questions: (edit.shuffle_questions ?? false),
         shuffle_options: (edit.shuffle_options ?? false),
-        // available_from: '',
-        // available_until: '',
         show_results: (edit.show_results ?? false),
         is_active: (edit.is_active ?? 1)
     } : {
@@ -63,13 +58,11 @@ const CreateExam = () => {
         max_attempts: (1),
         shuffle_questions: (false),
         shuffle_options: (false),
-        // available_from: '',
-        // available_until: '',
         show_results: (false),
         is_active: (1)
     });
 
-    // questions state
+    // QUESTIONS STATE
     const [questions, setQuestions] = useState(edit ? (edit.questions ?? []).map(q => ({
         ...q,
         options: JSON.parse(q.options),
@@ -84,12 +77,12 @@ const CreateExam = () => {
         order: 0
     });
 
-    // step state
+    // STEP STATE
     const [activeStep, setActiveStep] = useState(1); // 1: Info, 2: Question
     const [editingQuestionIndex, setEditingQuestionIndex] = useState(-1);
     const [showQuestionForm, setShowQuestionForm] = useState(false);
 
-    // handles
+    // HANDLES
     const handleExamChange = (field, value) => {
         setExamData(prev => ({
         ...prev,
@@ -97,7 +90,6 @@ const CreateExam = () => {
         }));
     };
 
-    // Manejar cambios en la pregunta actual
     const handleQuestionChange = (field, value) => {
         setCurrentQuestion(prev => ({
         ...prev,
@@ -105,7 +97,6 @@ const CreateExam = () => {
         }));
     };
 
-    // Manejar cambios en las opciones de respuesta
     const handleOptionChange = (index, value) => {
         const newOptions = [...currentQuestion.options];
         newOptions[index] = value;
@@ -115,19 +106,18 @@ const CreateExam = () => {
         }));
     };
 
-    // Manejar selección de respuesta correcta
     const handleCorrectAnswerToggle = (index) => {
         const currentCorrect = [...currentQuestion.correct_answers];
         const optionIndex = currentCorrect.indexOf(index);
         
         if (currentQuestion.question_type === 'multiple_choice') {
-        // Solo una respuesta correcta para opción múltiple
+        // MULTIPLE CHOICE 1 ANSWER
         setCurrentQuestion(prev => ({
             ...prev,
             correct_answers: [index]
         }));
         } else {
-        // Múltiples respuestas para otros tipos
+        // MULTIPLE ANSWER
         if (optionIndex > -1) {
             currentCorrect.splice(optionIndex, 1);
         } else {
@@ -140,7 +130,7 @@ const CreateExam = () => {
         }
     };
 
-    // Agregar o actualizar pregunta
+    // CREATE OR UPDATE QUESTION
     const saveQuestion = () => {
         if (!currentQuestion.question.trim()) {
             toast.error('La pregunta no puede estar vacía');
@@ -158,17 +148,17 @@ const CreateExam = () => {
         };
 
         if (editingQuestionIndex >= 0) {
-            // Actualizar pregunta existente
+            // UPDATE
             const updatedQuestions = [...questions];
             updatedQuestions[editingQuestionIndex] = questionToSave;
             setQuestions(updatedQuestions);
             setEditingQuestionIndex(-1);
         } else {
-            // Agregar nueva pregunta
+            // ADD
             setQuestions(prev => [...prev, questionToSave]);
         }
 
-        // Limpiar formulario
+        // CLEAN FORM
         setCurrentQuestion({
             question: '',
             question_type: 'multiple_choice',
@@ -180,14 +170,14 @@ const CreateExam = () => {
         setShowQuestionForm(false);
     };
 
-    // Editar pregunta
+    // UPDATE ANSWER
     const editQuestion = (index) => {
         setCurrentQuestion(questions[index]);
         setEditingQuestionIndex(index);
         setShowQuestionForm(true);
     };
 
-    // Eliminar pregunta
+    // DELETE ANSWER
     const deleteQuestion = (index) => {
         if (confirm('¿Eliminar esta pregunta?')) {
             const updatedQuestions = questions.filter((_, i) => i !== index);
@@ -195,7 +185,7 @@ const CreateExam = () => {
         }
     };
 
-    // Cambiar tipo de pregunta
+    // CHANGE TYPE
     const handleQuestionTypeChange = (type) => {
         let newOptions = ['', '', '', ''];
             if (type === 'true_false') {
@@ -210,7 +200,7 @@ const CreateExam = () => {
         }));
     };
 
-    // Guardar examen completo
+    // SAVE EXAM-------------------------------
     const saveExam = async () => {
         if (!examData.name.trim()) {
             toast.error('El nombre del examen es obligatorio');
@@ -246,13 +236,11 @@ const CreateExam = () => {
             console.log(response);
         }
     };
-
+    // RETURN-----------------------------
     return (
-      <AuthenticatedLayout
-                  title="Nuevo examen"
-              >
-            <div className="p-3 sm:p-6 bg-[var(--fontBox)] rounded-lg shadow">
-            {/* Header */}
+      <AuthenticatedLayout title="Nuevo examen">
+        <div className="p-3 sm:p-6 bg-[var(--fontBox)] rounded-lg shadow">
+
             <div className="mb-6">
                 <div className="flex items-center gap-2 mb-4 justify-between">
                         <h3 className="text-xl font-semibold text-[var(--primary)]">
@@ -267,7 +255,7 @@ const CreateExam = () => {
                 </div>    
             </div>
 
-            {/* Pasos de navegación */}
+            {/* NAV */}
             <div className="flex items-center mb-8">
                 <div className={`flex items-center ${activeStep >= 1 ? 'text-[var(--primary)]' : 'text-[var(--secondary)]'}`}>
                 <div className={`min-w-8 min-h-8 rounded-full flex items-center justify-center text-[var(--textReverse)] font-bold ${activeStep >= 1 ? 'bg-[var(--primary)]' : 'bg-[var(--secondary)]'}`}>
@@ -284,7 +272,7 @@ const CreateExam = () => {
                 </div>
             </div>
 
-            {/* Paso 1: Información del Examen */}
+            {/* INFO ------------------------ */}
             {activeStep === 1 && (
                 <div className="bg-[var(--fontBox)] rounded-lg p-1 sm:p-6">
                     <h2 className="text-xl font-semibold mb-6 flex items-center gap-2">
@@ -292,117 +280,110 @@ const CreateExam = () => {
                     </h2>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {/* Nombre del examen */}
+
                         <div className="md:col-span-2">
-                        <InputLabel className="block text-sm font-medium text-[var(--primary)] mb-2">
-                            Nombre del Examen *
-                        </InputLabel>
-                        <TextInput
-                            type="text"
-                            value={examData.name}
-                            onChange={(e) => handleExamChange('name', e.target.value)}
-                            className="w-full"
-                            placeholder="Nombre del examen"
-                        />
+                            <InputLabel className="block text-sm font-medium text-[var(--primary)] mb-2">
+                                Nombre del Examen *
+                            </InputLabel>
+                            <TextInput
+                                type="text"
+                                value={examData.name}
+                                onChange={(e) => handleExamChange('name', e.target.value)}
+                                className="w-full"
+                                placeholder="Nombre del examen"
+                            />
                         </div>
 
-                        {/* Descripción */}
                         <div className="md:col-span-2">
-                        <InputInputLabel className="block text-sm font-medium text-[var(--primary)] mb-2">
-                            Descripción
-                        </InputInputLabel>
-                        <Textarea
-                            value={examData.description}
-                            onChange={(e) => handleExamChange('description', e.target.value)}
-                            rows={3}
-                            className="w-full px-3 py-2 border border-[var(--secondary)] rounded-md focus:ring-2 focus:ring-[var(--secondary)] focus:border-transparent"
-                            placeholder="Describe el contenido del examen"
-                        />
+                            <InputInputLabel className="block text-sm font-medium text-[var(--primary)] mb-2">
+                                Descripción
+                            </InputInputLabel>
+                            <Textarea
+                                value={examData.description}
+                                onChange={(e) => handleExamChange('description', e.target.value)}
+                                rows={3}
+                                className="w-full px-3 py-2 border border-[var(--secondary)] rounded-md focus:ring-2 focus:ring-[var(--secondary)] focus:border-transparent"
+                                placeholder="Describe el contenido del examen"
+                            />
                         </div>
 
-                        {/* Materia */}
                         <div>
-                        <InputInputLabel className="block text-sm font-medium text-[var(--primary)] mb-2">
-                            Materia asociada
-                        </InputInputLabel>
-                        <Select
-                            value={examData.subject_id}
-                            onChange={(e) => handleExamChange('subject_id', e.target.value)}
-                            className="w-full px-3 py-2 border border-[var(--secondary)] rounded-md focus:ring-2 focus:ring-[var(--secondary)] focus:border-transparent"
-                        >
-                            <option value="">Seleccionar materia</option>
-                            {subjects.map(subject => (
-                            <option key={subject.id} value={subject.id}>
-                                {subject.name} ({subject.code})
-                            </option>
-                            ))}
-                        </Select>
+                            <InputInputLabel className="block text-sm font-medium text-[var(--primary)] mb-2">
+                                Materia asociada
+                            </InputInputLabel>
+                            <Select
+                                value={examData.subject_id}
+                                onChange={(e) => handleExamChange('subject_id', e.target.value)}
+                                className="w-full px-3 py-2 border border-[var(--secondary)] rounded-md focus:ring-2 focus:ring-[var(--secondary)] focus:border-transparent"
+                            >
+                                <option value="">Seleccionar materia</option>
+                                {subjects.map(subject => (
+                                <option key={subject.id} value={subject.id}>
+                                    {subject.name} ({subject.code})
+                                </option>
+                                ))}
+                            </Select>
                         </div>
 
-                        {/* Tiempo límite */}
                         <div>
-                        <InputInputLabel className="block text-sm font-medium text-[var(--primary)] mb-2">
-                            Tiempo Límite (minutos) (opcional)
-                        </InputInputLabel>
-                        <TextInput
-                            type="number"
-                            value={examData.time_limit}
-                            onChange={(e) => handleExamChange('time_limit', parseInt(e.target.value))}
-                            min="1"
-                            className="w-full px-3 py-2 border border-[var(--secondary)] rounded-md focus:ring-2 focus:ring-[var(--secondary)] focus:border-transparent"
-                        />
+                            <InputInputLabel className="block text-sm font-medium text-[var(--primary)] mb-2">
+                                Tiempo Límite (minutos) (opcional)
+                            </InputInputLabel>
+                            <TextInput
+                                type="number"
+                                value={examData.time_limit}
+                                onChange={(e) => handleExamChange('time_limit', parseInt(e.target.value))}
+                                min="1"
+                                className="w-full px-3 py-2 border border-[var(--secondary)] rounded-md focus:ring-2 focus:ring-[var(--secondary)] focus:border-transparent"
+                            />
                         </div>
 
-                        {/* Tipo de examen */}
                         <div>
-                        <InputLabel className="block text-sm font-medium text-[var(--primary)] mb-2">
-                            Tipo de Examen
-                        </InputLabel>
-                        <Select
-                            value={examData.exam_type}
-                            onChange={(e) => handleExamChange('exam_type', e.target.value)}
-                            className="w-full px-3 py-2 border border-[var(--secondary)] rounded-md focus:ring-2 focus:ring-[var(--secondary)] focus:border-transparent"
-                        >
-                            <option value="multiple_choice">Opción Múltiple</option>
-                            <option value="true_false">Verdadero/Falso</option>
-                            <option value="essay">Desarrollo</option>
-                            <option value="mixed">Mixto</option>
-                        </Select>
+                            <InputLabel className="block text-sm font-medium text-[var(--primary)] mb-2">
+                                Tipo de Examen
+                            </InputLabel>
+                            <Select
+                                value={examData.exam_type}
+                                onChange={(e) => handleExamChange('exam_type', e.target.value)}
+                                className="w-full px-3 py-2 border border-[var(--secondary)] rounded-md focus:ring-2 focus:ring-[var(--secondary)] focus:border-transparent"
+                            >
+                                <option value="multiple_choice">Opción Múltiple</option>
+                                <option value="true_false">Verdadero/Falso</option>
+                                <option value="essay">Desarrollo</option>
+                                <option value="mixed">Mixto</option>
+                            </Select>
                         </div>
 
-                        {/* Dificultad */}
                         <div>
-                        <InputLabel className="block text-sm font-medium text-[var(--primary)] mb-2">
-                            Dificultad
-                        </InputLabel>
-                        <Select
-                            value={examData.difficulty}
-                            onChange={(e) => handleExamChange('difficulty', e.target.value)}
-                            className="w-full px-3 py-2 border border-[var(--secondary)] rounded-md focus:ring-2 focus:ring-[var(--secondary)] focus:border-transparent"
-                        >
-                            <option value="basic">Básico</option>
-                            <option value="intermediate">Intermedio</option>
-                            <option value="advanced">Avanzado</option>
-                        </Select>
+                            <InputLabel className="block text-sm font-medium text-[var(--primary)] mb-2">
+                                Dificultad
+                            </InputLabel>
+                            <Select
+                                value={examData.difficulty}
+                                onChange={(e) => handleExamChange('difficulty', e.target.value)}
+                                className="w-full px-3 py-2 border border-[var(--secondary)] rounded-md focus:ring-2 focus:ring-[var(--secondary)] focus:border-transparent"
+                            >
+                                <option value="basic">Básico</option>
+                                <option value="intermediate">Intermedio</option>
+                                <option value="advanced">Avanzado</option>
+                            </Select>
                         </div>
 
-                        {/* Puntuación mínima */}
                         <div>
-                        <InputLabel className="block text-sm font-medium text-[var(--primary)] mb-2">
-                            Puntuación Mínima para Aprobar (%)
-                        </InputLabel>
-                        <TextInput
-                            type="number"
-                            value={examData.passing_score}
-                            onChange={(e) => handleExamChange('passing_score', parseFloat(e.target.value))}
-                            min="0"
-                            max="100"
-                            step="0.1"
-                            className="w-full px-3 py-2 border border-[var(--secondary)] rounded-md focus:ring-2 focus:ring-[var(--secondary)] focus:border-transparent"
-                        />
+                            <InputLabel className="block text-sm font-medium text-[var(--primary)] mb-2">
+                                Puntuación Mínima para Aprobar (%)
+                            </InputLabel>
+                            <TextInput
+                                type="number"
+                                value={examData.passing_score}
+                                onChange={(e) => handleExamChange('passing_score', parseFloat(e.target.value))}
+                                min="0"
+                                max="100"
+                                step="0.1"
+                                className="w-full px-3 py-2 border border-[var(--secondary)] rounded-md focus:ring-2 focus:ring-[var(--secondary)] focus:border-transparent"
+                            />
                         </div>
 
-                        {/* Intentos máximos */}
                         <div>
                         <InputLabel className="block text-sm font-medium text-[var(--primary)] mb-2">
                             Intentos Máximos (Opcional)
@@ -416,7 +397,6 @@ const CreateExam = () => {
                         />
                         </div>
 
-                        {/* Configuraciones adicionales */}
                         <div className="md:col-span-2">
                             <h3 className="text-lg font-medium text-[var(--primary)] mb-4">Configuraciones</h3>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -464,7 +444,6 @@ const CreateExam = () => {
 
                     </div>
 
-                    {/* Botón continuar */}
                     <div className="flex justify-end mt-8">
                         <PrimaryButton
                         onClick={() => setActiveStep(2)}
@@ -477,10 +456,10 @@ const CreateExam = () => {
                 </div>
             )}
 
-            {/* Paso 2: Preguntas */}
+            {/* ANSWERS ---------------------------- */}
             {activeStep === 2 && (
-                <div className="space-y-5">
-                {/* Header de preguntas */}
+            <div className="space-y-5">
+
                 <div className="bg-[var(--fontBox)] rounded-lg shadow p-6">
                     <div className="flex items-center justify-between mb-4 flex-col md:flex-row gap-2">
                         <h3 className="text-lg font-semibold flex items-center gap-2">
@@ -495,7 +474,6 @@ const CreateExam = () => {
                         </PrimaryButton>
                     </div>
 
-                    {/* Lista de preguntas */}
                     {questions.length > 0 && (
                     <div className="space-y-3">
                     {questions.map((question, index) => (
@@ -541,7 +519,6 @@ const CreateExam = () => {
                     )}
                 </div>
 
-                {/* Formulario de pregunta */}
                 {showQuestionForm && (
                 <div className="bg-[var(--fontBox)] rounded-lg shadow p-6">
                     <h3 className="text-lg font-semibold mb-4">
@@ -549,7 +526,7 @@ const CreateExam = () => {
                     </h3>
 
                     <div className="space-y-4">
-                        {/* Tipo de pregunta */}
+
                         <div>
                             <InputLabel className="block text-sm font-medium text-[var(--primary)] mb-2">
                                 Tipo de Pregunta
@@ -564,12 +541,11 @@ const CreateExam = () => {
                                 {/* <option value="essay">Desarrollo</option> */}
                             </Select>
                         </div>
-                        {/* IMAGENES DE LA PREGUNTA */}
+                        {/* ANSWER QUESTIONS --------------------PENDING */}
                         {/* <div>
                             <ImageDropInput />
                         </div> */}
 
-                        {/* Pregunta */}
                         <div>
                         <InputLabel className="block text-sm font-medium text-[var(--primary)] mb-2">
                             Pregunta *
@@ -583,7 +559,6 @@ const CreateExam = () => {
                         />
                         </div>
 
-                        {/* Opciones de respuesta (para múltiple opción y verdadero/falso) */}
                         {currentQuestion.question_type !== 'essay' && (
                         <div>
                             <InputLabel className="block text-sm font-medium text-[var(--primary)] mb-2">
@@ -619,7 +594,6 @@ const CreateExam = () => {
                         </div>
                         )}
 
-                        {/* Explicación */}
                         <div>
                             <InputLabel className="block text-sm font-medium text-[var(--primary)] mb-2">
                                 Explicación (opcional)
@@ -645,7 +619,6 @@ const CreateExam = () => {
                         </div>
                                     
 
-                        {/* Botones de acción */}
                         <div className="flex justify-between md:justify-end gap-3 pt-4 border-t">
                             <SecondaryButton
                                 onClick={() => {
@@ -677,7 +650,6 @@ const CreateExam = () => {
                 </div>
                 )}
 
-                {/* Botones de navegación y guardado */}
                 <div className="bg-[var(--fontBox)] rounded-lg shadow p-6">
                     <div className="flex justify-between gap-3">
                     <SecondaryButton
@@ -696,9 +668,9 @@ const CreateExam = () => {
                     </PrimaryButton>
                     </div>
                 </div>
-                </div>
-            )}
             </div>
+            )}
+        </div>
     </AuthenticatedLayout>
   );
 };

@@ -17,12 +17,12 @@ use Inertia\Response;
 
 use App\Models\Roles;
 
-use Spatie\Activitylog\Models\Activity;
-
 class AccountController extends Controller
 {
     /**
      * Display the user's profile form.
+     * @param \Illuminate\Http\Request $request
+     * @return \Inertia\Response
      */
     public function edit(Request $request): Response
     {
@@ -34,6 +34,8 @@ class AccountController extends Controller
 
     /**
      * Update the user's profile information.
+     * @param \App\Http\Requests\ProfileUpdateRequest $request
+     * @return RedirectResponse
      */
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
@@ -56,6 +58,8 @@ class AccountController extends Controller
 
     /**
      * Delete the user's account.
+     * @param \Illuminate\Http\Request $request
+     * @return RedirectResponse
      */
     public function destroy(Request $request): RedirectResponse
     {
@@ -81,10 +85,20 @@ class AccountController extends Controller
         return Redirect::to('/');
     }
 
+    /**
+     * getSession
+     * @param \Illuminate\Http\Request $request
+     * @return array
+     */
     public function getSession(Request $request) {
         return $request->session()->all();
     }
 
+    /**
+     * getRegisterKeys
+     * @param \Illuminate\Http\Request $request
+     * @return \Inertia\Response
+     */
     public function getRegisterKeys(Request $request) {
         $perPage = $request->input('per_page', 15);
         $show = $request->route('show');
@@ -190,6 +204,11 @@ class AccountController extends Controller
         ]);
     }
 
+    /**
+     * getRegisterkey
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function getRegisterkey(Request $request) {
         $id = $request->query('id');
 
@@ -217,6 +236,11 @@ class AccountController extends Controller
         return response()->json($query);
     }
 
+    /**
+     * closeAllRolSession
+     * @param mixed $idRol
+     * @return void
+     */
     public static function closeAllRolSession($idRol) {
         $userIds = User::where('id_rol', $idRol)->pluck('id');
         DB::table('sys_sessions')->whereIn('user_id', $userIds)->delete();

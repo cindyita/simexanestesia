@@ -12,6 +12,11 @@ use Inertia\Response;
 
 class UsersController extends Controller
 {
+    /**
+     * getUsers - show view and CRUD of users
+     * @param \Illuminate\Http\Request $request
+     * @return \Inertia\Response
+     */
     public function getUsers(Request $request): Response {
         $perPage = $request->input('per_page', 15);
         $idCompany = session('user')['id_company'];
@@ -92,7 +97,11 @@ class UsersController extends Controller
             'errors' => $errors
         ]);
     }
-
+    /**
+     * getUser
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function getUser(Request $request) {
         $id = $request->query('id');
         $user = Users::select('sys_users.*', 'sys_roles.name as role_name')
