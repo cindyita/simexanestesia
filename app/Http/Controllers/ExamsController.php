@@ -410,12 +410,11 @@ class ExamsController extends Controller
         $startedAt = $request->input('started_at');
         $timeLimit = $request->input('time_limit');
 
-        $now = now();
-        $start = Carbon::parse($startedAt);
-        $limit = $timeLimit * 60;
+        $start = Carbon::parse($startedAt)->setTimezone('UTC');
+        $now = Carbon::now('UTC');
 
         $timeUsed = $start->diffInSeconds($now);
-        $timeRemaining = max($limit - $timeUsed, 0);
+        $timeRemaining = max($timeLimit*60 - $timeUsed, 0);
 
         $status = $timeRemaining <= 0 ? 'expired' : 'in_progress';
 

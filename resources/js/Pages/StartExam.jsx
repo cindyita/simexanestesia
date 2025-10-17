@@ -19,7 +19,7 @@ export default function StartExam () {
 
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
     const [answers, setAnswers] = useState({});
-    // Si time_limit es 0, iniciamos en 0 para contar hacia arriba, sino convertimos a segundos
+    // check time limit 0
     const [timeRemaining, setTimeRemaining] = useState(exam.time_limit == 0 ? 0 : exam.time_limit * 60);
     const [examStarted, setExamStarted] = useState(false);
     const [examCompleted, setExamCompleted] = useState(false);
@@ -76,14 +76,13 @@ export default function StartExam () {
         }
     }, [exam]); 
 
-    // Timer countdown o countup dependiendo si hay límite de tiempo
+    // Timer countdown
     useEffect(() => {
         let timer;
         if (examStarted && !examCompleted) {
             timer = setInterval(() => {
                 setTimeRemaining(prev => {
                     if (hasTimeLimit) {
-                        // Cuenta regresiva
                         if (prev <= 1) {
                             setExamCompleted(true);
                             handleSubmitExam();
@@ -91,7 +90,7 @@ export default function StartExam () {
                         }
                         return prev - 1;
                     } else {
-                        // Cuenta progresiva (sin límite)
+                        // no limit time
                         return prev + 1;
                     }
                 });
@@ -100,7 +99,6 @@ export default function StartExam () {
         return () => clearInterval(timer);
     }, [examStarted, examCompleted, hasTimeLimit]);
 
-    // Formatear tiempo restante o transcurrido
     const formatTime = (seconds) => {
         const totalSeconds = Math.floor(seconds);
         const hours = Math.floor(totalSeconds / 3600);
@@ -113,7 +111,6 @@ export default function StartExam () {
     };
 
 
-    // Manejar respuesta seleccionada
     const handleAnswerChange = (questionId, selectedOption) => {
         setAnswers(prev => ({
             ...prev,
@@ -142,7 +139,7 @@ export default function StartExam () {
     };
 
     const handleSubmitExam = async () => {
-        // Calcular tiempo usado dependiendo si hay límite o no
+        // CHECK TIME USED
         const timeUsed = hasTimeLimit 
             ? (exam.time_limit * 60) - timeRemaining 
             : timeRemaining;
@@ -181,7 +178,7 @@ export default function StartExam () {
     };
 
     const updateAnswers = async () => {
-        // Calcular tiempo usado dependiendo si hay límite o no
+        // CHECH TIME USED
         const timeUsed = hasTimeLimit 
             ? (exam.time_limit * 60) - timeRemaining 
             : timeRemaining;
@@ -195,7 +192,6 @@ export default function StartExam () {
         });
     }
 
-    // Verificar si todas las preguntas están respondidas
     const getAnsweredQuestions = () => {
         return Object.keys(answers).length;
     };
@@ -321,7 +317,6 @@ export default function StartExam () {
     return (
         <ExamLayout name={exam.name}>
             <div className="max-w-6xl mx-auto p-4 pt-2">
-                {/* Header con información del examen */}
                 <div className="box rounded-lg shadow p-4 mb-6">
                     <div className="flex flex-wrap items-center justify-between gap-4">
                         <div className="flex items-center space-x-4">
@@ -349,7 +344,7 @@ export default function StartExam () {
                 </div>
 
                 <div className="flex flex-col lg:flex-row gap-6">
-                    {/* Navegador de preguntas */}
+                    {/* QUESTION NAV */}
                     <div className="lg:col-span-1">
                         <div className="box shadow rounded-lg p-4 sticky top-6">
                             <div className="flex flex-col gap-2">
@@ -380,7 +375,6 @@ export default function StartExam () {
                         </div>
                     </div>
 
-                    {/* Pregunta actual */}
                     <div className="flex-1">
                         <div className="box shadow rounded-lg p-6">
                             {currentQuestion && (
@@ -399,7 +393,6 @@ export default function StartExam () {
                                         </p>
                                     </div>
 
-                                    {/* Opciones de respuesta */}
                                     <div className="space-y-3 mb-6">
                                         {options.map((option, optionIndex) => (
                                             <label
@@ -425,7 +418,6 @@ export default function StartExam () {
                                         ))}
                                     </div>
 
-                                    {/* Navegación entre preguntas */}
                                     <div className="flex justify-between">
                                         <PrimaryButton
                                             onClick={previousQuestion}
@@ -459,7 +451,7 @@ export default function StartExam () {
                     </div>
                 </div>
 
-                {/* Modal de confirmación */}
+                {/* Modals */}
                 {showConfirmSubmit && (
                     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
                         <div className="bg-white rounded-lg p-6 max-w-md mx-4">
