@@ -1,3 +1,3 @@
 # SIMEXANESTESIA
-## Program commission
+## Medic school exams, files manager and more!
 ### Laravel + React + Inertia + TailwindCSS + SASS ...
