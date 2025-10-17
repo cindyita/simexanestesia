@@ -74,7 +74,7 @@ const FileManager = ({files,subjects, currentPage=1, totalPages=1, onPageChange=
             return (
               <span className="w-16 h-16">
                 <img
-                  src={`/storage/${filePath}`}
+                  src={`/files/${filePath}`}
                   alt="preview"
                   loading="lazy"
                   className="w-16 h-16 object-contain rounded shadow"
@@ -541,7 +541,7 @@ const FileManager = ({files,subjects, currentPage=1, totalPages=1, onPageChange=
             <div className="flex justify-center items-center">
               {selectedViewFile.file_type.match(/(jpg|jpeg|png|gif|bmp|svg)/i) && (
                 <img
-                  src={`/storage/${selectedViewFile.file_path}`}
+                  src={`/files/${selectedViewFile.file_path}`}
                   alt={selectedViewFile.name}
                   className="max-w-full max-h-[70vh] object-contain"
                 />
@@ -549,7 +549,7 @@ const FileManager = ({files,subjects, currentPage=1, totalPages=1, onPageChange=
 
               {selectedViewFile.file_type === "pdf" && (
                 <iframe
-                  src={`/storage/${selectedViewFile.file_path}`}
+                  src={`/files/${selectedViewFile.file_path}`}
                   className="w-full h-[86vh]"
                   title={selectedViewFile.name}
                 />
@@ -563,14 +563,14 @@ const FileManager = ({files,subjects, currentPage=1, totalPages=1, onPageChange=
                     toast.error("El video no se pudo reproducir. Puede estar corrupto o en un formato no soportado.");
                   }}
                 >
-                  <source src={`/storage/${selectedViewFile.file_path}`} type={`${selectedViewFile.mime_type}`} />
+                  <source src={`/files/${selectedViewFile.file_path}`} type={`${selectedViewFile.mime_type}`} />
                   Tu navegador no soporta la reproducción de video.
                 </video>
               )}
 
               {selectedViewFile.file_type.match(/(mp3|wav|ogg)/i) && (
                 <audio controls className="w-full">
-                  <source src={`/storage/${selectedViewFile.file_path}`} type={`audio/${selectedViewFile.file_type}`} />
+                  <source src={`/files/${selectedViewFile.file_path}`} type={`audio/${selectedViewFile.file_type}`} />
                   Tu navegador no soporta la reproducción de audio.
                 </audio>
               )}

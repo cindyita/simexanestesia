@@ -134,6 +134,23 @@ Route::middleware('auth')->group(function () {
     Route::post('/registerkeys/send', [EmailsController::class, 'sendRegisterKeys'])->middleware(['menu.permission:'.idMenu['registerkeys']])->name('registerkeys.send');
 });
 
+Route::get('/filesdownload/{folder}/{filename}', function ($folder, $filename) {
+    $path = storage_path("app/public/{$folder}/{$filename}");
+
+    if (!file_exists($path)) abort(404);
+    return response()->download($path);
+});
+
+Route::get('/files/{folder}/{filename}', function ($folder, $filename) {
+    $path = storage_path("app/public/{$folder}/{$filename}");
+
+    if (!file_exists($path)) abort(404);
+
+    return response()->file($path);
+});
+
+
+
 // Route::get('/session', [AccountController::class, 'getSession']);
 
 require __DIR__.'/auth.php';

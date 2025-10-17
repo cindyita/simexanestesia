@@ -41,7 +41,7 @@ const ActionFileDropdown = ({ item, onView, onEdit, onDelete, onCustomAction,pag
         if(pageLevel > 1) onEdit?.(item);
         break;
       case "download":
-        const path = "storage/"+item.file_path;
+        const path = "/filesdownload/"+item.file_path;
         downloadFile(path, item.name);
         break;
       case "delete":
