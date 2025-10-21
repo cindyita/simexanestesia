@@ -529,7 +529,7 @@ const ExamManager = ({ exams, currentPage = 1, totalPages = 1, onPageChange = {}
                   )
                   }
 
-                  <span className="text-sm pb-1">{ (exam.max_attempts - exam.lastAttempt.attempts) > 0 ? "Puedes realizar "+(exam.max_attempts - exam.lastAttempt.attempts)+" intento/s más" : "" }</span>
+                  <span className="text-sm pb-1">{ exam.lastAttempt ? ((exam.max_attempts - exam.lastAttempt.attempts) > 0 ? "Puedes realizar "+(exam.max_attempts - exam.lastAttempt.attempts)+" intento/s más" : "") :  "Puedes realizar "+(exam.max_attempts)+" intento/s más" }</span>
 
                   {/* Botones de acción */}
                   <div className="flex gap-2">
