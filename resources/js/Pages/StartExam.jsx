@@ -58,8 +58,8 @@ export default function StartExam () {
         });
         if (res.data.status === "expired" && hasTimeLimit) {
             setStatusExam("expired");
-            settingHistory();
-            handleSubmitExam();
+            const historyawait = await settingHistory();
+            await handleSubmitExam(historyawait.data.id);
         } else {
             if (hasTimeLimit) {
                 setTimeRemaining((res.data.time_remaining));
@@ -138,21 +138,20 @@ export default function StartExam () {
         }
     };
 
-    const handleSubmitExam = async () => {
+    const handleSubmitExam = async (idhistory) => {
         // CHECK TIME USED
         const timeUsed = hasTimeLimit 
             ? (exam.time_limit * 60) - timeRemaining 
             : timeRemaining;
 
         const res = await axios.post('/finishExam', {
-            id: actualHistory,
+            id: idhistory,
             completehistory: {
                 'time_used': timeUsed,
                 'answers': answers
             },
             minScore: exam.passing_score
         });
-        // console.log(res);
         toast.success("El exámen finalizó");
         setExamCompleted(true);
         setShowConfirmSubmit(false);
@@ -279,7 +278,7 @@ export default function StartExam () {
                         </p>
                         <div className="flex gap-3 justify-center items-center flex-col md:flex-row">
                             {
-                                exam.show_results && (
+                                !!exam.show_results && (
                                     <SecondaryButton onClick={() => openModalViewAnswers()}>
                                         Ver respuestas
                                     </SecondaryButton>
@@ -297,7 +296,7 @@ export default function StartExam () {
 
                 {/* VIEW QUESTIONS MODAL */}
                 {
-                    exam.show_results && (
+                    !!exam.show_results && (
                         <ViewQuestionsModal
                             show={modalQuestionsOpen}
                             onClose={() => setModalQuestionsOpen(false)}

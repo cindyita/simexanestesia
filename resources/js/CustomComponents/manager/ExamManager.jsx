@@ -53,6 +53,8 @@ const ExamManager = ({ exams, currentPage = 1, totalPages = 1, onPageChange = {}
 
   const [lastAttemptAnswers, setLastAttemptAnswers] = useState(null);
 
+  const [modeViewQuestions,setModeViewQuestions] = useState(true);
+
   const getDifficultyColor = (difficulty) => {
     switch (difficulty) {
       case 'basic':
@@ -132,8 +134,9 @@ const ExamManager = ({ exams, currentPage = 1, totalPages = 1, onPageChange = {}
 
   const viewAnswersExam = (id, lastAttempt) => {
     const answers = lastAttempt.answers;
-    handleViewQuestions(id);
+
     setLastAttemptAnswers(answers);
+    handleViewQuestions(id, false);
   };
 
   const getExamType = (type) => {
@@ -204,7 +207,8 @@ const ExamManager = ({ exams, currentPage = 1, totalPages = 1, onPageChange = {}
     return await fetchDetails("/getExam", { id },headerMap);
   }
 
-  let handleViewQuestions = async (id) => {
+  let handleViewQuestions = async (id, modeView = true) => {
+    setModeViewQuestions(modeView);
     const questions = await axios.get('/getExamQuestions', { params: { id } });
     setViewQuestions(questions.data);
     setModalQuestionsOpen(true)
@@ -453,7 +457,7 @@ const ExamManager = ({ exams, currentPage = 1, totalPages = 1, onPageChange = {}
                   <div className="grid grid-cols-2 gap-4 text-sm mb-4">
                     <div className="flex items-center gap-2 text-[var(--primary)]">
                       <FaClock className="w-4 h-4" />
-                      <span>{exam.timeLimit} min</span>
+                      <span>{!!exam.timeLimit ? exam.timeLimit+" min": "Sin limite"}</span>
                     </div>
                     <div className="flex items-center gap-2 text-[var(--primary)]">
                       <FaQuestionCircle className="w-4 h-4" />
@@ -525,18 +529,20 @@ const ExamManager = ({ exams, currentPage = 1, totalPages = 1, onPageChange = {}
                   )
                   }
 
+                  <span className="text-sm pb-1">{ (exam.max_attempts - exam.lastAttempt.attempts) > 0 ? "Puedes realizar "+(exam.max_attempts - exam.lastAttempt.attempts)+" intento/s más" : "" }</span>
+
                   {/* Botones de acción */}
                   <div className="flex gap-2">
                     {exam.is_active === 1 ? (
                       (exam.lastAttempt && exam.lastAttempt.completed ? (
                         <div className="flex gap-2 justify-between w-full">
-                          <TertiaryButton
-                            onClick={() => viewAnswersExam(exam.id,exam.lastAttempt)}
+                          {!!exam.show_results && <TertiaryButton
+                            onClick={() => viewAnswersExam(exam.id, exam.lastAttempt)}
                             className="flex-1 flex items-center justify-center gap-2 py-3"
                           >
                             <MdOutlineRateReview className="w-4 h-4" />
                             Ver respuestas
-                          </TertiaryButton>
+                          </TertiaryButton>}
                           {
                             exam.max_attempts > exam.lastAttempt.attempts ? (
                               <SecondaryButton
@@ -795,7 +801,7 @@ const ExamManager = ({ exams, currentPage = 1, totalPages = 1, onPageChange = {}
         show={modalQuestionsOpen}
         onClose={() => setModalQuestionsOpen(false)}
         questions={viewQuestions}
-        answers={lastAttemptAnswers}
+        modeJustView={modeViewQuestions}
         questionType={(type) =>
           type === "multiple_choice" ? "Opción múltiple" : (type === "true_false" ? "Verdadero/Falso" : "")
         }

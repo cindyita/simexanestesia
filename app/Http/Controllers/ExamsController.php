@@ -58,8 +58,9 @@ class ExamsController extends Controller
                 'exam_type' => $exam->exam_type,
                 'difficulty' => $exam->difficulty,
                 'max_attempts' => $exam->max_attempts,
-                'is_active' => $exam->is_active,
                 'shuffle_questions' => $exam->shuffle_questions,
+                'is_active' => $exam->is_active,
+                'show_results' => $exam->show_results,
                 'lastAttempt' => $lastAttempt ? [
                     'completed' => $lastAttempt->status === 'completed',
                     'score' => $lastAttempt->score,

@@ -30,6 +30,7 @@ class RolesController extends Controller
         if ($permissions && $idRol && $idRol != 1) {
             $changed = false;
             $delete = 0;
+            $permissionQuery = false;
             foreach ($permissions as $value) {
                 if ($value['level'] > 0) {
                     $permissionQuery = Permissions::updateOrCreate(
@@ -48,17 +49,17 @@ class RolesController extends Controller
                 }
             }
 
-            if($permissionQuery->wasChanged() || $delete > 0){
+            if($permissionQuery && $permissionQuery->wasChanged() || $delete > 0){
                 AuthenticatedSessionController::refreshMenuInSession($idRol);
-
-                activity('update permissions')
-                    ->causedBy($request->user())
-                    ->event($request->user()->id_company)
-                    ->withProperties(['New permissions'=>$permissions])
-                    ->log('Se modificaron los permisos del rol: '.$idRol);
             }
+            
+            activity('update permissions')
+                ->causedBy($request->user())
+                ->event($request->user()->id_company)
+                ->withProperties(['New permissions'=>$permissions])
+                ->log('Se modificaron los permisos del rol: '.$idRol);
 
-            if ($permissionQuery->wasRecentlyCreated) { $changed = true; }
+            if ($permissionQuery && $permissionQuery->wasRecentlyCreated) { $changed = true; }
             if ($delete > 0){ $changed = true; }
 
             if($changed){

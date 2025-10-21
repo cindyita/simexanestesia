@@ -29,6 +29,8 @@ class DashboardController extends Controller
             AuthenticatedSessionController::logout($request);
             return redirect()->route('login');
         }
+
+        Alerts::deleteExpired();
         
         $alerts = Alerts::where('id_company', session('user')['id_company'])
         ->where(function ($query) {

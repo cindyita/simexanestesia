@@ -6,6 +6,7 @@ export default function ViewQuestionsModal({
   onClose,
   questions = [],
   answers = {},
+  modeJustView = false,
   questionType = () => "",
 }) {
   return (
@@ -41,7 +42,7 @@ export default function ViewQuestionsModal({
                 <div
                   key={question.id}
                   className={`border rounded-lg p-4 ${
-                    userAnswer !== undefined
+                    !modeJustView && userAnswer !== undefined
                       ? isUserCorrect
                         ? "border-green-500 bg-green-50"
                         : "border-red-500 bg-red-50"
@@ -60,12 +61,13 @@ export default function ViewQuestionsModal({
                       {userAnswer !== undefined && (
                         <span
                           className={`text-xs font-semibold px-2 py-1 rounded ${
-                            isUserCorrect
+                            !modeJustView ? 
+                            (isUserCorrect
                               ? "bg-green-200 text-green-800"
-                              : "bg-red-200 text-red-800"
+                              : "bg-red-200 text-red-800") : ""
                           }`}
                         >
-                          {isUserCorrect ? "✓ Correcta" : "✗ Incorrecta"}
+                          {!modeJustView ? (isUserCorrect ? "✓ Correcta" : "✗ Incorrecta") : ""}
                         </span>
                       )}
                     </div>
