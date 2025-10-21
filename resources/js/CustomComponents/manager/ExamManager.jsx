@@ -134,7 +134,6 @@ const ExamManager = ({ exams, currentPage = 1, totalPages = 1, onPageChange = {}
 
   const viewAnswersExam = (id, lastAttempt) => {
     const answers = lastAttempt.answers;
-
     setLastAttemptAnswers(answers);
     handleViewQuestions(id, false);
   };
@@ -814,6 +813,7 @@ const ExamManager = ({ exams, currentPage = 1, totalPages = 1, onPageChange = {}
         show={modalQuestionsOpen}
         onClose={() => setModalQuestionsOpen(false)}
         questions={viewQuestions}
+        answers={lastAttemptAnswers}
         modeJustView={modeViewQuestions}
         questionType={(type) =>
           type === "multiple_choice" ? "Opción múltiple" : (type === "true_false" ? "Verdadero/Falso" : "")

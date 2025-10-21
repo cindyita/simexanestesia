@@ -9,6 +9,8 @@ export default function ViewQuestionsModal({
   modeJustView = false,
   questionType = () => "",
 }) {
+  const userAnswers = Array.isArray(answers) ? {} : answers;
+
   return (
     <Modal show={show} onClose={onClose}>
       <div className="p-6 space-y-4">
@@ -30,19 +32,15 @@ export default function ViewQuestionsModal({
             questions.map((question, index) => {
               const options = JSON.parse(question.options);
               const correctAnswers = JSON.parse(question.correct_answers);
-              const userAnswer = answers.length > 0 ? answers[question.id] : null;
-
-              const isUserCorrect =
-                userAnswer !== undefined &&
-                userAnswer !== null &&
-                userAnswer !== "" &&
-                correctAnswers.includes(userAnswer);
-
+              const userAnswer = Object.keys(userAnswers).length > 0 ? userAnswers[question.id] : null;
+              
+              const isUserCorrect = (userAnswer !== undefined && userAnswer !== null && userAnswer !== "") && correctAnswers.includes(userAnswer);
+              
               return (
                 <div
                   key={question.id}
                   className={`border rounded-lg p-4 ${
-                    !modeJustView && userAnswer !== undefined
+                    !modeJustView
                       ? isUserCorrect
                         ? "border-green-500 bg-green-50"
                         : "border-red-500 bg-red-50"
@@ -58,7 +56,7 @@ export default function ViewQuestionsModal({
                       <span className="text-sm font-medium text-[var(--primary)] bg-[var(--fontBox)] px-2 py-1 rounded">
                         Pregunta {index + 1}
                       </span>
-                      {userAnswer !== undefined && (
+                      {(
                         <span
                           className={`text-xs font-semibold px-2 py-1 rounded ${
                             !modeJustView ? 
