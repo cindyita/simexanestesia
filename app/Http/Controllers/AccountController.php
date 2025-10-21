@@ -32,6 +32,11 @@ class AccountController extends Controller
         ]);
     }
 
+    public function userSettings(): Response
+    {
+        return Inertia::render('Profile/UserSettings');
+    }
+
     /**
      * Update the user's profile information.
      * @param \App\Http\Requests\ProfileUpdateRequest $request

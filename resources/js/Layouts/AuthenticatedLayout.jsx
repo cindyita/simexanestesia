@@ -29,6 +29,10 @@ export default function AuthenticatedLayout({ header, title, children }) {
     const [openSubMenu2, setOpenSubMenu2] = useState(false);
     const [menuSelected1, setMenuSelected1] = useState(0);
     const [menuSelected2, setMenuSelected2] = useState(0);
+
+    const [alwaysOpenMenu, setAlwaysOpenMenu] = useState(() => {
+        return JSON.parse(localStorage.getItem('alwaysOpenMenu') || false);
+    });
     
     useEffect(() => {
         if (company) {
@@ -114,7 +118,7 @@ export default function AuthenticatedLayout({ header, title, children }) {
                     }}
                 />
                 
-                <aside className="menu">
+                <aside className={`menu ${alwaysOpenMenu ? 'alwaysOpen' : ''}`}>
                     
                     <div className="menu-nav-content w-full h-full">
                         <nav className="menu-nav">
@@ -264,6 +268,11 @@ export default function AuthenticatedLayout({ header, title, children }) {
                                                         href={route('account.edit')}
                                                     >
                                                         Mi cuenta
+                                                    </Dropdown.Link>
+                                                    <Dropdown.Link
+                                                        href={route('account.settings')}
+                                                    >
+                                                        Configuración
                                                     </Dropdown.Link>
                                                     <Dropdown.Link
                                                         href={route('logout')}

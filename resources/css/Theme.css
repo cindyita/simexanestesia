@@ -143,19 +143,19 @@ main .main-content {
     left: 0;
   }
 }
-.menu:hover {
+.menu:hover, .menu.alwaysOpen {
   width: 170px;
 }
-.menu:hover a span {
+.menu:hover a span, .menu.alwaysOpen a span {
   transition: 0.2s;
   max-height: 400px;
   opacity: 1;
 }
 @media (max-width: 800px) {
-  .menu:hover {
+  .menu:hover, .menu.alwaysOpen {
     width: 100%;
   }
-  .menu:hover a span {
+  .menu:hover a span, .menu.alwaysOpen a span {
     max-height: auto;
     display: none;
   }

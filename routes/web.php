@@ -50,6 +50,8 @@ Route::middleware('auth')->group(function () {
 
     Route::delete('/account', [AccountController::class, 'destroy'])->name('account.destroy');
 
+    Route::get('/usersettings', [AccountController::class, 'userSettings'])->name('account.settings');
+
     // PAGES ------------------------
     Route::get('/exams', [ExamsController::class, 'get'])->middleware(['menu.permission:'.idMenu['exams']])->name('exams');
 
