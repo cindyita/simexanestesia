@@ -529,7 +529,12 @@ const ExamManager = ({ exams, currentPage = 1, totalPages = 1, onPageChange = {}
                   )
                   }
 
-                  <span className="text-sm pb-1">{ exam.lastAttempt ? ((exam.max_attempts - exam.lastAttempt.attempts) > 0 ? "Puedes realizar "+(exam.max_attempts - exam.lastAttempt.attempts)+" intento/s más" : "") :  "Puedes realizar "+(exam.max_attempts)+" intento/s más" }</span>
+                  <span className="text-sm pb-1">{exam.lastAttempt ?
+                    ((exam.max_attempts - exam.lastAttempt.attempts) > 0 ?
+                      "Puedes realizar " + (exam.max_attempts - exam.lastAttempt.attempts) + " intento/s más" : "") :
+                    (exam.max_attempts > 0 ?
+                      ("Puedes realizar " + (exam.max_attempts) + " intento/s más")
+                      : "Solo tienes un intento")}</span>
 
                   {/* Botones de acción */}
                   <div className="flex gap-2">
@@ -544,7 +549,7 @@ const ExamManager = ({ exams, currentPage = 1, totalPages = 1, onPageChange = {}
                             Ver respuestas
                           </TertiaryButton>}
                           {
-                            exam.max_attempts > exam.lastAttempt.attempts ? (
+                            exam.max_attempts == 0 || exam.max_attempts > exam.lastAttempt.attempts ? (
                               <SecondaryButton
                                 onClick={() => retakeExam(exam.id)}
                                 className="flex-1 flex items-center justify-center gap-2 py-3"
@@ -638,7 +643,7 @@ const ExamManager = ({ exams, currentPage = 1, totalPages = 1, onPageChange = {}
                           <div className="flex flex-col gap-1 justify-center">
                             <div className="flex items-center gap-2">
                               <FaClock className="min-w-3 h-3" />
-                              <span className="text-xs md:text-sm">{exam.timeLimit} min</span>
+                              <span className="text-xs md:text-sm">{exam.timeLimit > 0 ? exam.timeLimit+" min" : "Sin limite"} </span>
                             </div>
                             <div className="flex items-center gap-2">
                               <FaQuestionCircle className="min-w-3 h-3" />
@@ -678,6 +683,14 @@ const ExamManager = ({ exams, currentPage = 1, totalPages = 1, onPageChange = {}
                         )}
                       </td>
                       <td className="py-4 px-4">
+                        
+                      <span className="text-sm pb-1">{exam.lastAttempt ?
+                      ((exam.max_attempts - exam.lastAttempt.attempts) > 0 ?
+                        "Tienes " + (exam.max_attempts - exam.lastAttempt.attempts) + " intento/s más" : "") :
+                      (exam.max_attempts > 0 ?
+                        ("Tienes " + (exam.max_attempts) + " intento/s más")
+                        : "Solo tienes un intento")}</span>
+                        
                         {exam.is_active === 1 ? (
                           (exam.lastAttempt ? (
                               <div className="flex gap-2 items-start flex-col">
@@ -688,13 +701,13 @@ const ExamManager = ({ exams, currentPage = 1, totalPages = 1, onPageChange = {}
                                   <MdOutlineRateReview className="w-4 h-4" />
                                   Respuestas
                                 </TertiaryButton>
-                                <SecondaryButton
+                                {exam.max_attempts == 0 || exam.max_attempts > exam.lastAttempt.attempts ? <SecondaryButton
                                   onClick={() => retakeExam(exam.id, exam.name)}
                                   className="flex items-center gap-2 px-3 py-2 rounded-lg"
                                 >
                                   <FaRedo className="w-3 h-3" />
                                   Repetir
-                                </SecondaryButton>
+                                </SecondaryButton> : ""}
                               </div>
                             ) : (
                               <PrimaryButton

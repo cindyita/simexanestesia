@@ -128,9 +128,14 @@ class ExamsController extends Controller
             break;
         }
 
-        $exam['time_limit_show'] = $exam['time_limit'] . ' min';
+        $exam['time_limit_show'] = $exam['time_limit'] > 0 ? $exam['time_limit'] . ' min' : "Ilimitado";
+        $exam['max_attempts'] = $exam['max_attempts'] > 0 ? $exam['max_attempts'] : "Sin limite";
         $exam['passing_score_show'] = $exam['passing_score'] . '%';
         $exam['is_active_show'] = $exam['is_active'] ? "Si" : "No";
+
+        $exam['show_results'] = $exam['show_results'] ? "Si" : "No";
+        $exam['shuffle_questions'] = $exam['shuffle_questions'] ? "Si" : "No";
+        $exam['shuffle_options'] = $exam['shuffle_options'] ? "Si" : "No";
 
         $questions = ExamsQuestions::where('id_exam', $id)->orderBy('order')->get();
 
@@ -205,24 +210,25 @@ class ExamsController extends Controller
                 'description'       => $examData['description'],
                 'id_subject'        => $examData['subject_id'],
                 'created_by'        => $id,
-                'time_limit'        => $examData['time_limit'],
+                'time_limit'        => $examData['time_limit'] == "Ilimitado" ? 0 : $examData['time_limit'],
                 'total_questions'   => $examData['total_questions'],
                 'exam_type'         => $examData['exam_type'],
                 'difficulty'        => $examData['difficulty'],
                 'passing_score'     => $examData['passing_score'],
-                'max_attempts'      => $examData['max_attempts'],
-                'shuffle_questions' => $examData['shuffle_questions'],
-                'shuffle_options'   => $examData['shuffle_options'],
+                'max_attempts'      => $examData['max_attempts'] == "Sin limite" ? 0 : $examData['max_attempts'],
+                'shuffle_questions' => $examData['shuffle_questions'] == "Si" ? 1 : 0,
+                'shuffle_options'   => $examData['shuffle_options'] == "Si" ? 1 : 0,
                 'is_active'         => $examData['is_active'],
-                'show_results'      => $examData['show_results'],
+                'show_results'      => $examData['show_results'] == "Si" ? 1 : 0,
                 'id_company'        => $idCompany
             ]);
 
             // Manejo de preguntas (update o create)
-            if (!empty($examData['questions'])) {
+            $questions = $examData['questions'] ?? [];
+            if (!empty($questions)) {
                 foreach ($examData['questions'] as $questionData) {
                     if (!empty($questionData['id'])) {
-                        $question = ExamsQuestions::find($questionData['id']);
+                        $question = ExamsQuestions::find($questionData['id']) ?? null;
                         if ($question) {
                             $question->update([
                                 'question'        => $questionData['question'],

@@ -41,7 +41,7 @@ const CreateExam = () => {
         exam_type: (edit.exam_type ?? 'mixed'),
         difficulty: (edit.difficulty ?? 'basic'),
         passing_score: (edit.passing_score ?? 70),
-        max_attempts: (edit.max_attempts ?? 1),
+        max_attempts: (edit.max_attempts ?? 0),
         shuffle_questions: (edit.shuffle_questions ?? false),
         shuffle_options: (edit.shuffle_options ?? false),
         show_results: (edit.show_results ?? false),
@@ -55,7 +55,7 @@ const CreateExam = () => {
         exam_type: ('mixed'),
         difficulty: ('basic'),
         passing_score: (70),
-        max_attempts: (1),
+        max_attempts: (0),
         shuffle_questions: (false),
         shuffle_options: (false),
         show_results: (false),
@@ -83,6 +83,9 @@ const CreateExam = () => {
     const [activeStep, setActiveStep] = useState(1); // 1: Info, 2: Question
     const [editingQuestionIndex, setEditingQuestionIndex] = useState(-1);
     const [showQuestionForm, setShowQuestionForm] = useState(false);
+
+    const [disableTimeLimit, setDisableTimeLimit] = useState(true);
+    const [disableMaxAttempts, setDisableMaxAttempts] = useState(true);
 
     // HANDLES
     const handleExamChange = (field, value) => {
@@ -233,16 +236,19 @@ const CreateExam = () => {
             return;
         }
 
-        const examToSave = {
+        const examSave = {
             ...examData,
             total_questions: questions.length,
             questions: questions,
             edit: edit ? 1 : 0
         };
-
+        console.log(examSave);
+        
         const response = await axios.post('/saveExam', {
-            exam: examToSave
+            exam: examSave
         });
+        console.log(response);
+        
 
         if ((response['status'] ?? false) === 200) {
             toast.success(edit ? "Se actualizó el exámen" : "Se creó el exámen");
@@ -327,12 +333,12 @@ const CreateExam = () => {
 
                         <div>
                             <InputInputLabel className="block text-sm font-medium text-[var(--primary)] mb-2">
-                                Materia asociada
+                                Materia asociada *
                             </InputInputLabel>
                             <Select
                                 value={examData.subject_id}
                                 onChange={(e) => handleExamChange('subject_id', e.target.value)}
-                                className="w-full px-3 py-2 border border-[var(--secondary)] rounded-md focus:ring-2 focus:ring-[var(--secondary)] focus:border-transparent"
+                                    className="w-full px-3 py-2 border border-[var(--secondary)] rounded-md focus:ring-2 focus:ring-[var(--secondary)] focus:border-transparent"
                             >
                                 <option value="">Seleccionar materia</option>
                                 {subjects.map(subject => (
@@ -344,14 +350,21 @@ const CreateExam = () => {
                         </div>
 
                         <div>
-                            <InputInputLabel className="block text-sm font-medium text-[var(--primary)] mb-2">
-                                Tiempo Límite (minutos) (opcional)
+                            <InputInputLabel className="text-sm font-medium text-[var(--primary)] mb-2 flex items-center gap-2">
+                                <span>Tiempo Límite (minutos)</span>
+                                <div className="cursor-pointer" onClick={() => {
+                                        handleExamChange('time_limit', 0);
+                                        setDisableTimeLimit(prev => !prev);
+                                    }}>
+                                    {disableTimeLimit ? <div className="flex gap-2 items-center"><FaToggleOff size={24} />Sin límite</div> : <FaToggleOn size={24} />}
+                                </div>
                             </InputInputLabel>
                             <TextInput
                                 type="number"
-                                value={examData.time_limit}
+                                value={examData.time_limit || 0}
+                                disabled={disableTimeLimit}
                                 onChange={(e) => handleExamChange('time_limit', parseInt(e.target.value))}
-                                min="1"
+                                min="0"    
                                 className="w-full px-3 py-2 border border-[var(--secondary)] rounded-md focus:ring-2 focus:ring-[var(--secondary)] focus:border-transparent"
                             />
                         </div>
@@ -403,12 +416,19 @@ const CreateExam = () => {
                         </div>
 
                         <div>
-                        <InputLabel className="block text-sm font-medium text-[var(--primary)] mb-2">
-                            Intentos Máximos (Opcional)
+                        <InputLabel className="text-sm font-medium text-[var(--primary)] mb-2 flex items-center gap-2">
+                            <span>Intentos Máximos</span>
+                            <div className="cursor-pointer" onClick={() => {
+                                    handleExamChange('max_attempts', 0);
+                                    setDisableMaxAttempts(prev => !prev);
+                                }}>
+                                {disableMaxAttempts ? <div className="flex gap-2 items-center"><FaToggleOff size={24} />Ilimitados</div> : <FaToggleOn size={24} />}
+                            </div>
                         </InputLabel>
                         <TextInput
                             type="number"
-                            value={examData.max_attempts}
+                            value={examData.max_attempts || 0}
+                            disabled={disableMaxAttempts}
                             onChange={(e) => handleExamChange('max_attempts', parseInt(e.target.value))}
                             min="1"
                             className="w-full px-3 py-2 border border-[var(--secondary)] rounded-md focus:ring-2 focus:ring-[var(--secondary)] focus:border-transparent"
@@ -455,7 +475,7 @@ const CreateExam = () => {
                                 >
                                     {examData.is_active ? <FaToggleOn size={24} /> : <FaToggleOff size={24} />}
                                 </button>
-                                <span className="text-sm font-medium text-[var(--primary)]">Disponible</span>
+                                <span className="text-sm font-medium text-[var(--primary)]">Disponible para realizar</span>
                                 </div>
                             </div>
                         </div>

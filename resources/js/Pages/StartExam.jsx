@@ -51,10 +51,14 @@ export default function StartExam () {
     }
 
     const checkStatus = async () => {
+        if (exam.max_attempts > 0 && exam.max_attempts <= exam.last_attempt.attempt_number) {
+            setStatusExam("limitattempt");
+            return;
+        }
         const res = await axios.post('/getExamStatus', {
-                id: exam.id,
-                started_at: exam.last_attempt.started_at,
-                time_limit: exam.time_limit
+            id: exam.id,
+            started_at: exam.last_attempt.started_at,
+            time_limit: exam.time_limit
         });
         if (res.data.status === "expired" && hasTimeLimit) {
             setStatusExam("expired");
@@ -71,7 +75,7 @@ export default function StartExam () {
     }
 
     useEffect(() => {
-        if (exam.last_attempt && exam.last_attempt.status === "in_progress") {
+        if (exam.last_attempt) {
             checkStatus();
         }
     }, [exam]); 
@@ -138,20 +142,26 @@ export default function StartExam () {
         }
     };
 
-    const handleSubmitExam = async (idhistory) => {
+    const handleSubmitExam = async (idHistory = null) => {
+        if (statusExam == "limitattempt") {
+            toast.success("No tienes más intentos para este exámen");
+            return;
+        }
         // CHECK TIME USED
         const timeUsed = hasTimeLimit 
             ? (exam.time_limit * 60) - timeRemaining 
             : timeRemaining;
-
+        const historyId = idHistory ?? actualHistory;
+        
         const res = await axios.post('/finishExam', {
-            id: idhistory,
+            id: historyId,
             completehistory: {
                 'time_used': timeUsed,
                 'answers': answers
             },
             minScore: exam.passing_score
         });
+
         toast.success("El exámen finalizó");
         setExamCompleted(true);
         setShowConfirmSubmit(false);
@@ -171,6 +181,10 @@ export default function StartExam () {
     }
 
     const startExam = async () => {
+        if (statusExam == "limitattempt") {
+            toast.success("No tienes más intentos para este exámen");
+            return;
+        }
         const history = await settingHistory();
         setAnswers(JSON.parse(history.data.answers));
         setExamStarted(true);
@@ -245,17 +259,19 @@ export default function StartExam () {
                             }
 
                             {statusExam == "expired" && hasTimeLimit ? <>El tiempo del exámen expiró</> : null}
+
+                            {statusExam == "limitattempt" ? <>Ya no tienes más intentos para este exámen</> : null}
                             
-                            <PrimaryButton
+                            {!statusExam == "limitattempt" && <PrimaryButton
                                 onClick={startExam}
                                 className="py-3 px-8"
-                                disabled={statusExam == "expired" && hasTimeLimit ? 'disabled' : null}
+                                disabled={(statusExam == "expired" && hasTimeLimit) || statusExam == "limitattempt" ? 'disabled' : null}
                             >
                                 {statusExam && statusExam == 'in_progress' ?
                                     <>Continuar Exámen</>
                                     : <>Iniciar Exámen</>
                                 }
-                            </PrimaryButton>
+                            </PrimaryButton>}
 
                         </div>
                     </div>
@@ -468,7 +484,7 @@ export default function StartExam () {
                                     Cancelar
                                 </SecondaryButton>
                                 <PrimaryButton
-                                    onClick={handleSubmitExam}
+                                    onClick={() => handleSubmitExam()}
                                 >
                                     Finalizar examen
                                 </PrimaryButton>
