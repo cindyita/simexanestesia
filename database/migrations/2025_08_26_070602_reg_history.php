@@ -18,8 +18,8 @@ return new class extends Migration
             $table->enum('status', ['in_progress', 'completed', 'abandoned', 'timed_out'])->default('in_progress');
             
             // Tiempos
-            $table->timestamp('started_at');
-            $table->timestamp('completed_at')->nullable();
+            $table->dateTime('started_at');
+            $table->dateTime('completed_at')->nullable();
             $table->integer('time_used')->nullable()->comment('Tiempo usado en minutos');
             
             // Resultados

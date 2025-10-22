@@ -471,7 +471,7 @@ class ExamsController extends Controller
             ->through(function($item) {
                 $data = $item->toArray();
                 $data['score'] = number_format($item->score,0).'%';
-                $data['time_used'] = $item->time_used.'min';
+                $data['time_used'] = $item->time_used.' seg';
                 return $data;
             });
 
@@ -520,7 +520,7 @@ class ExamsController extends Controller
         $data = $history->toArray();
         $data['passed'] = $history->passed == 0 ? "No" : "Si";
         $data['score'] = $history->score."%";
-        $data['time_used'] = $history->time_used."min";
+        $data['time_used'] = $history->time_used." seg";
 
         return response()->json([$data]);
     }

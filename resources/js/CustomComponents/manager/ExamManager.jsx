@@ -488,7 +488,7 @@ const ExamManager = ({ exams, currentPage = 1, totalPages = 1, onPageChange = {}
                         </div>
                         <div className="w-full flex justify-between">
                           <span>Tiempo usado:</span>
-                          <span>{exam.lastAttempt.timeUsed} min</span>
+                          <span>{exam.lastAttempt.timeUsed} seg</span>
                         </div>
                         <div className="w-full flex justify-between">
                           <span>Intentos:</span>
