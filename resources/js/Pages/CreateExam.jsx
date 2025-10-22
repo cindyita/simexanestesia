@@ -42,9 +42,9 @@ const CreateExam = () => {
         difficulty: (edit.difficulty ?? 'basic'),
         passing_score: (edit.passing_score ?? 70),
         max_attempts: (edit.max_attempts ?? 0),
-        shuffle_questions: (edit.shuffle_questions ?? false),
-        shuffle_options: (edit.shuffle_options ?? false),
-        show_results: (edit.show_results ?? false),
+        shuffle_questions: (edit.shuffle_questions == "Si" ? true : false),
+        shuffle_options: (edit.shuffle_options == "Si" ? true : false),
+        show_results: (edit.show_results == "Si" ? true : false),
         is_active: (edit.is_active ?? 1)
     } : {
         id: (null),
@@ -61,7 +61,7 @@ const CreateExam = () => {
         show_results: (false),
         is_active: (1)
     });
-
+    
     // QUESTIONS STATE
     const [questions, setQuestions] = useState(edit ? (edit.questions ?? []).map(q => ({
         ...q,
@@ -84,8 +84,8 @@ const CreateExam = () => {
     const [editingQuestionIndex, setEditingQuestionIndex] = useState(-1);
     const [showQuestionForm, setShowQuestionForm] = useState(false);
 
-    const [disableTimeLimit, setDisableTimeLimit] = useState(true);
-    const [disableMaxAttempts, setDisableMaxAttempts] = useState(true);
+    const [disableTimeLimit, setDisableTimeLimit] = useState(!examData.time_limit);
+    const [disableMaxAttempts, setDisableMaxAttempts] = useState(!examData.max_attempts);
 
     // HANDLES
     const handleExamChange = (field, value) => {
@@ -262,7 +262,7 @@ const CreateExam = () => {
     };
     // RETURN-----------------------------
     return (
-      <AuthenticatedLayout title="Nuevo examen">
+      <AuthenticatedLayout title={edit ? 'Editar Examen' : 'Crear Nuevo Examen'}>
         <div className="p-3 sm:p-6 bg-[var(--fontBox)] rounded-lg shadow">
 
             <div className="mb-6">
