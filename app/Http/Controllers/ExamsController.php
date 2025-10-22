@@ -417,8 +417,8 @@ class ExamsController extends Controller
         $startedAt = $request->input('started_at');
         $timeLimit = $request->input('time_limit');
 
-        $start = Carbon::parse($startedAt)->setTimezone('UTC');
-        $now = Carbon::now('UTC');
+        $start = Carbon::parse($startedAt);
+        $now = Carbon::now();
 
         $timeUsed = $start->diffInSeconds($now);
         $timeRemaining = max(($timeLimit*60) - $timeUsed, 0);
