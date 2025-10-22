@@ -174,10 +174,16 @@ function TableComp({ children,id_table, table_name, columns, columnsHidden = [],
                 return {
                     key,
                     label: key.charAt(0).toUpperCase() + key.slice(1),
-                    renderCell: (item) =>
-                        item[key] instanceof Date
-                            ? item[key].toLocaleDateString()
-                            : item[key]?.toString(),
+                    renderCell: (item) =>{
+                        const value = item[key];
+                        const isDate = value instanceof Date || (typeof value === "string" && /^\d{4}-\d{2}-\d{2}(?:[ T]\d{2}:\d{2}:\d{2})?/.test(value));
+
+                        if (isDate) {
+                            return FormatDate(value, true);
+                        }
+
+                        return value?.toString() ?? "";
+                    },
                     accessor: (item) => item[key],
                     sort: { sortKey: key.toUpperCase() },
                     resize: true
