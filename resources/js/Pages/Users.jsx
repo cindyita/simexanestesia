@@ -36,7 +36,7 @@ export default function Users() {
     };
 
     // HANDLE ACTIONS -----------------
-    const handleDelete = async (id) => {
+    let handleDelete = async (id) => {
         return new Promise((resolve, reject) => {
             router.visit('/users', {
                 method: 'post',

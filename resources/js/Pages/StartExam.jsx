@@ -14,7 +14,7 @@ import ViewQuestionsModal from '@/CustomComponents/modal/ViewQuestionsModal';
 
 export default function StartExam () {
     const exam = usePage().props.data;
-
+    
     const [statusExam, setStatusExam] = useState(exam.last_attempt.status ?? null);
 
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -60,6 +60,8 @@ export default function StartExam () {
             started_at: exam.last_attempt.started_at,
             time_limit: exam.time_limit
         });
+        console.log(res);
+        
         if (res.data.status === "expired" && hasTimeLimit) {
             setStatusExam("expired");
             const historyawait = await settingHistory();

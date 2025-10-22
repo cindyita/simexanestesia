@@ -14,7 +14,7 @@ export default function RolePermissionsModal({ show, onClose, idRol, roleName, d
       setPermissions(data.map(item => ({
         id: item.id,
         name: item.name,
-        level: +item.level ?? 0
+        level: item.level ? +item.level : 0
       })));
     }
     setLoading(false);

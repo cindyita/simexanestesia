@@ -25,7 +25,7 @@ export default function Subjects() {
         router.get('subjects', { page }, {});
     };
 
-    const handleDelete = (id) => {
+    let handleDelete = (id) => {
         router.visit('/subjects', {
             method: 'post',
             data: {

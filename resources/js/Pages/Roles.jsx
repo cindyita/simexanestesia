@@ -82,7 +82,7 @@ export default function Roles() {
     }
 
     // HANDLE ACTIONS ----------------------------
-    const handleDelete = async (id) => {
+    let handleDelete = async (id) => {
         if (id == 1) {
             return Promise.reject(["El superadmin no se puede eliminar"]);
         }

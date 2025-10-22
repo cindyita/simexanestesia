@@ -9,7 +9,7 @@ export default function ViewQuestionsModal({
   modeJustView = false,
   questionType = () => "",
 }) {
-  const userAnswers = Array.isArray(answers) ? {} : answers;
+  const userAnswers = answers ? (Array.isArray(answers) ? {} : answers) : {};
 
   return (
     <Modal show={show} onClose={onClose}>

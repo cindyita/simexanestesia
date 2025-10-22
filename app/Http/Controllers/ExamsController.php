@@ -421,11 +421,14 @@ class ExamsController extends Controller
         $now = Carbon::now('UTC');
 
         $timeUsed = $start->diffInSeconds($now);
-        $timeRemaining = max($timeLimit*60 - $timeUsed, 0);
+        $timeRemaining = max(($timeLimit*60) - $timeUsed, 0);
 
         $status = $timeRemaining <= 0 ? 'expired' : 'in_progress';
 
         return response()->json([
+            'started_at'=>$startedAt,
+            'now'=>$now,
+            'time_limit'=>$timeLimit,
             'status' => $status,
             'time_used' => $timeUsed,
             'time_remaining' => $timeRemaining,

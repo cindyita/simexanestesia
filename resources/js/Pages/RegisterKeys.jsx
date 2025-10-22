@@ -152,7 +152,7 @@ export default function RegisterKeys() {
     }
 
     //--------------------------------------
-    const handleDelete = async (id) => {
+    let handleDelete = async (id) => {
         return new Promise((resolve, reject) => {
             router.visit('/registerkeys', {
                 method: 'post',

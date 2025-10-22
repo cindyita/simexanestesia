@@ -163,7 +163,7 @@ const FileManager = ({files,subjects, currentPage=1, totalPages=1, onPageChange=
     id_subject: { label: "Materia asociada", type: "select", options: selectsubjects, editable: true, show: true }
   };
 
-  const handleActionUpdate = async (item) => {
+  let handleActionUpdate = async (item) => {
     const details = await handleActionDetailsEdit(item.id);
     
     const row = details[0];
@@ -201,12 +201,12 @@ const FileManager = ({files,subjects, currentPage=1, totalPages=1, onPageChange=
     return await fetchDetails("/getFile", { id });
   }
 
-  const handleConfirmDelete = (item) => {
+  let handleConfirmDelete = (item) => {
       setDeleteId(item.id);
       setDeleteUrl(item.file_path);
       setModalDeleteOpen(true);
   }
-  const handleDelete = async (id,url) => {
+  let handleDelete = async (id,url) => {
       return new Promise((resolve, reject) => {
           router.visit('/resources', {
               method: 'post',
